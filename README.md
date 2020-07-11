@@ -6,8 +6,11 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 - [X] Supports proper serialization of request based on headers accept
 - [X] Allows custom serialization for request
 - [X] Allows custom deserialization for response
-- [ ] Support for path params and query string
-- [ ] Add a new class decorator and supports default custom properties at a class / repo level
+- [X] Support for path params
+- [X] Support for query string
+- [ ] Throw exception when missing key params
+- [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
+- [X] Document usages for the new Decorators
 - [ ] Document steps for custom serialization and deserialization
 - [ ] Deploy to npm modules instead of using github
 - [ ] Integrate with CI pipeline to build stuffs automatically
@@ -15,62 +18,99 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 ### How to use
 #### Install it
 ```
-npm install --save synle/restapi-typescript-decorators#1.0.1
+npm install --save synle/restapi-typescript-decorators#1.0.2
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
-#### Code sample
+#### Simple Code Example
+##### RestApi Store
 ```
-import { RestApi, ApiResponse } from "restapi-typescript-decorators";
+import {
+  RestClient,
+  RestApi,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  ApiResponse,
+} from "restapi-typescript-decorators";
 
-class DataStore {
-  @RestApi("https://api.github.com/users/github")
-  static getGithubProfile(): any {}
-
-  @RestApi("https://httpbin.org/post", {
+@RestClient({
+  baseUrl: "https://httpbin.org",
+})
+class HttpBinDataStore {
+  @RestApi("/post", {
     method: "POST",
   })
-  static doSimpleHttpBinPost(_body): any {}
+  static doSimpleHttpBinPost(@RequestBody _body): any {}
 
-  @RestApi("https://httpbin.org/get")
-  static doSimpleHttpBinGet(_body): any {}
+  @RestApi("/get")
+  static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+
+  @RestApi("/anything/{messageId}")
+  static doSimpleHttpBinPathParamsGet(
+    @PathParam("messageId") _targetMessageId,
+    @QueryParams _queryParams
+  ): any {}
 }
+```
 
-const githubProfileResp = <ApiResponse>DataStore.getGithubProfile();
-githubProfileResp.result.then(
-  (resp) => console.log("DataStore.getGithubProfile", githubProfileResp.status, resp)
-)
-// githubProfileResp.abort();// to abort the request
-
-
+###### To execute the RestClient
+```
 const doSimpleHttpBinPostResp = <ApiResponse>(
-  DataStore.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 })
+  HttpBinDataStore.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 })
 );
 doSimpleHttpBinPostResp.result.then((resp) =>
   console.log(
-    "DataStore.doSimpleHttpBinPost",
+    "HttpBinDataStore.doSimpleHttpBinPost",
     doSimpleHttpBinPostResp.status,
     resp
   )
 );
-
-
-const doSimpleHttpBinGetResp = <ApiResponse>(
-  DataStore.doSimpleHttpBinGet({ a: 1, b: 2, c: 3 })
-);
-doSimpleHttpBinGetResp.result.then((resp) =>
-  console.log(
-    "DataStore.doSimpleHttpBinGet",
-    doSimpleHttpBinGetResp.status,
-    resp
-  )
-);
 ```
 
-### Notes
+###### To abort pending Rest calls
+```
+// do this to cancel or abort the request
+doSimpleHttpBinPostResp.abort()
+```
+
+##### Simple Get Rest Calls with Query String
+```
+@RestApi("/get")
+static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+```
+
+##### Simple Get Rest Calls with Path Param
+```
+@RestApi("/anything/{messageId}")
+static doSimpleHttpBinPathParamsGet(
+  @PathParam("messageId") _targetMessageId
+): any {}
+```
+
+##### Simple Get Rest Calls with Path Param and Query String
+```
+@RestApi("/anything/{messageId}")
+static doSimpleHttpBinPathParamsGet(
+  @PathParam("messageId") _targetMessageId,
+  @QueryParams _queryParams
+): any {}
+```
+
+##### Simple Post Rest Calls
+```
+...
+@RestApi("/post", {
+  method: "POST",
+})
+static doSimpleHttpBinPost(@RequestBody _body): any {}
+```
+
+
+#### Notes
 - For post method and post JSON body of `appplication/json`, the request will stringify and properly saves it into the body
-- For get method and get JSON body will be transformed into query string and added to the url as `?a=1&b=2&c=3`
+
 
 ### How to contribute?
 Create PR against master.
