@@ -103,4 +103,3 @@ exports.RestApi = (url, _a = {}) => {
         return descriptor;
     };
 };
-//# sourceMappingURL=index.js.map
