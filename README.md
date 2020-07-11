@@ -30,7 +30,7 @@ npm install --save synle/restapi-typescript-decorators#1.0.3
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
 #### Simple Code Example
-##### RestApi Store
+##### import the classes
 ```
 import {
   RestClient,
@@ -40,7 +40,10 @@ import {
   QueryParams,
   ApiResponse,
 } from "restapi-typescript-decorators";
+```
 
+##### RestApi Store
+```
 @RestClient({
   baseUrl: "https://httpbin.org",
 })
