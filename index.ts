@@ -36,6 +36,28 @@ const _defaultResponseTransform = (fetchOptionToUse, resp) => {
   return resp.text();
 };
 
+export const PathParam = paramKey => (
+  target: any,
+  methodName: string | symbol,
+  paramIdx: number
+) => {
+  target.__decorators = {};
+  target.__decorators[methodName] = target.__decorators[methodName] || {};
+  target.__decorators[methodName]["@PathParam"] =
+    target.__decorators[methodName]["@PathParam"] || {};
+  target.__decorators[methodName]["@PathParam"][paramIdx] = paramKey;
+};
+
+export const RequestBody = (
+  target: any,
+  methodName: string | symbol,
+  paramIdx: number
+) => {
+  target.__decorators = {};
+  target.__decorators[methodName] = target.__decorators[methodName] || {};
+  target.__decorators[methodName]["@RequestBody"] = paramIdx;
+};
+
 const fetchData = fetchOptions => {
   const { url, ...restFetchOptions } = fetchOptions;
   return nodeFetch(url, restFetchOptions);
@@ -51,9 +73,22 @@ export const RestApi = (
     ...otherFetchOptions
   } = {}
 ) => {
-  return (target: any, name: any, descriptor: any) => {
-    descriptor.value = body => {
+  return (target: any, methodName: string | symbol, descriptor: any) => {
+    descriptor.value = (...inputs) => {
       method = method.toUpperCase();
+      const body = inputs[target.__decorators[methodName]["@RequestBody"]];
+
+      // construct the url wild cards {param1} {param2} etc...
+      Object.keys(target.__decorators[methodName]["@PathParam"]).forEach(
+        paramIdx => {
+          const paramKey =
+            target.__decorators[methodName]["@PathParam"][paramIdx];
+          const paramValue = inputs[paramIdx];
+
+          url = url.replace(new RegExp(`{${paramKey}}`, "g"), paramValue);
+        }
+      );
+
       const headersToUse = {
         Accept: "application/json",
         "Content-Type": "application/json",
