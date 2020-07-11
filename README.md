@@ -129,4 +129,6 @@ npm version patch
 version="$(cat package.json  | jq .version)"
 git tag $version
 git push origin $version
+
+npm publish
 ```
