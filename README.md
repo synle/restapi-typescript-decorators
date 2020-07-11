@@ -12,12 +12,18 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
 - [X] Document usages for the new Decorators
 - [ ] Document steps for custom serialization and deserialization
-- [ ] Deploy to npm modules instead of using github
+- [X] Deploy to npm modules instead of using github
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
 ### How to use
+You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
+
 #### Install it
 ```
+# install from npm
+npm i --save restapi-typescript-decorators
+
+# install from github
 npm install --save synle/restapi-typescript-decorators#1.0.3
 ```
 
