@@ -1,6 +1,6 @@
 {
   "name": "restapi-typescript-decorators",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
   "main": "build/index",
   "scripts": {
@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/synle/restapi-typescript-decorators#readme",
   "dependencies": {
-    "@types/node": "^14.0.22",
     "abort-controller": "^3.0.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
@@ -34,6 +33,7 @@
     "qs": "^6.9.4"
   },
   "devDependencies": {
+    "@types/node": "^14.0.22",
     "@types/jest": "^26.0.4",
     "jest": "^26.1.0",
     "prettier": "1.19.1",
