@@ -1,0 +1,39 @@
+{
+  "name": "restapi-typescript-decorators",
+  "version": "2.0.1",
+  "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
+  "main": "build/index",
+  "scripts": {
+    "build": "./node_modules/.bin/tsc",
+    "format": "./node_modules/.bin/prettier --write index.ts",
+    "test": "npx ts-node test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/synle/restapi-typescript-decorators.git"
+  },
+  "keywords": [
+    "restapi",
+    "fetch",
+    "decorator",
+    "annotation"
+  ],
+  "author": "Sy Le",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/synle/restapi-typescript-decorators/issues"
+  },
+  "homepage": "https://github.com/synle/restapi-typescript-decorators#readme",
+  "dependencies": {
+    "@types/node": "^14.0.22",
+    "abort-controller": "^3.0.0",
+    "node-fetch": "^2.6.0",
+    "qs": "^6.9.4"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.3",
+    "reflect-metadata": "^0.1.13",
+    "prettier": "1.19.1"
+  },
+  "peerDependencies": {}
+}
