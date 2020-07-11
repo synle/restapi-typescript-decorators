@@ -5,7 +5,7 @@ import {
   PathParam,
   QueryParams,
   ApiResponse
-} from "../src/index";
+} from "../index";
 
 @RestClient({
   baseUrl: "https://httpbin.org"
