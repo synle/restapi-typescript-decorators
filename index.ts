@@ -70,11 +70,20 @@ export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
   constructor: Function
 ) => {
   constructor.prototype.baseUrl = baseUrl || "";
-  constructor.prototype.defaultConfigs = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
+
+  const defaultConfigsToUse = {
+    mode: "cors",
+    cache: "no-cache",
+    credentials: "include",
+    headers: {},
     ...defaultConfigs
   };
+  defaultConfigsToUse.headers = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    ...defaultConfigsToUse.headers
+  };
+  constructor.prototype.defaultConfigs = defaultConfigsToUse;
 };
 
 export const RestApi = (
@@ -113,7 +122,7 @@ export const RestApi = (
       url += `?${qs.stringify(queryParams)}`;
 
       const headersToUse = {
-        ...target.prototype.defaultConfigs,
+        ...target.prototype.defaultConfigs.headers,
         ...headers
       };
 
