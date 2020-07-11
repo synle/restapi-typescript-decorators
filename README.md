@@ -70,32 +70,38 @@ doSimpleHttpBinPostResp.result.then((resp) =>
 ```
 
 ###### To abort pending Rest calls
+Sometimes you want to abort a pending Rest call.
 ```
-// do this to cancel or abort the request
 doSimpleHttpBinPostResp.abort()
 ```
 
 ##### Simple Get Rest Calls with Query String
 ```
+...
 @RestApi("/get")
 static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+...
 ```
 
 ##### Simple Get Rest Calls with Path Param
 ```
+...
 @RestApi("/anything/{messageId}")
 static doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId
 ): any {}
+...
 ```
 
 ##### Simple Get Rest Calls with Path Param and Query String
 ```
+...
 @RestApi("/anything/{messageId}")
 static doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId,
   @QueryParams _queryParams
 ): any {}
+...
 ```
 
 ##### Simple Post Rest Calls
@@ -105,6 +111,7 @@ static doSimpleHttpBinPathParamsGet(
   method: "POST",
 })
 static doSimpleHttpBinPost(@RequestBody _body): any {}
+...
 ```
 
 
