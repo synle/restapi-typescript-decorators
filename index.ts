@@ -1,3 +1,5 @@
+const get = require("lodash.get");
+const set = require("lodash.set");
 const qs = require("qs");
 const nodeFetch = require("node-fetch");
 const AbortController = require("abort-controller");
@@ -15,7 +17,6 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
     case "GET":
-      fetchOptionToUse.url += `?${qs.stringify(body)}`;
       break;
 
     default:
@@ -41,11 +42,15 @@ export const PathParam = paramKey => (
   methodName: string | symbol,
   paramIdx: number
 ) => {
-  target.__decorators = {};
-  target.__decorators[methodName] = target.__decorators[methodName] || {};
-  target.__decorators[methodName]["@PathParam"] =
-    target.__decorators[methodName]["@PathParam"] || {};
-  target.__decorators[methodName]["@PathParam"][paramIdx] = paramKey;
+  set(target, ["__decorators", methodName, "@PathParam", paramKey], paramIdx);
+};
+
+export const QueryParams = (
+  target: any,
+  methodName: string | symbol,
+  paramIdx: number
+) => {
+  set(target, ["__decorators", methodName, "@QueryParams"], paramIdx);
 };
 
 export const RequestBody = (
@@ -53,14 +58,23 @@ export const RequestBody = (
   methodName: string | symbol,
   paramIdx: number
 ) => {
-  target.__decorators = {};
-  target.__decorators[methodName] = target.__decorators[methodName] || {};
-  target.__decorators[methodName]["@RequestBody"] = paramIdx;
+  set(target, ["__decorators", methodName, "@RequestBody"], paramIdx);
 };
 
 const fetchData = fetchOptions => {
   const { url, ...restFetchOptions } = fetchOptions;
   return nodeFetch(url, restFetchOptions);
+};
+
+export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
+  constructor: Function
+) => {
+  constructor.prototype.baseUrl = baseUrl || "";
+  constructor.prototype.defaultConfigs = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    ...defaultConfigs
+  };
 };
 
 export const RestApi = (
@@ -76,22 +90,30 @@ export const RestApi = (
   return (target: any, methodName: string | symbol, descriptor: any) => {
     descriptor.value = (...inputs) => {
       method = method.toUpperCase();
-      const body = inputs[target.__decorators[methodName]["@RequestBody"]];
+      const requestBody =
+        inputs[get(target, ["__decorators", methodName, "@RequestBody"])];
 
       // construct the url wild cards {param1} {param2} etc...
-      Object.keys(target.__decorators[methodName]["@PathParam"]).forEach(
-        paramIdx => {
-          const paramKey =
-            target.__decorators[methodName]["@PathParam"][paramIdx];
-          const paramValue = inputs[paramIdx];
-
-          url = url.replace(new RegExp(`{${paramKey}}`, "g"), paramValue);
-        }
+      url = `${target.prototype.baseUrl}${url}`;
+      const pathParams = get(
+        target,
+        ["__decorators", methodName, "@PathParam"],
+        {}
       );
+      Object.keys(pathParams).forEach(paramKey => {
+        const paramIdx = pathParams[paramKey];
+        const paramValue = inputs[paramIdx];
+
+        url = url.replace(new RegExp(`{${paramKey}}`, "g"), paramValue);
+      });
+
+      // construct the query string if needed
+      const queryParams =
+        inputs[get(target, ["__decorators", methodName, "@QueryParams"])];
+      url += `?${qs.stringify(queryParams)}`;
 
       const headersToUse = {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        ...target.prototype.defaultConfigs,
         ...headers
       };
 
@@ -106,7 +128,7 @@ export const RestApi = (
       };
 
       // doing the request transform
-      request_transform(fetchOptionToUse, body);
+      request_transform(fetchOptionToUse, requestBody);
 
       const finalResp = <ApiResponse>{
         request_body: fetchOptionToUse.body,
