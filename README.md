@@ -4,10 +4,11 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 ### TODO's
 - [X] Supports abort
 - [X] Supports proper serialization of request based on headers accept
-- [ ] Allows custom serialization for request
-- [ ] Allows custom deserialization for response
-- [ ] deploy to npm modules instead of using github
-- [ ] integrate with CI pipeline to build stuffs automatically
+- [X] Allows custom serialization for request
+- [X] Allows custom deserialization for response
+- [ ] Document steps for custom serialization and deserialization
+- [ ] Deploy to npm modules instead of using github
+- [ ] Integrate with CI pipeline to build stuffs automatically
 
 ### How to use
 #### Install it
@@ -15,6 +16,7 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 npm install --save synle/restapi-typescript-decorators#1.0.0
 ```
 
+Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
 #### Code sample
 ```

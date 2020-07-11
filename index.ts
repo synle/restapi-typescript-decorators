@@ -1,5 +1,5 @@
 const qs = require("qs");
-const fetchData = require("node-fetch");
+const nodeFetch = require("node-fetch");
 const AbortController = require("abort-controller");
 
 export interface ApiResponse {
@@ -11,9 +11,45 @@ export interface ApiResponse {
   abort(); // used to abort the api
 }
 
+const _defaultRequestTransform = (fetchOptionToUse, body) => {
+  let bodyToUse;
+  switch (fetchOptionToUse.method) {
+    case "GET":
+      fetchOptionToUse.url += `?${qs.stringify(body)}`;
+      break;
+
+    default:
+      // POST, PUT, DELETE, etc...
+      if (fetchOptionToUse.headers["Accept"] === "application/json") {
+        bodyToUse = JSON.stringify(body);
+      } else {
+        bodyToUse = body || null;
+      }
+      break;
+  }
+  fetchOptionToUse.body = bodyToUse;
+};
+
+const _defaultResponseTransform = (fetchOptionToUse, resp) => {
+  if (fetchOptionToUse["headers"]["Accept"] === "application/json")
+    return resp.json();
+  return resp.text();
+};
+
+const fetchData = fetchOptions => {
+  const { url, ...restFetchOptions } = fetchOptions;
+  return nodeFetch(url, restFetchOptions);
+};
+
 export const RestApi = (
   url: string,
-  { headers = {}, method = "GET", ...otherFetchOptions } = {}
+  {
+    headers = {},
+    method = "GET",
+    request_transform = _defaultRequestTransform,
+    response_transform = _defaultResponseTransform,
+    ...otherFetchOptions
+  } = {}
 ) => {
   return (target: any, name: any, descriptor: any) => {
     descriptor.value = body => {
@@ -24,46 +60,33 @@ export const RestApi = (
         ...headers
       };
 
-      // set the body accordingly
-      let bodyToUse;
-      switch (method) {
-        case "GET":
-          url += `?${qs.stringify(body)}`;
-          break;
-
-        default:
-          if (headersToUse["Accept"] === "application/json") {
-            bodyToUse = JSON.stringify(body);
-          } else {
-            bodyToUse = body || null;
-          }
-          break;
-      }
-
       const controller = new AbortController();
       const fetchOptionToUse = {
         ...otherFetchOptions,
+        url,
         method: method,
         signal: controller.signal,
         headers: headersToUse,
-        body: bodyToUse
+        body: null
       };
 
+      // doing the request transform
+      request_transform(fetchOptionToUse, body);
+
       const finalResp = <ApiResponse>{
-        request_body: bodyToUse,
+        request_body: fetchOptionToUse.body,
         request_headers: fetchOptionToUse.headers,
         abort: () => {
           controller.abort();
-        }, // used to abort the api
+        } // used to abort the api
       };
 
-      finalResp.result = fetchData(url, fetchOptionToUse).then(resp => {
+      finalResp.result = fetchData(fetchOptionToUse).then(resp => {
         finalResp.status = resp.status;
         finalResp.response_headers = resp.headers;
 
-        if (fetchOptionToUse["headers"]["Accept"] === "application/json")
-          return resp.json();
-        return resp.text();
+        // doing the response transform
+        return response_transform(fetchOptionToUse, resp);
       });
 
       return finalResp;
