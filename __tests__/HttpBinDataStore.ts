@@ -4,15 +4,15 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
-  ApiResponse,
-} from "./index";
+  ApiResponse
+} from "../src/index";
 
 @RestClient({
-  baseUrl: "https://httpbin.org",
+  baseUrl: "https://httpbin.org"
 })
 export class HttpBinDataStore {
   @RestApi("/post", {
-    method: "POST",
+    method: "POST"
   })
   static doSimpleHttpBinPost(@RequestBody _body): any {}
 
