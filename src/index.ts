@@ -4,14 +4,8 @@ const qs = require("qs");
 const nodeFetch = require("node-fetch");
 const AbortController = require("abort-controller");
 
-export interface ApiResponse {
-  request_headers: object | null;
-  request_body: any;
-  response_headers: object | null;
-  status: number | null;
-  result: Promise<any>; // this is a promise for response data
-  abort(); // used to abort the api
-}
+const _isOfTypeJson = typeAsString =>
+  (typeAsString || "").toLowerCase().indexOf("application/json") >= 0;
 
 const _defaultRequestTransform = (fetchOptionToUse, body) => {
   let bodyToUse;
@@ -21,7 +15,7 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
 
     default:
       // POST, PUT, DELETE, etc...
-      if (fetchOptionToUse.headers["Accept"] === "application/json") {
+      if (_isOfTypeJson(fetchOptionToUse.headers["Accept"])) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
@@ -32,10 +26,20 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
 };
 
 const _defaultResponseTransform = (fetchOptionToUse, resp) => {
-  if (fetchOptionToUse["headers"]["Accept"] === "application/json")
+  if (_isOfTypeJson(fetchOptionToUse["headers"]["Accept"])) {
     return resp.json();
+  }
   return resp.text();
 };
+
+export interface ApiResponse {
+  request_headers: object | null;
+  request_body: any;
+  response_headers: object | null;
+  status: number | null;
+  result: Promise<any>; // this is a promise for response data
+  abort(); // used to abort the api
+}
 
 export const PathParam = paramKey => (
   target: any,

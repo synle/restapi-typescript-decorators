@@ -17,6 +17,7 @@ const set = require("lodash.set");
 const qs = require("qs");
 const nodeFetch = require("node-fetch");
 const AbortController = require("abort-controller");
+const _isOfTypeJson = typeAsString => (typeAsString || "").toLowerCase().indexOf("application/json") >= 0;
 const _defaultRequestTransform = (fetchOptionToUse, body) => {
     let bodyToUse;
     switch (fetchOptionToUse.method) {
@@ -24,7 +25,7 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
             break;
         default:
             // POST, PUT, DELETE, etc...
-            if (fetchOptionToUse.headers["Accept"] === "application/json") {
+            if (_isOfTypeJson(fetchOptionToUse.headers["Accept"])) {
                 bodyToUse = JSON.stringify(body);
             }
             else {
@@ -35,8 +36,9 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
     fetchOptionToUse.body = bodyToUse;
 };
 const _defaultResponseTransform = (fetchOptionToUse, resp) => {
-    if (fetchOptionToUse["headers"]["Accept"] === "application/json")
+    if (_isOfTypeJson(fetchOptionToUse["headers"]["Accept"])) {
         return resp.json();
+    }
     return resp.text();
 };
 exports.PathParam = paramKey => (target, methodName, paramIdx) => {
@@ -56,7 +58,9 @@ exports.RestClient = (_a) => {
     var { baseUrl } = _a, defaultConfigs = __rest(_a, ["baseUrl"]);
     return (constructor) => {
         constructor.prototype.baseUrl = baseUrl || "";
-        constructor.prototype.defaultConfigs = Object.assign({ Accept: "application/json", "Content-Type": "application/json" }, defaultConfigs);
+        const defaultConfigsToUse = Object.assign({ mode: "cors", cache: "no-cache", credentials: "include", headers: {} }, defaultConfigs);
+        defaultConfigsToUse.headers = Object.assign({ Accept: "application/json", "Content-Type": "application/json" }, defaultConfigsToUse.headers);
+        constructor.prototype.defaultConfigs = defaultConfigsToUse;
     };
 };
 exports.RestApi = (url, _a = {}) => {
@@ -76,7 +80,7 @@ exports.RestApi = (url, _a = {}) => {
             // construct the query string if needed
             const queryParams = inputs[get(target, ["__decorators", methodName, "@QueryParams"])];
             url += `?${qs.stringify(queryParams)}`;
-            const headersToUse = Object.assign(Object.assign({}, target.prototype.defaultConfigs), headers);
+            const headersToUse = Object.assign(Object.assign({}, target.prototype.defaultConfigs.headers), headers);
             const controller = new AbortController();
             const fetchOptionToUse = Object.assign(Object.assign({}, otherFetchOptions), { url, method: method, signal: controller.signal, headers: headersToUse, body: null });
             // doing the request transform
@@ -99,4 +103,3 @@ exports.RestApi = (url, _a = {}) => {
         return descriptor;
     };
 };
-//# sourceMappingURL=index.js.map

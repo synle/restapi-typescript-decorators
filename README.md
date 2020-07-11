@@ -1,5 +1,7 @@
 # restapi-typescript-decorators
-This decorator is used to make REST api calls simpler. The goal is to create a single decorator for both node js and front end.
+Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), my goal for this project is to create a similar rest client using just decorators (also known as annotations in the Java's world). These decorators are used to make REST API calls simpler.
+
+Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
 ### TODO's
 - [X] Supports abort
@@ -24,7 +26,7 @@ You can also checkout the sample repo that has typescript and other things setup
 npm i --save restapi-typescript-decorators
 
 # install from github
-npm install --save synle/restapi-typescript-decorators#1.0.3
+npm install --save synle/restapi-typescript-decorators#1.0.4
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -48,14 +50,18 @@ import {
   baseUrl: "https://httpbin.org",
 })
 class HttpBinDataStore {
+  // this will do a POST call with data to https://httpbin.org/post
   @RestApi("/post", {
     method: "POST",
   })
   static doSimpleHttpBinPost(@RequestBody _body): any {}
 
+  // this will do a GET call with data to https://httpbin.org/get
   @RestApi("/get")
   static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
 
+  // this will do a GET call with data to https://httpbin.org/anything/{messageId}
+  // with path params and query params
   @RestApi("/anything/{messageId}")
   static doSimpleHttpBinPathParamsGet(
     @PathParam("messageId") _targetMessageId,
