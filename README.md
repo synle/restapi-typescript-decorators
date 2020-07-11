@@ -18,7 +18,7 @@ This decorator is used to make REST api calls simpler. The goal is to create a s
 ### How to use
 #### Install it
 ```
-npm install --save synle/restapi-typescript-decorators#1.0.2
+npm install --save synle/restapi-typescript-decorators#1.0.3
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -124,6 +124,7 @@ Create PR against master.
 
 #### Note on release pipeline
 ```
+npm run build
 npm version patch
 version="$(cat package.json  | jq .version)"
 git tag $version
