@@ -19,7 +19,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support for authorization (Bearer token at the monent)
 - [X] Added Prettier for code format
 - [X] Support for basic authorization with username and passwords
-- [ ] Clean up the types and use proper types from node-fetch instead of using our own
+- [X] Clean up the types and use proper types from node-fetch instead of using our own
 - [ ] Add API retry actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
 

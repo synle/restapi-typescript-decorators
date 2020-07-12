@@ -5,10 +5,10 @@ const qs = require('qs');
 const nodeFetch = require('node-fetch');
 const AbortController = require('abort-controller');
 
-const _isOfTypeJson = (typeAsString) =>
+const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
 
-const _defaultRequestTransform = (fetchOptionToUse, body) => {
+const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Request => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
     case HttpVerb.GET:
@@ -23,10 +23,13 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
       }
       break;
   }
-  fetchOptionToUse.body = bodyToUse;
+
+  return objectAssign(fetchOptionToUse, {
+    body: bodyToUse,
+  });
 };
 
-const _defaultResponseTransform = (fetchOptionToUse, resp) => {
+const _defaultResponseTransform = (fetchOptionToUse: Request, resp: Response) => {
   return resp.text().then((respText) => {
     if (_isOfTypeJson(fetchOptionToUse['headers']['Accept'])) {
       try {
@@ -105,20 +108,16 @@ export interface ApiResponse {
   abort(); // used to abort the api
 }
 
-export interface RestClientOptions {
+export interface RestClientOptions extends RequestInit {
   baseUrl: string;
   authType?: AuthType | 'Basic' | 'Bearer' | 'Digest' | undefined;
-  headers?: object;
-  mode?: string;
-  cache?: string;
-  credentials?: string;
 }
 
 export interface RestApiOptions {
-  headers?: object;
+  headers?: Headers;
   method?: HttpVerb | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
-  request_transform?(fetchOptions: object, body: object): any;
-  response_transform?(fetchOptions: object, resp: string | object): any;
+  request_transform?(fetchOptions: Request, body: object): Request;
+  response_transform?(fetchOptions: Request, resp: Response): any;
 }
 
 // decorators
@@ -224,19 +223,20 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       }
 
       const controller = new AbortController();
-      const fetchOptionToUse = objectAssign(
-        {
-          url: urlToUse,
-          method: method.toUpperCase(),
-          signal: controller.signal,
-          headers: headersToUse,
-          body: null,
-        },
-        otherFetchOptions,
-      );
 
       // doing the request transform
-      request_transform(fetchOptionToUse, requestBody);
+      const fetchOptionToUse = request_transform(
+        objectAssign(
+          {
+            url: urlToUse,
+            method: method.toUpperCase(),
+            signal: controller.signal,
+            headers: headersToUse,
+          },
+          otherFetchOptions,
+        ),
+        requestBody,
+      );
 
       const finalResp = <ApiResponse>{
         request_body: fetchOptionToUse.body,
