@@ -16,6 +16,7 @@ export class BearerTokenDataStore {
   accessToken: string = '';
 
   constructor(newAccessToken: string = '') {
+    console.log(newAccessToken);
     this.accessToken = newAccessToken;
   }
 

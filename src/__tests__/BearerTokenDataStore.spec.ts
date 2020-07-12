@@ -3,38 +3,25 @@ import { BearerTokenDataStore } from './BearerTokenDataStore';
 
 const testAccessToken = '<<strong_some_access_token>>';
 
-const validDataStore = new BearerTokenDataStore();
-// validDataStore.setAccessToken("");
+const invalidDataStore = new BearerTokenDataStore('');
+const validDataStore = new BearerTokenDataStore(testAccessToken);
 
-const invalidDataStore = new BearerTokenDataStore();
-invalidDataStore.accessToken = testAccessToken;
+test('Simple Private Authenticated API Should work with correct access token', () => {
+  const apiResponse = <ApiResponse>validDataStore.doApiCallWithBearerToken();
 
-const doApiCallWithBearerTokenResp = <ApiResponse>invalidDataStore.doApiCallWithBearerToken();
-
-doApiCallWithBearerTokenResp.result.then((resp) => {
-  console.log(doApiCallWithBearerTokenResp.status);
-  console.log(doApiCallWithBearerTokenResp.request_headers);
-  console.log(resp);
+  return apiResponse.result.then((resp) => {
+    expect(apiResponse.status).toEqual(200);
+    expect(resp.authenticated).toEqual(true);
+    expect(resp.token).toEqual(testAccessToken);
+  });
 });
 
-// test("BearerTokenDataStore.doApiCallWithBearerToken", () => {
-//   const doApiCallWithBearerTokenResp = <ApiResponse>(
-//     validDataStore.doApiCallWithBearerToken()
-//   );
+test('Simple Private Authenticated API Should fail with no access token', () => {
+  const apiResponse = <ApiResponse>invalidDataStore.doApiCallWithBearerToken();
 
-//   return doApiCallWithBearerTokenResp.result.then(resp => {
-//     expect(doApiCallWithBearerTokenResp.status).toEqual(401);
-//     expect(resp).toEqual("");
-//   });
-// });
-
-// test("BearerTokenDataStore.doApiCallWithBearerToken", () => {
-//   const doApiCallWithBearerTokenResp = <ApiResponse>(
-//     validDataStore.doApiCallWithBearerToken()
-//   );
-
-//   return doApiCallWithBearerTokenResp.result.then(resp => {
-//     expect(doApiCallWithBearerTokenResp.status).toEqual(401);
-//     expect(resp).toEqual("");
-//   });
-// });
+  return apiResponse.result.then((resp) => {
+    expect(apiResponse.status).toEqual(401);
+    expect(resp.authenticated).toEqual(true);
+    expect(resp.token).toEqual(testAccessToken);
+  });
+});

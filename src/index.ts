@@ -1,5 +1,3 @@
-import { access } from 'fs';
-
 const get = require('lodash.get');
 const set = require('lodash.set');
 const qs = require('qs');
@@ -75,24 +73,25 @@ export const RestClient = ({ baseUrl, ...defaultConfigs }) => (target: any) => {
 
   const f: any = function(...inputs) {
     const instance = new original(...inputs);
+
+    const defaultConfigsToUse = {
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'include',
+      headers: {},
+      ...defaultConfigs,
+    };
+    defaultConfigsToUse.headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...defaultConfigsToUse.headers,
+    };
+    instance.defaultConfigs = defaultConfigsToUse;
+    instance.baseUrl = baseUrl;
+
     return instance;
   };
   f.prototype = original.prototype;
-
-  const defaultConfigsToUse = {
-    mode: 'cors',
-    cache: 'no-cache',
-    credentials: 'include',
-    headers: {},
-    ...defaultConfigs,
-  };
-  defaultConfigsToUse.headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    ...defaultConfigsToUse.headers,
-  };
-  f.prototype.defaultConfigs = defaultConfigsToUse;
-  f.prototype.baseUrl = baseUrl;
 
   return f;
 };
@@ -159,7 +158,7 @@ export const RestApi = (
 
       // add auth header if needed
       const authType = target.authType;
-      const credential = get(target, ['__decorators', '@Authorization']);
+      const credential = target[get(target, ['__decorators', '@Authorization'])];
       if (authType && credential) {
         headersToUse['Authorization'] = `${authType} ${credential}`;
       }
