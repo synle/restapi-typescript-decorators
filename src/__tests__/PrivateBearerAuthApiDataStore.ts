@@ -12,8 +12,8 @@ import {
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
 })
-export class PrivateApiDataStore {
-  @CredentialProperty
+export class PrivateBearerAuthApiDataStore {
+  @CredentialProperty('AccessToken')
   accessToken: string;
 
   constructor(newAccessToken: string = '') {

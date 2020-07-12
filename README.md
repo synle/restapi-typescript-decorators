@@ -18,7 +18,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent)
 - [X] Added Prettier for code format
-- [ ] Support for other authorization types: Digest, Basic, etc...
+- [X] Support for basic authorization with username and passwords
+- [ ] Clean up the types and use proper types from node-fetch instead of using our own
 - [ ] Add API retry actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
@@ -28,7 +29,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.0.2
+npm i --save restapi-typescript-decorators@^2.1.0
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -86,7 +87,7 @@ const unAuthDataStoreInstance = new PublicApiDataStore();
 ```
 
 
-##### Private (authenticated) API Store
+##### Private (authenticated with Bearer Token) API Store
 Below is an example on the definition for private API data store.
 ```
 import {
@@ -102,8 +103,8 @@ import {
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
 })
-export class PrivateApiDataStore {
-  @CredentialProperty
+export class PrivateBearerAuthApiDataStore {
+  @CredentialProperty('AccessToken')
   accessToken: string;
 
   constructor(newAccessToken: string = '') {
@@ -119,11 +120,53 @@ export class PrivateApiDataStore {
 
 Then instantiate it as
 ```
-import { PrivateApiDataStore } from './PrivateApiDataStore';
-
-const testAccessToken = '<<some_strong_and_random_access_token>>';
-const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
+import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
+const myPrivateBearerAuthApiDataStoreInstance = new PrivateBearerAuthApiDataStore('<<some_strong_and_random_access_token>>');
 ```
+
+
+
+##### Private (authenticated with username and password basic auth) API Store
+```
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  ApiResponse,
+} from '../index';
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+  authType: 'Basic',
+})
+export class PrivateBasicAuthApiDataStore {
+  @CredentialProperty('Username')
+  username: string;
+
+  @CredentialProperty('Password')
+  password: string;
+
+  constructor(newUsername: string = '', newPassword: string = '') {
+    this.username = newUsername;
+    this.password = newPassword;
+  }
+
+  @RestApi('/basic-auth/good_username/good_password', {
+    method: 'GET',
+  })
+  doApiCallWithBasicUsernameAndPassword(): any {}
+}
+```
+
+Then instantiate it as
+```
+import { PrivateApiDataStore } from './PrivateApiDataStore';
+const myPrivateBasicAuthApiDataStoreInstance = new PrivateBasicAuthApiDataStore('good_username', 'good_password');
+```
+
 
 ###### To execute the RestClient
 ```

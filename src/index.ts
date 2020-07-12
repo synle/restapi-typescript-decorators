@@ -11,7 +11,7 @@ const _isOfTypeJson = (typeAsString) =>
 const _defaultRequestTransform = (fetchOptionToUse, body) => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
-    case 'GET':
+    case HttpVerb.GET:
       break;
 
     default:
@@ -53,9 +53,46 @@ const _getPathParams = (instance, methodName) =>
 const _getQueryParams = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
 
-const _getCredential = (instance) =>
-  instance[get(instance, ['__decorators', '@CredentialProperty'])];
+const _getCredential = (instance) => {
+  switch (instance.authType) {
+    case AuthType.Bearer:
+      return instance[get(instance, ['__decorators', '@CredentialProperty', 'AccessToken'])];
+    case AuthType.Basic:
+      const username = instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])];
+      const password = instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
 
+      // TODO: throws error here if no username or password...
+
+      return _getBase64FromString(`${username}:${password}`);
+  }
+};
+
+const _getBase64FromString = (str) => {
+  try {
+    // for node
+    return Buffer.from(str).toString('base64');
+  } catch (e) {
+    // for browser
+    return btoa(str);
+  }
+};
+
+// enums
+enum AuthType {
+  Basic = 'Basic',
+  Bearer = 'Bearer',
+  Digest = 'Digest', // TODO: support this
+}
+
+enum HttpVerb {
+  GET = 'GET',
+  POST = 'POST',
+  DELETE = 'DELETE',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+}
+
+// types
 export interface ApiResponse {
   url: string;
   request_headers: object | null;
@@ -68,7 +105,7 @@ export interface ApiResponse {
 
 export interface RestClientOptions {
   baseUrl: string;
-  authType?: 'Basic' | 'Bearer' | 'Digest' | undefined;
+  authType?: AuthType | 'Basic' | 'Bearer' | 'Digest' | undefined;
   headers?: object;
   mode?: string;
   cache?: string;
@@ -77,11 +114,12 @@ export interface RestClientOptions {
 
 export interface RestApiOptions {
   headers?: object;
-  method?: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
+  method?: HttpVerb | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
   request_transform?(fetchOptions: object, body: object): any;
   response_transform?(fetchOptions: object, resp: string | object): any;
 }
 
+// decorators
 export const PathParam = (paramKey) => (
   target: any,
   methodName: string | symbol,
@@ -98,8 +136,11 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
-export const CredentialProperty = (target: any, propertyName: string | symbol) => {
-  set(target, ['__decorators', '@CredentialProperty'], propertyName);
+export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 'Password') => (
+  target: any,
+  propertyName: string | symbol,
+) => {
+  set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
 };
 
 export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
@@ -141,7 +182,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string | symbol, descriptor: any) => {
     const {
       headers = {},
-      method = 'GET',
+      method = HttpVerb.GET,
       request_transform = _defaultRequestTransform,
       response_transform = _defaultResponseTransform,
       ...otherFetchOptions
