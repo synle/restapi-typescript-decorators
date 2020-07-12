@@ -17,6 +17,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Deploy to npm modules instead of using github
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent)
+- [X] Added Prettier for code format
 - [ ] Support for other authorization types: Digest, Basic, etc...
 - [ ] Add API retry actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
