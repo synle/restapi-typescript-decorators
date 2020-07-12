@@ -5,22 +5,22 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
-  ApiResponse
-} from "../index";
+  ApiResponse,
+} from '../index';
 
 @RestClient({
-  baseUrl: "https://httpbin.org"
+  baseUrl: 'https://httpbin.org',
 })
 export class BearerTokenDataStore {
-  @Authorization("Bearer")
-  accessToken: string = "";
+  @Authorization('Bearer')
+  accessToken: string = '';
 
-  constructor(newAccessToken: string = "") {
+  constructor(newAccessToken: string = '') {
     this.accessToken = newAccessToken;
   }
 
-  @RestApi("/bearer", {
-    method: "GET"
+  @RestApi('/bearer', {
+    method: 'GET',
   })
   doApiCallWithBearerToken(): any {}
 }

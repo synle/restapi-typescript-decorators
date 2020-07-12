@@ -1,23 +1,23 @@
-import { access } from "fs";
+import { access } from 'fs';
 
-const get = require("lodash.get");
-const set = require("lodash.set");
-const qs = require("qs");
-const nodeFetch = require("node-fetch");
-const AbortController = require("abort-controller");
+const get = require('lodash.get');
+const set = require('lodash.set');
+const qs = require('qs');
+const nodeFetch = require('node-fetch');
+const AbortController = require('abort-controller');
 
-const _isOfTypeJson = typeAsString =>
-  (typeAsString || "").toLowerCase().indexOf("application/json") >= 0;
+const _isOfTypeJson = (typeAsString) =>
+  (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
 
 const _defaultRequestTransform = (fetchOptionToUse, body) => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
-    case "GET":
+    case 'GET':
       break;
 
     default:
       // POST, PUT, DELETE, etc...
-      if (_isOfTypeJson(fetchOptionToUse.headers["Accept"])) {
+      if (_isOfTypeJson(fetchOptionToUse.headers['Accept'])) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
@@ -28,16 +28,16 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
 };
 
 const _defaultResponseTransform = (fetchOptionToUse, resp) => {
-  return resp.text().then(respText => {
-    if (_isOfTypeJson(fetchOptionToUse["headers"]["Accept"])){
-      try{
+  return resp.text().then((respText) => {
+    if (_isOfTypeJson(fetchOptionToUse['headers']['Accept'])) {
+      try {
         return JSON.parse(respText);
-      } catch(e){
+      } catch (e) {
         return respText;
       }
     }
     return respText;
-  })
+  });
 };
 
 const _fetchData = (fetchOptions) => {
@@ -54,33 +54,23 @@ export interface ApiResponse {
   abort(); // used to abort the api
 }
 
-export const PathParam = paramKey => (
+export const PathParam = (paramKey) => (
   target: any,
   methodName: string | symbol,
-  paramIdx: number
+  paramIdx: number,
 ) => {
-  set(target, ["__decorators", methodName, "@PathParam", paramKey], paramIdx);
+  set(target, ['__decorators', methodName, '@PathParam', paramKey], paramIdx);
 };
 
-export const QueryParams = (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number
-) => {
-  set(target, ["__decorators", methodName, "@QueryParams"], paramIdx);
+export const QueryParams = (target: any, methodName: string | symbol, paramIdx: number) => {
+  set(target, ['__decorators', methodName, '@QueryParams'], paramIdx);
 };
 
-export const RequestBody = (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number
-) => {
-  set(target, ["__decorators", methodName, "@RequestBody"], paramIdx);
+export const RequestBody = (target: any, methodName: string | symbol, paramIdx: number) => {
+  set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
-export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
-  target: any
-) => {
+export const RestClient = ({ baseUrl, ...defaultConfigs }) => (target: any) => {
   const original = target;
 
   const f: any = function(...inputs) {
@@ -90,79 +80,73 @@ export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
   f.prototype = original.prototype;
 
   const defaultConfigsToUse = {
-    mode: "cors",
-    cache: "no-cache",
-    credentials: "include",
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'include',
     headers: {},
     ...defaultConfigs,
   };
   defaultConfigsToUse.headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
     ...defaultConfigsToUse.headers,
   };
   f.prototype.defaultConfigs = defaultConfigsToUse;
   f.prototype.baseUrl = baseUrl;
 
-
   return f;
 };
 
-export const Authorization = (authType: 'Basic' | 'Bearer' | 'Digest') => (target, propertyName) => {
+export const Authorization = (authType: 'Basic' | 'Bearer' | 'Digest' = 'Bearer') => (
+  target: any,
+  propertyName: string,
+) => {
   target.authType = authType;
-  let accessToken;
+  let _credentials;
 
   Object.defineProperty(target, 'Credential', {
-    set: function (newAccessToken) {
-      accessToken = newAccessToken;
+    set: function(_newCredential) {
+      _credentials = _newCredential;
     },
     get: function() {
-      return accessToken
+      return _credentials;
     },
     enumerable: false,
-    configurable: false
+    configurable: false,
   });
 };
-
 
 export const RestApi = (
   url: string,
   {
     headers = {},
-    method = "GET",
+    method = 'GET',
     request_transform = _defaultRequestTransform,
     response_transform = _defaultResponseTransform,
     ...otherFetchOptions
-  } = {}
+  } = {},
 ) => {
   return (target: any, methodName: string | symbol, descriptor: any) => {
     descriptor.value = (...inputs) => {
       method = method.toUpperCase();
-      const requestBody =
-        inputs[get(target, ["__decorators", methodName, "@RequestBody"])];
+      const requestBody = inputs[get(target, ['__decorators', methodName, '@RequestBody'])];
 
       // construct the url wild cards {param1} {param2} etc...
       const baseUrl = target.baseUrl;
       url = `${baseUrl}${url}`;
-      const pathParams = get(
-        target,
-        ["__decorators", methodName, "@PathParam"],
-        {}
-      );
-      Object.keys(pathParams).forEach(paramKey => {
+      const pathParams = get(target, ['__decorators', methodName, '@PathParam'], {});
+      Object.keys(pathParams).forEach((paramKey) => {
         const paramIdx = pathParams[paramKey];
         const paramValue = inputs[paramIdx];
 
-        url = url.replace(new RegExp(`{${paramKey}}`, "g"), paramValue);
+        url = url.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
       });
 
       // construct the query string if needed
-      const queryParams =
-        inputs[get(target, ["__decorators", methodName, "@QueryParams"])] || {};
+      const queryParams = inputs[get(target, ['__decorators', methodName, '@QueryParams'])] || {};
       if (Object.keys(queryParams).length > 0) {
         url += `?${qs.stringify(queryParams)}`;
-      };
-
+      }
 
       // set up the headers
       const defaultConfigs = target.defaultConfigs;
@@ -173,9 +157,9 @@ export const RestApi = (
 
       // add auth header if needed
       const authType = target.authType;
-      const credential = target.Credential
+      const credential = target.Credential;
       if (authType && credential) {
-        headersToUse["Authorization"] = `${authType} ${credential}`;
+        headersToUse['Authorization'] = `${authType} ${credential}`;
       }
 
       const controller = new AbortController();
@@ -185,7 +169,7 @@ export const RestApi = (
         method: method,
         signal: controller.signal,
         headers: headersToUse,
-        body: null
+        body: null,
       };
 
       // doing the request transform
@@ -196,10 +180,10 @@ export const RestApi = (
         request_headers: fetchOptionToUse.headers,
         abort: () => {
           controller.abort();
-        } // used to abort the api
+        }, // used to abort the api
       };
 
-      finalResp.result = _fetchData(fetchOptionToUse).then(resp => {
+      finalResp.result = _fetchData(fetchOptionToUse).then((resp) => {
         finalResp.status = resp.status;
         finalResp.response_headers = resp.headers;
 

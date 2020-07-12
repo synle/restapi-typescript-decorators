@@ -1,7 +1,7 @@
-import { ApiResponse } from "../index";
-import { BearerTokenDataStore } from "./BearerTokenDataStore";
+import { ApiResponse } from '../index';
+import { BearerTokenDataStore } from './BearerTokenDataStore';
 
-const testAccessToken = "<<strong_some_access_token>>";
+const testAccessToken = '<<strong_some_access_token>>';
 
 const validDataStore = new BearerTokenDataStore();
 // validDataStore.setAccessToken("");
@@ -9,11 +9,9 @@ const validDataStore = new BearerTokenDataStore();
 const invalidDataStore = new BearerTokenDataStore();
 invalidDataStore.accessToken = testAccessToken;
 
-const doApiCallWithBearerTokenResp = <ApiResponse>(
-  invalidDataStore.doApiCallWithBearerToken()
-);
+const doApiCallWithBearerTokenResp = <ApiResponse>invalidDataStore.doApiCallWithBearerToken();
 
-doApiCallWithBearerTokenResp.result.then(resp => {
+doApiCallWithBearerTokenResp.result.then((resp) => {
   console.log(doApiCallWithBearerTokenResp.status);
   console.log(doApiCallWithBearerTokenResp.request_headers);
   console.log(resp);
