@@ -104,9 +104,11 @@ export const Authorization = (authType: 'Basic' | 'Bearer' | 'Digest' = 'Bearer'
   target.authType = authType;
   let _credentials;
 
-  Object.defineProperty(target, 'Credential', {
-    set: function(_newCredential) {
-      _credentials = _newCredential;
+  set(target, ['__decorators', '@Authorization'], propertyName);
+
+  Object.defineProperty(target, propertyName, {
+    set: function(newCredential) {
+      _credentials = newCredential;
     },
     get: function() {
       return _credentials;
@@ -157,7 +159,7 @@ export const RestApi = (
 
       // add auth header if needed
       const authType = target.authType;
-      const credential = target.Credential;
+      const credential = get(target, ['__decorators', '@Authorization']);
       if (authType && credential) {
         headersToUse['Authorization'] = `${authType} ${credential}`;
       }
