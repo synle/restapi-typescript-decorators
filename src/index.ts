@@ -3,6 +3,8 @@ const set = require('lodash.set');
 const qs = require('qs');
 const nodeFetch = require('node-fetch');
 const AbortController = require('abort-controller');
+const objectAssign = require('lodash.assign');
+
 
 const _isOfTypeJson = (typeAsString) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
@@ -42,8 +44,6 @@ const _fetchData = (fetchOptions) => {
   const { url, ...restFetchOptions } = fetchOptions;
   return nodeFetch(url, restFetchOptions);
 };
-
-const _objectAssign = Object.assign;
 
 const _getRequestBody = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@RequestBody'])];
@@ -109,7 +109,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   };
   f.prototype = original.prototype;
 
-  const defaultConfigsToUse = _objectAssign(
+  const defaultConfigsToUse = objectAssign(
     {
       mode: 'cors',
       cache: 'no-cache',
@@ -119,7 +119,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     defaultConfigs,
   );
 
-  defaultConfigsToUse.headers = _objectAssign(
+  defaultConfigsToUse.headers = objectAssign(
     {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -185,14 +185,16 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       }
 
       const controller = new AbortController();
-      const fetchOptionToUse = {
-        ...otherFetchOptions,
-        url: urlToUse,
-        method: method.toUpperCase(),
-        signal: controller.signal,
-        headers: headersToUse,
-        body: null,
-      };
+      const fetchOptionToUse = objectAssign(
+        {
+          url: urlToUse,
+          method: method.toUpperCase(),
+          signal: controller.signal,
+          headers: headersToUse,
+          body: null,
+        },
+        otherFetchOptions,
+      );
 
       // doing the request transform
       request_transform(fetchOptionToUse, requestBody);
