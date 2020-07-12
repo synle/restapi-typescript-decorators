@@ -27,10 +27,10 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 ```
 # install from npm
-npm i --save restapi-typescript-decorators@^2.0.0
+npm i --save restapi-typescript-decorators@^2.0.1
 
 # install from github
-npm install --save synle/restapi-typescript-decorators#2.0.0
+npm install --save synle/restapi-typescript-decorators#2.0.1
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -46,13 +46,21 @@ import {
   PathParam,
   QueryParams,
   ApiResponse,
-} from '../index';
+} from 'restapi-typescript-decorators';
 ```
 
 ##### Public (non authenticated) API Store
 Below is an example on the definition for public API data store.
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+import {
+  RestClient,
+  RestApi,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  CredentialProperty,
+  ApiResponse,
+} from "restapi-typescript-decorators";
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -84,25 +92,32 @@ const unAuthDataStoreInstance = new PublicApiDataStore();
 ##### Private (authenticated) API Store
 Below is an example on the definition for private API data store.
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+import {
+  RestClient,
+  RestApi,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  CredentialProperty,
+  ApiResponse,
+} from "restapi-typescript-decorators";
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
+  authType: 'Bearer',
 })
-export class PublicApiDataStore {
-  @RestApi('/post', {
-    method: 'POST',
+export class PrivateApiDataStore {
+  @CredentialProperty
+  accessToken: string;
+
+  constructor(newAccessToken: string = '') {
+    this.accessToken = newAccessToken;
+  }
+
+  @RestApi('/bearer', {
+    method: 'GET',
   })
-  doSimpleHttpBinPost(@RequestBody _body): any {}
-
-  @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams): any {}
-
-  @RestApi('/anything/{messageId}')
-  doSimpleHttpBinPathParamsGet(
-    @PathParam('messageId') _targetMessageId,
-    @QueryParams _queryParams,
-  ): any {}
+  doApiCallWithBearerToken(): any {}
 }
 ```
 
@@ -111,20 +126,21 @@ Then instantiate it as
 import { PrivateApiDataStore } from './PrivateApiDataStore';
 
 const testAccessToken = '<<some_strong_and_random_access_token>>';
-const myPrivateApiDataStore = new PrivateApiDataStore(testAccessToken);
+const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
 ```
 
 ###### To execute the RestClient
 ```
-import { ApiResponse } from '../index';
+import { ApiResponse } from 'restapi-typescript-decorators';
 
 const testAccessToken = '<<some_strong_and_random_access_token>>';
-const myPrivateApiDataStore = new PrivateApiDataStore(testAccessToken);
+const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
 
-const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
+const apiResponse = <ApiResponse>myPrivateApiDataStoreInstance.doApiCallWithBearerToken();
 
 apiResponse.result.then((resp) => {
   // ... do something with your response and status code ...
+  console.log("url", apiResponse.url);
   console.log('status', apiResponse.status)
   console.log('resp', resp)
 });
