@@ -29,7 +29,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.0
+npm i --save restapi-typescript-decorators@^2.1.1
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -186,7 +186,7 @@ apiResponse.result.then((resp) => {
 ```
 
 ###### To abort pending Rest calls
-Sometimes you want to abort a pending Rest call.
+Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`
 ```
 // ... your construction code here ...
 
