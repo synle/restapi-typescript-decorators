@@ -150,8 +150,7 @@ Sometimes you want to abort a pending Rest call.
 const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
 
 apiResponse.result.then((resp) => {
-  console.log('status', apiResponse.status)
-  console.log('resp', resp)
+  // ... api will be aborted, and this section will not be executed ...
 });
 
 apiResponse.abort()

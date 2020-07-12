@@ -1,10 +1,9 @@
 const get = require('lodash.get');
 const set = require('lodash.set');
+const objectAssign = require('lodash.assign');
 const qs = require('qs');
 const nodeFetch = require('node-fetch');
 const AbortController = require('abort-controller');
-const objectAssign = require('lodash.assign');
-
 
 const _isOfTypeJson = (typeAsString) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
@@ -99,6 +98,10 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
+export const CredentialProperty = (target: any, propertyName: string | symbol) => {
+  set(target, ['__decorators', '@CredentialProperty'], propertyName);
+};
+
 export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   const { baseUrl, authType, ...defaultConfigs } = restOptions;
 
@@ -132,10 +135,6 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   f.prototype.authType = authType || '';
 
   return f;
-};
-
-export const CredentialProperty = (target: any, propertyName: string | symbol) => {
-  set(target, ['__decorators', '@CredentialProperty'], propertyName);
 };
 
 export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
@@ -172,10 +171,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       // set up the headers
       const defaultConfigs = instance.defaultConfigs;
-      const headersToUse = {
-        ...defaultConfigs.headers,
-        ...headers,
-      };
+      const headersToUse = objectAssign({}, defaultConfigs.headers, headers);
 
       // add auth header if needed
       const authType = instance.authType;
