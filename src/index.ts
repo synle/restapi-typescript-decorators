@@ -76,6 +76,13 @@ export interface RestClientOptions {
   credentials?: string;
 }
 
+export interface RestApiOptions {
+  headers?: object;
+  method?: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
+  request_transform?(fetchOptions: object, body: object): any;
+  response_transform?(fetchOptions: object, resp: string | object): any;
+}
+
 export const PathParam = (paramKey) => (
   target: any,
   methodName: string | symbol,
@@ -131,21 +138,19 @@ export const CredentialProperty = (target: any, propertyName: string | symbol) =
   set(target, ['__decorators', '@CredentialProperty'], propertyName);
 };
 
-export const RestApi = (
-  url: string,
-  {
-    headers = {},
-    method = 'GET',
-    request_transform = _defaultRequestTransform,
-    response_transform = _defaultResponseTransform,
-    ...otherFetchOptions
-  } = {},
-) => {
+export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string | symbol, descriptor: any) => {
+    const {
+      headers = {},
+      method = 'GET',
+      request_transform = _defaultRequestTransform,
+      response_transform = _defaultResponseTransform,
+      ...otherFetchOptions
+    } = restApiOptions;
+
     descriptor.value = function(...inputs) {
       const instance = this;
 
-      method = method.toUpperCase();
       const requestBody = _getRequestBody(instance, methodName, inputs);
 
       // construct the url wild cards {param1} {param2} etc...
@@ -183,7 +188,7 @@ export const RestApi = (
       const fetchOptionToUse = {
         ...otherFetchOptions,
         url: urlToUse,
-        method: method,
+        method: method.toUpperCase(),
         signal: controller.signal,
         headers: headersToUse,
         body: null,

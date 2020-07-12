@@ -26,8 +26,8 @@ Another inspiration is to create a unified Rest Client library that works across
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
 
 #### Install it
+install from npm
 ```
-# install from npm
 npm i --save restapi-typescript-decorators@^2.0.2
 ```
 
@@ -57,7 +57,6 @@ import {
   PathParam,
   QueryParams,
   CredentialProperty,
-  ApiResponse,
 } from "restapi-typescript-decorators";
 
 @RestClient({
@@ -97,7 +96,6 @@ import {
   PathParam,
   QueryParams,
   CredentialProperty,
-  ApiResponse,
 } from "restapi-typescript-decorators";
 
 @RestClient({

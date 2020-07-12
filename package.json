@@ -6,6 +6,7 @@
   "scripts": {
     "build": "rm -rf build/* && ./node_modules/.bin/tsc",
     "format": "./node_modules/.bin/prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
+    "clean": "npx jest --clearCache && rm -rf build/*",
     "test": "npx jest",
     "test_manual": "npx ts-node"
   },
