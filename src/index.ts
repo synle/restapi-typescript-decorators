@@ -54,13 +54,26 @@ const _getQueryParams = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
 
 const _getCredential = (instance) => {
-  //
   switch (instance.authType) {
     case 'Bearer':
       return instance[get(instance, ['__decorators', '@CredentialProperty', 'AccessToken'])];
     case 'Basic':
-      return instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])]
-      + '  :  ' + instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
+      const username = instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])];
+      const password = instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
+
+      // TODO: throws error here if no username or password...
+
+      return _getBase64FromString(`${username}:${password}`);
+  }
+};
+
+const _getBase64FromString = (str) => {
+  try {
+    // for node
+    return Buffer.from(str).toString('base64');
+  } catch (e) {
+    // for browser
+    return btoa(str);
   }
 };
 
@@ -106,7 +119,10 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
-export const CredentialProperty = (credentialType : 'AccessToken' | 'Username' | 'Password') => (target: any, propertyName: string | symbol) => {
+export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 'Password') => (
+  target: any,
+  propertyName: string | symbol,
+) => {
   set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
 };
 

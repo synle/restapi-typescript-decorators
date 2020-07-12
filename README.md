@@ -86,7 +86,7 @@ const unAuthDataStoreInstance = new PublicApiDataStore();
 ```
 
 
-##### Private (authenticated) API Store
+##### Private (authenticated with Bearer Token) API Store
 Below is an example on the definition for private API data store.
 ```
 import {
@@ -124,6 +124,50 @@ import { PrivateApiDataStore } from './PrivateApiDataStore';
 const testAccessToken = '<<some_strong_and_random_access_token>>';
 const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
 ```
+
+
+
+##### Private (authenticated with username and password basic auth) API Store
+```
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  ApiResponse,
+} from '../index';
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+  authType: 'Basic',
+})
+export class PrivateBasicAuthApiDataStore {
+  @CredentialProperty('Username')
+  username: string;
+
+  @CredentialProperty('Password')
+  password: string;
+
+  constructor(newUsername: string = '', newPassword: string = '') {
+    this.username = newUsername;
+    this.password = newPassword;
+  }
+
+  @RestApi('/basic-auth/good_username/good_password', {
+    method: 'GET',
+  })
+  doApiCallWithBasicUsernameAndPassword(): any {}
+}
+```
+
+Then instantiate it as
+```
+import { PrivateApiDataStore } from './PrivateApiDataStore';
+const myPrivateBasicAuthApiDataStoreInstance = new PrivateBasicAuthApiDataStore('good_username', 'good_password');
+```
+
 
 ###### To execute the RestClient
 ```
