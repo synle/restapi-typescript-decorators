@@ -17,7 +17,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Deploy to npm modules instead of using github
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent)
-- [] Support for other authorization types: Digest, Basic, etc...
+- [ ] Support for other authorization types: Digest, Basic, etc...
+- [ ] Add API retry actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
 ### How to use
@@ -49,6 +50,7 @@ import {
 ```
 
 ##### Public (non authenticated) API Store
+Below is an example on the definition for public API data store.
 ```
 import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
 
@@ -80,6 +82,7 @@ const unAuthDataStoreInstance = new PublicApiDataStore();
 
 
 ##### Private (authenticated) API Store
+Below is an example on the definition for private API data store.
 ```
 import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
 
@@ -121,6 +124,7 @@ const myPrivateApiDataStore = new PrivateApiDataStore(testAccessToken);
 const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
 
 apiResponse.result.then((resp) => {
+  // ... do something with your response and status code ...
   console.log('status', apiResponse.status)
   console.log('resp', resp)
 });
