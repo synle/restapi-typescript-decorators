@@ -1,10 +1,10 @@
 import { ApiResponse } from '../index';
-import { PrivateApiDataStore } from './PrivateApiDataStore';
+import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 
 const testAccessToken = '<<some_strong_and_random_access_token>>';
 
-const invalidDataStore = new PrivateApiDataStore('');
-const validDataStore = new PrivateApiDataStore(testAccessToken);
+const invalidDataStore = new PrivateBearerAuthApiDataStore('');
+const validDataStore = new PrivateBearerAuthApiDataStore(testAccessToken);
 
 test('Simple Private Authenticated API Should work with correct access token', () => {
   const apiResponse = <ApiResponse>validDataStore.doApiCallWithBearerToken();

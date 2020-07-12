@@ -79,19 +79,18 @@ const _getBase64FromString = (str) => {
 
 // enums
 enum AuthType {
-  Basic = 'Basic' ,
-  Bearer = 'Bearer' ,
-  Digest = 'Digest'  // TODO: support this
-};
+  Basic = 'Basic',
+  Bearer = 'Bearer',
+  Digest = 'Digest', // TODO: support this
+}
 
 enum HttpVerb {
   GET = 'GET',
   POST = 'POST',
   DELETE = 'DELETE',
   PUT = 'PUT',
-  PATCH = 'PATCH'
+  PATCH = 'PATCH',
 }
-
 
 // types
 export interface ApiResponse {
@@ -119,7 +118,6 @@ export interface RestApiOptions {
   request_transform?(fetchOptions: object, body: object): any;
   response_transform?(fetchOptions: object, resp: string | object): any;
 }
-
 
 // decorators
 export const PathParam = (paramKey) => (

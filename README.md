@@ -18,7 +18,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent)
 - [X] Added Prettier for code format
-- [ ] Support for other authorization types: Digest, Basic, etc...
+- [X] Support for basic authorization with username and passwords
+- [ ] Clean up the types and use proper types from node-fetch instead of using our own
 - [ ] Add API retry actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
@@ -102,7 +103,7 @@ import {
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
 })
-export class PrivateApiDataStore {
+export class PrivateBearerAuthApiDataStore {
   @CredentialProperty('AccessToken')
   accessToken: string;
 
@@ -119,10 +120,8 @@ export class PrivateApiDataStore {
 
 Then instantiate it as
 ```
-import { PrivateApiDataStore } from './PrivateApiDataStore';
-
-const testAccessToken = '<<some_strong_and_random_access_token>>';
-const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
+import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
+const myPrivateBearerAuthApiDataStoreInstance = new PrivateBearerAuthApiDataStore('<<some_strong_and_random_access_token>>');
 ```
 
 

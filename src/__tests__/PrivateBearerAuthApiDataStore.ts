@@ -12,7 +12,7 @@ import {
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
 })
-export class PrivateApiDataStore {
+export class PrivateBearerAuthApiDataStore {
   @CredentialProperty('AccessToken')
   accessToken: string;
 
