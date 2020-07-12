@@ -28,7 +28,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 ```
 # install from npm
-npm i --save restapi-typescript-decorators@^2.0.1
+npm i --save restapi-typescript-decorators@^2.0.2
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
