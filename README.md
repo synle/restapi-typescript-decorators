@@ -92,41 +92,33 @@ doSimpleHttpBinPostResp.abort()
 
 ##### Simple Get Rest Calls with Query String
 ```
-...
 @RestApi("/get")
 static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
-...
 ```
 
 ##### Simple Get Rest Calls with Path Param
 ```
-...
 @RestApi("/anything/{messageId}")
 static doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId
 ): any {}
-...
 ```
 
 ##### Simple Get Rest Calls with Path Param and Query String
 ```
-...
 @RestApi("/anything/{messageId}")
 static doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId,
   @QueryParams _queryParams
 ): any {}
-...
 ```
 
 ##### Simple Post Rest Calls
 ```
-...
 @RestApi("/post", {
   method: "POST",
 })
 static doSimpleHttpBinPost(@RequestBody _body): any {}
-...
 ```
 
 

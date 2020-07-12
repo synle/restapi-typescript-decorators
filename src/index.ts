@@ -44,6 +44,7 @@ const _fetchData = (fetchOptions) => {
 };
 
 export interface ApiResponse {
+  url: string;
   request_headers: object | null;
   request_body: any;
   response_headers: object | null;
@@ -72,26 +73,24 @@ export const RestClient = ({ baseUrl, ...defaultConfigs }) => (target: any) => {
   const original = target;
 
   const f: any = function(...inputs) {
-    const instance = new original(...inputs);
-
-    const defaultConfigsToUse = {
-      mode: 'cors',
-      cache: 'no-cache',
-      credentials: 'include',
-      headers: {},
-      ...defaultConfigs,
-    };
-    defaultConfigsToUse.headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      ...defaultConfigsToUse.headers,
-    };
-    instance.defaultConfigs = defaultConfigsToUse;
-    instance.baseUrl = baseUrl;
-
-    return instance;
+    return new original(...inputs);
   };
   f.prototype = original.prototype;
+
+  const defaultConfigsToUse = {
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'include',
+    headers: {},
+    ...defaultConfigs,
+  };
+  defaultConfigsToUse.headers = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    ...defaultConfigsToUse.headers,
+  };
+  f.prototype.defaultConfigs = defaultConfigsToUse;
+  f.prototype.baseUrl = baseUrl;
 
   return f;
 };
@@ -101,16 +100,13 @@ export const Authorization = (authType: 'Basic' | 'Bearer' | 'Digest' = 'Bearer'
   propertyName: string,
 ) => {
   target.authType = authType;
-  let _credentials;
-
-  set(target, ['__decorators', '@Authorization'], propertyName);
 
   Object.defineProperty(target, propertyName, {
     set: function(newCredential) {
-      _credentials = newCredential;
+      target.credential = newCredential;
     },
     get: function() {
-      return _credentials;
+      return target.credential;
     },
     enumerable: false,
     configurable: false,
@@ -133,20 +129,20 @@ export const RestApi = (
       const requestBody = inputs[get(target, ['__decorators', methodName, '@RequestBody'])];
 
       // construct the url wild cards {param1} {param2} etc...
+      let urlToUse = '';
       const baseUrl = target.baseUrl;
-      url = `${baseUrl}${url}`;
+      urlToUse = `${baseUrl}${url}`;
       const pathParams = get(target, ['__decorators', methodName, '@PathParam'], {});
       Object.keys(pathParams).forEach((paramKey) => {
         const paramIdx = pathParams[paramKey];
         const paramValue = inputs[paramIdx];
-
-        url = url.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
+        urlToUse = urlToUse.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
       });
 
       // construct the query string if needed
       const queryParams = inputs[get(target, ['__decorators', methodName, '@QueryParams'])] || {};
       if (Object.keys(queryParams).length > 0) {
-        url += `?${qs.stringify(queryParams)}`;
+        urlToUse += `?${qs.stringify(queryParams)}`;
       }
 
       // set up the headers
@@ -158,7 +154,7 @@ export const RestApi = (
 
       // add auth header if needed
       const authType = target.authType;
-      const credential = target[get(target, ['__decorators', '@Authorization'])];
+      const credential = target.credential;
       if (authType && credential) {
         headersToUse['Authorization'] = `${authType} ${credential}`;
       }
@@ -166,7 +162,7 @@ export const RestApi = (
       const controller = new AbortController();
       const fetchOptionToUse = {
         ...otherFetchOptions,
-        url,
+        url: urlToUse,
         method: method,
         signal: controller.signal,
         headers: headersToUse,
@@ -177,12 +173,15 @@ export const RestApi = (
       request_transform(fetchOptionToUse, requestBody);
 
       const finalResp = <ApiResponse>{
+        url: urlToUse,
         request_body: fetchOptionToUse.body,
         request_headers: fetchOptionToUse.headers,
         abort: () => {
           controller.abort();
         }, // used to abort the api
       };
+
+      console.log(fetchOptionToUse);
 
       finalResp.result = _fetchData(fetchOptionToUse).then((resp) => {
         finalResp.status = resp.status;
