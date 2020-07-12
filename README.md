@@ -29,9 +29,6 @@ You can also checkout the sample repo that has typescript and other things setup
 ```
 # install from npm
 npm i --save restapi-typescript-decorators@^2.0.1
-
-# install from github
-npm install --save synle/restapi-typescript-decorators#2.0.1
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -203,11 +200,7 @@ Create PR against master.
 
 #### Note on release pipeline
 ```
-npm run build
-npm version patch
-version="$(cat package.json  | jq .version)"
-git tag $version
-git push origin $version
-
+npm run build && \
+npm version patch && \
 npm publish
 ```

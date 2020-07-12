@@ -59,10 +59,8 @@ typings/
 
 
 # src/**/*.js
-./build
+build
 .env
 
 
 .vscode
-
-build/__tests__/
