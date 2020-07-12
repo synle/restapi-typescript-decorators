@@ -1,9 +1,11 @@
 import { ApiResponse } from "../index";
 import { HttpBinDataStore } from "./HttpBinDataStore";
 
-test("HttpBinDataStore.doSimpleHttpBinPost", () => {
+let dataStoreInstance = new HttpBinDataStore();
+
+test("httpBinDataStore.doSimpleHttpBinPost", () => {
   const doSimpleHttpBinPostResp = <ApiResponse>(
-    HttpBinDataStore.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 })
+    dataStoreInstance.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 })
   );
 
   return doSimpleHttpBinPostResp.result.then(resp => {
@@ -13,9 +15,9 @@ test("HttpBinDataStore.doSimpleHttpBinPost", () => {
   });
 });
 
-test("HttpBinDataStore.doSimpleHttpBinGet", () => {
+test("httpBinDataStore.doSimpleHttpBinGet", () => {
   const doSimpleHttpBinGetResp = <ApiResponse>(
-    HttpBinDataStore.doSimpleHttpBinGet({ a: 1, b: 2, c: 3 })
+    dataStoreInstance.doSimpleHttpBinGet({ a: 1, b: 2, c: 3 })
   );
 
   return doSimpleHttpBinGetResp.result.then(resp => {
@@ -25,9 +27,9 @@ test("HttpBinDataStore.doSimpleHttpBinGet", () => {
   });
 });
 
-test("HttpBinDataStore.doSimpleHttpBinPathParamsGetResp", () => {
+test("httpBinDataStore.doSimpleHttpBinPathParamsGetResp", () => {
   const doSimpleHttpBinPathParamsGetResp = <ApiResponse>(
-    HttpBinDataStore.doSimpleHttpBinPathParamsGet("secret_message_id_123", {
+    dataStoreInstance.doSimpleHttpBinPathParamsGet("secret_message_id_123", {
       aa: 1,
       bb: 2,
       cc: 3

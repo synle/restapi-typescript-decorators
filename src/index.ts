@@ -1,3 +1,5 @@
+import { access } from "fs";
+
 const get = require("lodash.get");
 const set = require("lodash.set");
 const qs = require("qs");
@@ -26,10 +28,21 @@ const _defaultRequestTransform = (fetchOptionToUse, body) => {
 };
 
 const _defaultResponseTransform = (fetchOptionToUse, resp) => {
-  if (_isOfTypeJson(fetchOptionToUse["headers"]["Accept"])) {
-    return resp.json();
-  }
-  return resp.text();
+  return resp.text().then(respText => {
+    if (_isOfTypeJson(fetchOptionToUse["headers"]["Accept"])){
+      try{
+        return JSON.parse(respText);
+      } catch(e){
+        return respText;
+      }
+    }
+    return respText;
+  })
+};
+
+const _fetchData = (fetchOptions) => {
+  const { url, ...restFetchOptions } = fetchOptions;
+  return nodeFetch(url, restFetchOptions);
 };
 
 export interface ApiResponse {
@@ -65,30 +78,44 @@ export const RequestBody = (
   set(target, ["__decorators", methodName, "@RequestBody"], paramIdx);
 };
 
-const fetchData = fetchOptions => {
-  const { url, ...restFetchOptions } = fetchOptions;
-  return nodeFetch(url, restFetchOptions);
-};
-
 export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
-  constructor: Function
+  target: any
 ) => {
-  constructor.prototype.baseUrl = baseUrl || "";
+  const original = target;
+
+  const f: any = function(...inputs) {
+    const instance = new original(...inputs);
+    return instance;
+  };
+  f.prototype = original.prototype;
 
   const defaultConfigsToUse = {
     mode: "cors",
     cache: "no-cache",
     credentials: "include",
     headers: {},
-    ...defaultConfigs
+    ...defaultConfigs,
   };
   defaultConfigsToUse.headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    ...defaultConfigsToUse.headers
+    ...defaultConfigsToUse.headers,
   };
-  constructor.prototype.defaultConfigs = defaultConfigsToUse;
+  f.prototype.defaultConfigs = defaultConfigsToUse;
+  f.prototype.baseUrl = baseUrl;
+
+
+  return f;
 };
+
+export const AccessToken = (authType: "bearer" | string) => (target: any, methodName: string | symbol, descriptor: any) => {
+    descriptor.value = (newAccessToken) => {
+      target.authType = authType;
+      target.accessToken = newAccessToken;
+    }
+
+    return descriptor;
+  }
 
 export const RestApi = (
   url: string,
@@ -107,7 +134,8 @@ export const RestApi = (
         inputs[get(target, ["__decorators", methodName, "@RequestBody"])];
 
       // construct the url wild cards {param1} {param2} etc...
-      url = `${target.prototype.baseUrl}${url}`;
+      const baseUrl = target.baseUrl;
+      url = `${baseUrl}${url}`;
       const pathParams = get(
         target,
         ["__decorators", methodName, "@PathParam"],
@@ -122,13 +150,26 @@ export const RestApi = (
 
       // construct the query string if needed
       const queryParams =
-        inputs[get(target, ["__decorators", methodName, "@QueryParams"])];
-      url += `?${qs.stringify(queryParams)}`;
-
-      const headersToUse = {
-        ...target.prototype.defaultConfigs.headers,
-        ...headers
+        inputs[get(target, ["__decorators", methodName, "@QueryParams"])] || {};
+      if (Object.keys(queryParams).length > 0) {
+        url += `?${qs.stringify(queryParams)}`;
       };
+
+
+      // set up the headers
+      const defaultConfigs = target.defaultConfigs;
+      const headersToUse = {
+        ...defaultConfigs.headers,
+        ...headers,
+      };
+
+      // add auth header if needed
+      const authType = target.authType;
+      console.log(">> 2", methodName, target.authType, target.accessToken);
+      if (authType) {
+        // TODO: support for auth type
+        headersToUse["Authorization"] = `bearer ${target.accessToken}`;
+      }
 
       const controller = new AbortController();
       const fetchOptionToUse = {
@@ -151,7 +192,7 @@ export const RestApi = (
         } // used to abort the api
       };
 
-      finalResp.result = fetchData(fetchOptionToUse).then(resp => {
+      finalResp.result = _fetchData(fetchOptionToUse).then(resp => {
         finalResp.status = resp.status;
         finalResp.response_headers = resp.headers;
 
