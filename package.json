@@ -1,13 +1,13 @@
 {
   "name": "restapi-typescript-decorators",
-  "version": "1.0.4",
+  "version": "2.0.1",
   "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
   "main": "build/index",
   "scripts": {
     "build": "rm -rf build/* && ./node_modules/.bin/tsc",
-    "format": "./node_modules/.bin/prettier --write **/**/*.ts",
+    "format": "./node_modules/.bin/prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
     "test": "npx jest",
-    "test_manual": "npx ts-node __tests__/HttpBinDataStore.spec.ts"
+    "test_manual": "npx ts-node"
   },
   "repository": {
     "type": "git",
