@@ -39,7 +39,7 @@ const _defaultResponseTransform = (fetchOptionToUse, resp) => {
   });
 };
 
-const _fetchData = (fetchOptions) => {
+const _fetchData = (fetchOptions): Promise<Response> => {
   const { url, ...restFetchOptions } = fetchOptions;
   return nodeFetch(url, restFetchOptions);
 };
@@ -98,7 +98,9 @@ export interface ApiResponse {
   request_headers: object | null;
   request_body: any;
   response_headers: object | null;
-  status: number | null;
+  status: number;
+  statusText: string;
+  ok: boolean;
   result: Promise<any>; // this is a promise for response data
   abort(); // used to abort the api
 }
@@ -237,7 +239,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       request_transform(fetchOptionToUse, requestBody);
 
       const finalResp = <ApiResponse>{
-        url: urlToUse,
         request_body: fetchOptionToUse.body,
         request_headers: fetchOptionToUse.headers,
         abort: () => {
@@ -246,7 +247,10 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       };
 
       finalResp.result = _fetchData(fetchOptionToUse).then((resp) => {
+        finalResp.url = resp.url;
+        finalResp.ok = resp.ok;
         finalResp.status = resp.status;
+        finalResp.statusText = resp.statusText;
         finalResp.response_headers = resp.headers;
 
         // doing the response transform
