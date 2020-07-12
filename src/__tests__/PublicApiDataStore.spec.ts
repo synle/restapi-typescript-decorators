@@ -1,7 +1,7 @@
 import { ApiResponse } from '../index';
-import { HttpBinDataStore } from './HttpBinDataStore';
+import { PublicApiDataStore } from './PublicApiDataStore';
 
-let unAuthDataStoreInstance = new HttpBinDataStore();
+const unAuthDataStoreInstance = new PublicApiDataStore();
 
 test('Simple Public HTTP POST should work', () => {
   const apiResponse = <ApiResponse>(

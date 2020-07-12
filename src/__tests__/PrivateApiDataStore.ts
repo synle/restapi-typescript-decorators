@@ -1,7 +1,7 @@
 import {
   RestClient,
   RestApi,
-  Authorization,
+  CredentialProperty,
   RequestBody,
   PathParam,
   QueryParams,
@@ -10,13 +10,13 @@ import {
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
+  authType: 'Bearer',
 })
-export class BearerTokenDataStore {
-  @Authorization('Bearer')
-  accessToken: string = '';
+export class PrivateApiDataStore {
+  @CredentialProperty
+  accessToken: string;
 
   constructor(newAccessToken: string = '') {
-    console.log(newAccessToken);
     this.accessToken = newAccessToken;
   }
 

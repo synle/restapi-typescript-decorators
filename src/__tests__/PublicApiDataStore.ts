@@ -1,9 +1,9 @@
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from '../index';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
 })
-export class HttpBinDataStore {
+export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })

@@ -15,6 +15,9 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Document usages for the new Decorators
 - [ ] Document steps for custom serialization and deserialization
 - [X] Deploy to npm modules instead of using github
+- [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
+- [X] Support for authorization (Bearer token at the monent)
+- [] Support for other authorization types: Digest, Basic, etc...
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
 ### How to use
@@ -37,69 +40,117 @@ Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 import {
   RestClient,
   RestApi,
+  CredentialProperty,
   RequestBody,
   PathParam,
   QueryParams,
   ApiResponse,
-} from "restapi-typescript-decorators";
+} from '../index';
 ```
 
-##### RestApi Store
+##### Public (non authenticated) API Store
 ```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+
 @RestClient({
-  baseUrl: "https://httpbin.org",
+  baseUrl: 'https://httpbin.org',
 })
-class HttpBinDataStore {
-  // this will do a POST call with data to https://httpbin.org/post
-  @RestApi("/post", {
-    method: "POST",
+export class PublicApiDataStore {
+  @RestApi('/post', {
+    method: 'POST',
   })
-  static doSimpleHttpBinPost(@RequestBody _body): any {}
+  doSimpleHttpBinPost(@RequestBody _body): any {}
 
-  // this will do a GET call with data to https://httpbin.org/get
-  @RestApi("/get")
-  static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+  @RestApi('/get')
+  doSimpleHttpBinGet(@QueryParams _queryParams): any {}
 
-  // this will do a GET call with data to https://httpbin.org/anything/{messageId}
-  // with path params and query params
-  @RestApi("/anything/{messageId}")
-  static doSimpleHttpBinPathParamsGet(
-    @PathParam("messageId") _targetMessageId,
-    @QueryParams _queryParams
+  @RestApi('/anything/{messageId}')
+  doSimpleHttpBinPathParamsGet(
+    @PathParam('messageId') _targetMessageId,
+    @QueryParams _queryParams,
   ): any {}
 }
 ```
 
+Then instantiate it as
+```
+import { PublicApiDataStore } from './PublicApiDataStore';
+const unAuthDataStoreInstance = new PublicApiDataStore();
+```
+
+
+##### Private (authenticated) API Store
+```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+})
+export class PublicApiDataStore {
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doSimpleHttpBinPost(@RequestBody _body): any {}
+
+  @RestApi('/get')
+  doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+
+  @RestApi('/anything/{messageId}')
+  doSimpleHttpBinPathParamsGet(
+    @PathParam('messageId') _targetMessageId,
+    @QueryParams _queryParams,
+  ): any {}
+}
+```
+
+Then instantiate it as
+```
+import { PrivateApiDataStore } from './PrivateApiDataStore';
+
+const testAccessToken = '<<some_strong_and_random_access_token>>';
+const myPrivateApiDataStore = new PrivateApiDataStore(testAccessToken);
+```
+
 ###### To execute the RestClient
 ```
-const doSimpleHttpBinPostResp = <ApiResponse>(
-  HttpBinDataStore.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 })
-);
-doSimpleHttpBinPostResp.result.then((resp) =>
-  console.log(
-    "HttpBinDataStore.doSimpleHttpBinPost",
-    doSimpleHttpBinPostResp.status,
-    resp
-  )
-);
+import { ApiResponse } from '../index';
+
+const testAccessToken = '<<some_strong_and_random_access_token>>';
+const myPrivateApiDataStore = new PrivateApiDataStore(testAccessToken);
+
+const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
+
+apiResponse.result.then((resp) => {
+  console.log('status', apiResponse.status)
+  console.log('resp', resp)
+});
 ```
 
 ###### To abort pending Rest calls
 Sometimes you want to abort a pending Rest call.
 ```
-doSimpleHttpBinPostResp.abort()
+// ... your construction code here ...
+
+const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
+
+apiResponse.result.then((resp) => {
+  console.log('status', apiResponse.status)
+  console.log('resp', resp)
+});
+
+apiResponse.abort()
 ```
 
 ##### Simple Get Rest Calls with Query String
 ```
 @RestApi("/get")
-static doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+doSimpleHttpBinGet(@QueryParams _queryParams): any {}
 ```
 
 ##### Simple Get Rest Calls with Path Param
 ```
 @RestApi("/anything/{messageId}")
-static doSimpleHttpBinPathParamsGet(
+doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId
 ): any {}
 ```
@@ -107,7 +158,7 @@ static doSimpleHttpBinPathParamsGet(
 ##### Simple Get Rest Calls with Path Param and Query String
 ```
 @RestApi("/anything/{messageId}")
-static doSimpleHttpBinPathParamsGet(
+doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId,
   @QueryParams _queryParams
 ): any {}
@@ -118,7 +169,7 @@ static doSimpleHttpBinPathParamsGet(
 @RestApi("/post", {
   method: "POST",
 })
-static doSimpleHttpBinPost(@RequestBody _body): any {}
+doSimpleHttpBinPost(@RequestBody _body): any {}
 ```
 
 
