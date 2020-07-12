@@ -13,7 +13,7 @@ import {
   authType: 'Bearer',
 })
 export class PrivateApiDataStore {
-  @CredentialProperty
+  @CredentialProperty('AccessToken')
   accessToken: string;
 
   constructor(newAccessToken: string = '') {

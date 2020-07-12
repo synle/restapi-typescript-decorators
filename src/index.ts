@@ -53,8 +53,16 @@ const _getPathParams = (instance, methodName) =>
 const _getQueryParams = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
 
-const _getCredential = (instance) =>
-  instance[get(instance, ['__decorators', '@CredentialProperty'])];
+const _getCredential = (instance) => {
+  //
+  switch (instance.authType) {
+    case 'Bearer':
+      return instance[get(instance, ['__decorators', '@CredentialProperty', 'AccessToken'])];
+    case 'Basic':
+      return instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])]
+      + '  :  ' + instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
+  }
+};
 
 export interface ApiResponse {
   url: string;
@@ -98,8 +106,8 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
-export const CredentialProperty = (target: any, propertyName: string | symbol) => {
-  set(target, ['__decorators', '@CredentialProperty'], propertyName);
+export const CredentialProperty = (credentialType : 'AccessToken' | 'Username' | 'Password') => (target: any, propertyName: string | symbol) => {
+  set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
 };
 
 export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
