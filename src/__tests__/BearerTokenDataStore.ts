@@ -1,7 +1,7 @@
 import {
   RestClient,
   RestApi,
-  AccessToken,
+  Authorization,
   RequestBody,
   PathParam,
   QueryParams,
@@ -12,8 +12,12 @@ import {
   baseUrl: "https://httpbin.org"
 })
 export class BearerTokenDataStore {
-  @AccessToken("bearer")
-  setAccessToken(accessToken) {}
+  @Authorization("Bearer")
+  accessToken: string = "";
+
+  constructor(newAccessToken: string = "") {
+    this.accessToken = newAccessToken;
+  }
 
   @RestApi("/bearer", {
     method: "GET"

@@ -108,14 +108,22 @@ export const RestClient = ({ baseUrl, ...defaultConfigs }) => (
   return f;
 };
 
-export const AccessToken = (authType: "bearer" | string) => (target: any, methodName: string | symbol, descriptor: any) => {
-    descriptor.value = (newAccessToken) => {
-      target.authType = authType;
-      target.accessToken = newAccessToken;
-    }
+export const Authorization = (authType: 'Basic' | 'Bearer' | 'Digest') => (target, propertyName) => {
+  target.authType = authType;
+  let accessToken;
 
-    return descriptor;
-  }
+  Object.defineProperty(target, 'Credential', {
+    set: function (newAccessToken) {
+      accessToken = newAccessToken;
+    },
+    get: function() {
+      return accessToken
+    },
+    enumerable: false,
+    configurable: false
+  });
+};
+
 
 export const RestApi = (
   url: string,
@@ -165,10 +173,9 @@ export const RestApi = (
 
       // add auth header if needed
       const authType = target.authType;
-      console.log(">> 2", methodName, target.authType, target.accessToken);
-      if (authType) {
-        // TODO: support for auth type
-        headersToUse["Authorization"] = `bearer ${target.accessToken}`;
+      const credential = target.Credential
+      if (authType && credential) {
+        headersToUse["Authorization"] = `${authType} ${credential}`;
       }
 
       const controller = new AbortController();

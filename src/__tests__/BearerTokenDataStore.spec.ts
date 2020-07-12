@@ -4,10 +4,10 @@ import { BearerTokenDataStore } from "./BearerTokenDataStore";
 const testAccessToken = "<<strong_some_access_token>>";
 
 const validDataStore = new BearerTokenDataStore();
-validDataStore.setAccessToken("");
+// validDataStore.setAccessToken("");
 
 const invalidDataStore = new BearerTokenDataStore();
-invalidDataStore.setAccessToken(testAccessToken);
+invalidDataStore.accessToken = testAccessToken;
 
 const doApiCallWithBearerTokenResp = <ApiResponse>(
   invalidDataStore.doApiCallWithBearerToken()
