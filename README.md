@@ -30,6 +30,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
+- [ ] Support Serialization into an Object of custom types
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
@@ -37,7 +38,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2
+npm i --save restapi-typescript-decorators@^3
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
