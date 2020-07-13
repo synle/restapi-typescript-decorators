@@ -27,10 +27,11 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Make CI pipeline publish to npm registry
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
+- [X] Support Serialization into an Object of custom types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
-- [ ] Support Serialization into an Object of custom types
+
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
@@ -77,16 +78,16 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body): ApiResponse {}
+  doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
 
   @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse {}
+  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
 
   @RestApi('/anything/{messageId}')
   doSimpleHttpBinPathParamsGet(
     @PathParam('messageId') _targetMessageId,
     @QueryParams _queryParams,
-  ): ApiResponse {}
+  ): ApiResponse<any> {}
 }
 ```
 
@@ -125,7 +126,7 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): ApiResponse {}
+  doApiCallWithBearerToken(): ApiResponse<any> {}
 }
 ```
 
@@ -168,7 +169,7 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): ApiResponse {}
+  doApiCallWithBasicUsernameAndPassword(): ApiResponse<any> {}
 }
 ```
 
@@ -217,7 +218,7 @@ if(apiResponse){
 ##### Simple Get Rest Calls with Query String
 ```
 @RestApi("/get")
-doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse {}
+doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
 ```
 
 ##### Simple Get Rest Calls with Path Param
@@ -225,7 +226,7 @@ doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse {}
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId: string
-): ApiResponse {}
+): ApiResponse<any> {}
 ```
 
 ##### Simple Get Rest Calls with Path Param and Query String
@@ -234,7 +235,7 @@ doSimpleHttpBinPathParamsGet(
 doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId : string,
   @QueryParams _queryParams
-): ApiResponse {}
+): ApiResponse<any> {}
 ```
 
 ##### Simple Post Rest Calls
@@ -242,7 +243,39 @@ doSimpleHttpBinPathParamsGet(
 @RestApi("/post", {
   method: "POST",
 })
-doSimpleHttpBinPost(@RequestBody _body): ApiResponse {}
+doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
+```
+
+#### Type casting your response type
+Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
+
+First define a custom interface
+```
+// interface for request
+interface NumberPair {
+  a: number;
+  b: number;
+}
+
+// interface for response
+interface CollectionSum {
+  sum: number;
+}
+```
+
+Then RestClient class will look something like this
+```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+})
+export class TransformationApiDataStore {
+  @RestApi('/calculateSum', {
+    method: 'POST',
+  })
+  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<CollectionSum> {}
+}
 ```
 
 
@@ -280,7 +313,7 @@ export class TransformationApiDataStore {
       );
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse {}
+  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
@@ -320,7 +353,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse {}
+  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();

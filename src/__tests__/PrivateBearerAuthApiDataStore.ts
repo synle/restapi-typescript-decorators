@@ -8,6 +8,8 @@ import {
   ApiResponse,
 } from '../index';
 
+import { HttpBinAuthResponse } from './HttpBinTypes';
+
 @RestClient({
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
@@ -23,5 +25,5 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): ApiResponse {}
+  doApiCallWithBearerToken(): ApiResponse<HttpBinAuthResponse> {}
 }

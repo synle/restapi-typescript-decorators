@@ -108,7 +108,7 @@ enum HttpVerbEnum {
 type HttpVerb = HttpVerbEnum | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
 
 // types
-interface IApiResponse {
+interface IApiResponse<T> {
   url: string;
   request_headers: object | null;
   request_body: any;
@@ -116,10 +116,10 @@ interface IApiResponse {
   status: number;
   statusText: string;
   ok: boolean;
-  result: Promise<any>; // this is a promise for response data
+  result: Promise<T>; // this is a promise for response data
   abort(); // used to abort the api
 }
-export type ApiResponse = IApiResponse | void;
+export type ApiResponse<T> = IApiResponse<T> | void;
 
 export interface RestClientOptions extends RequestInit {
   baseUrl: string;
@@ -238,7 +238,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       const controller = new AbortController();
 
       // doing the request transform
-      const finalResp = <ApiResponse>{
+      const finalResp = <ApiResponse<any>>{
         abort: () => {
           controller.abort();
         }, // used to abort the api
