@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20CI/badge.svg)
+
 # restapi-typescript-decorators
 Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), my goal for this project is to create a similar rest client using just decorators (also known as annotations in the Java's world). These decorators are used to make REST API calls simpler.
 
@@ -23,7 +25,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Allow calling instance methods within `request_transform` and `response_transform`
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
-- [ ] Integrate with CI pipeline to build stuffs automatically
+- [X] Integrate with CI pipeline to build stuffs and run tests automatically
+- [ ] Make CI pipeline publish to npm registry
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
