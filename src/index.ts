@@ -127,8 +127,11 @@ export interface RestClientOptions extends RequestInit {
 }
 
 export interface RestApiOptions {
-  headers?: Headers;
+  headers?: object;
   method?: HttpVerb;
+  mode?: string;
+  cache?: string;
+  credentials?: string;
   request_transform?(
     fetchOptions: Request,
     body: object,

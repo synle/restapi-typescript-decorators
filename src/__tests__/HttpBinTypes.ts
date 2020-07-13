@@ -6,7 +6,7 @@ export interface HttpBinAuthResponse {
 
 export interface HttpBinGetResponse {
   args?: object;
-  headers?: object;
+  headers?: any;
   origin?: string;
   url?: string;
   data?: object;
