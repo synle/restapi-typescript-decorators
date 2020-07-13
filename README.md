@@ -371,6 +371,18 @@ if(apiResponse){
 ##### Config Overrides
 We have 3 layers of configs: `DefaultConfig` (default configs from this library), `@RestClient` Custom Configs and `@RestApi` Custom Configs. The final config values are set using this order `DefaultConfig`, `@RestClient`, and `@RestApi`.
 
+##### Config Override Table
+| DefaultConfigs | @RestClient | @RestApi | Final Result |
+|----------------|-------------|----------|--------------|
+| a              | b           | c        | c            |
+| a              | b           |          | b            |
+| a              |             | c        | c            |
+|                | b           | c        | c            |
+| a              |             |          | a            |
+|                | b           |          | b            |
+|                |             | c        | c            |
+
+##### Config Override Example
 Below is an example on how to set Custom Config
 ```
 import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
