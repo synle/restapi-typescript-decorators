@@ -13,7 +13,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Throw exception when missing key params
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
 - [X] Document usages for the new Decorators
-- [ ] Document steps for custom serialization and deserialization
+- [X] Document steps for custom serialization (`request_transform`) and deserialization(`response_transform`)
 - [X] Deploy to npm modules instead of using github
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent)
@@ -29,7 +29,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.1
+npm i --save restapi-typescript-decorators@^2.1.2
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -231,6 +231,91 @@ doSimpleHttpBinPost(@RequestBody _body): any {}
 ```
 
 
+#### Transformations
+You can use `request_transform` and `response_transform` to do transformation on the request and response API
+
+##### Simple request transform
+This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
+
+
+```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+
+interface NumberPair {
+  a: number;
+  b: number;
+}
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+})
+export class TransformationApiDataStore {
+  @RestApi('/anything', {
+    method: 'POST',
+    request_transform: (fetchOptions: Request, pair: NumberPair): Promise<Request> => {
+      const newBody = {
+        a: pair.a * 100,
+        b: pair.b * 200,
+      };
+
+      return Promise.resolve(
+        Object.assign(fetchOptions, {
+          body: JSON.stringify(newBody),
+        }),
+      );
+    },
+  })
+  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): any {}
+}
+
+const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
+const apiResponse = <ApiResponse>(
+  myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({ a: 1, b: 2 })
+);
+
+//... follow the above example to get the data from result promise
+```
+
+
+
+##### Simple response transform
+This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
+
+
+```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+
+interface NumberPair {
+  a: number;
+  b: number;
+}
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+})
+export class TransformationApiDataStore {
+  @RestApi('/anything', {
+    method: 'POST',
+    response_transform: (fetchOptions: Request, resp: Response): Promise<any> => {
+      return resp.json().then((respJson) => {
+        const pair = <NumberPair>JSON.parse(respJson.data);
+        const sum = pair.a + pair.b;
+
+        return { sum };
+      });
+    },
+  })
+  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): any {}
+}
+
+const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
+const apiResponse = <ApiResponse>(
+  myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({ a: 300, b: 700 })
+);
+
+//... follow the above example to get the data from result promise
+```
+
 #### Notes
 - For post method and post JSON body of `appplication/json`, the request will stringify and properly saves it into the body
 
@@ -240,7 +325,7 @@ Create PR against master.
 
 #### Note on release pipeline
 ```
-npm run build && \
 npm version patch && \
+npm run build && \
 npm publish
 ```

@@ -8,7 +8,7 @@ const AbortController = require('abort-controller');
 const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
 
-const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Request => {
+const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Promise<Request> => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
     case HttpVerb.GET:
@@ -24,12 +24,14 @@ const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Requ
       break;
   }
 
-  return objectAssign(fetchOptionToUse, {
-    body: bodyToUse,
-  });
+  return Promise.resolve(
+    objectAssign(fetchOptionToUse, {
+      body: bodyToUse,
+    }),
+  );
 };
 
-const _defaultResponseTransform = (fetchOptionToUse: Request, resp: Response) => {
+const _defaultResponseTransform = (fetchOptionToUse: Request, resp: Response): Promise<any> => {
   return resp.text().then((respText) => {
     if (_isOfTypeJson(fetchOptionToUse['headers']['Accept'])) {
       try {
@@ -116,8 +118,8 @@ export interface RestClientOptions extends RequestInit {
 export interface RestApiOptions {
   headers?: Headers;
   method?: HttpVerb | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
-  request_transform?(fetchOptions: Request, body: object): Request;
-  response_transform?(fetchOptions: Request, resp: Response): any;
+  request_transform?(fetchOptions: Request, body: object): Promise<Request>;
+  response_transform?(fetchOptions: Request, resp: Response): Promise<any>;
 }
 
 // decorators
@@ -239,22 +241,36 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       );
 
       const finalResp = <ApiResponse>{
-        request_body: fetchOptionToUse.body,
-        request_headers: fetchOptionToUse.headers,
         abort: () => {
           controller.abort();
         }, // used to abort the api
       };
 
-      finalResp.result = _fetchData(fetchOptionToUse).then((resp) => {
-        finalResp.url = resp.url;
-        finalResp.ok = resp.ok;
-        finalResp.status = resp.status;
-        finalResp.statusText = resp.statusText;
-        finalResp.response_headers = resp.headers;
+      finalResp.result = request_transform(
+        objectAssign(
+          {
+            url: urlToUse,
+            method: method.toUpperCase(),
+            signal: controller.signal,
+            headers: headersToUse,
+          },
+          otherFetchOptions,
+        ),
+        requestBody,
+      ).then((fetchOptionToUse) => {
+        finalResp.request_body = fetchOptionToUse.body;
+        finalResp.request_headers = fetchOptionToUse.headers;
 
-        // doing the response transform
-        return response_transform(fetchOptionToUse, resp);
+        return _fetchData(fetchOptionToUse).then((resp) => {
+          finalResp.url = resp.url;
+          finalResp.ok = resp.ok;
+          finalResp.status = resp.status;
+          finalResp.statusText = resp.statusText;
+          finalResp.response_headers = resp.headers;
+
+          // doing the response transform
+          return response_transform(fetchOptionToUse, resp);
+        });
       });
 
       return finalResp;
