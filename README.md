@@ -7,28 +7,28 @@ Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), 
 Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
 ### TODO's
-- [X] Supports abort
+- [X] Supports abort pending API requests.  Refer to [Aborting Pending Requests](#to-abort-pending-rest-calls) for more details
 - [X] Supports proper serialization of request based on headers accept
-- [X] Allows custom serialization for request
-- [X] Allows custom deserialization for response
-- [X] Support for path params
-- [X] Support for query string
+- [X] Support for path params. See usages for `@PathParam`
+- [X] Support for query string. See usages for `@QueryParams`
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
-- [X] Document usages for the new Decorators
-- [X] Document steps for custom serialization (`request_transform`) and deserialization(`response_transform`)
+- [X] Document steps for custom serialization (`request_transform`) and deserialization(`response_transform`). Refer to [Transformation Section](#transformations) for more details
 - [X] Deploy to npm modules instead of using github
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
-- [X] Support for authorization (Bearer token at the monent)
-- [X] Added Prettier for code format
-- [X] Support for basic authorization with username and passwords
-- [X] Clean up the types and use proper types from node-fetch instead of using our own
+- [X] Support for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
 - [X] Allow calling instance methods within `request_transform` and `response_transform`
+- [X] Added Prettier for code format
+- [X] Support for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
+- [X] Clean up the types and use proper types from node-fetch instead of using our own
 - [X] Integrate with CI pipeline to build stuffs and run tests automatically
 - [X] Make CI pipeline publish to npm registry
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
-- [X] Support Serialization of Response Object into custom type
-- [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`
+- [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
+- [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
+- [ ] Allows class level `@RestClient` override for `request_transform` and `response_transform`
+- [ ] Support Post raw data to API
+- [ ] Support Post binary file to API
 - [ ] Cleanup / Refactor and export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
@@ -50,7 +50,7 @@ Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 #### Simple Code Example
 Most of these examples return `ApiResponse<any>` for simplicity. You can use the library to cast the response object in a custom format. Refer to the bottom section of this guide for how to do type cast your requests and responses.
 
-##### import the classes
+#### import the classes
 ```
 import {
   RestClient,
@@ -63,7 +63,7 @@ import {
 } from 'restapi-typescript-decorators';
 ```
 
-##### Public (non authenticated) API Store
+#### Public (non authenticated) API Store
 Below is an example on the definition for public API data store.
 ```
 import {
@@ -96,14 +96,14 @@ export class PublicApiDataStore {
 }
 ```
 
-Then instantiate it as
+**Then instantiate it as**
 ```
 import { PublicApiDataStore } from './PublicApiDataStore';
 const unAuthDataStoreInstance = new PublicApiDataStore();
 ```
 
 
-##### Private (authenticated with Bearer Token) API Store
+#### Private (authenticated with Bearer Token) API Store
 Below is an example on the definition for private API data store.
 ```
 import {
@@ -135,7 +135,7 @@ export class PrivateBearerAuthApiDataStore {
 }
 ```
 
-Then instantiate it as
+**Then instantiate it as**
 ```
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 const myPrivateBearerAuthApiDataStoreInstance = new PrivateBearerAuthApiDataStore('<<some_strong_and_random_access_token>>');
@@ -143,7 +143,7 @@ const myPrivateBearerAuthApiDataStoreInstance = new PrivateBearerAuthApiDataStor
 
 
 
-##### Private (authenticated with username and password basic auth) API Store
+#### Private (authenticated with username and password basic auth) API Store
 ```
 import {
   RestClient,
@@ -178,14 +178,17 @@ export class PrivateBasicAuthApiDataStore {
 }
 ```
 
-Then instantiate it as
+**Then instantiate it as**
 ```
 import { PrivateApiDataStore } from './PrivateApiDataStore';
-const myPrivateBasicAuthApiDataStoreInstance = new PrivateBasicAuthApiDataStore('good_username', 'good_password');
+const myPrivateBasicAuthApiDataStoreInstance = new PrivateBasicAuthApiDataStore(
+  'good_username',
+  'good_password'
+);
 ```
 
 
-###### To execute the RestClient
+#### To execute the RestClient
 ```
 import { ApiResponse } from 'restapi-typescript-decorators';
 
@@ -204,7 +207,7 @@ if(apiResponse){
 }
 ```
 
-###### To abort pending Rest calls
+#### To abort pending Rest calls
 Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`
 ```
 // ... your construction code here ...
@@ -220,13 +223,13 @@ if(apiResponse){
 }
 ```
 
-##### Simple Get Rest Calls with Query String
+#### Simple Get Rest Calls with Query String
 ```
 @RestApi("/get")
 doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
 ```
 
-##### Simple Get Rest Calls with Path Param
+#### Simple Get Rest Calls with Path Param
 ```
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
@@ -234,7 +237,7 @@ doSimpleHttpBinPathParamsGet(
 ): ApiResponse<any> {}
 ```
 
-##### Simple Get Rest Calls with Path Param and Query String
+#### Simple Get Rest Calls with Path Param and Query String
 ```
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
@@ -243,7 +246,7 @@ doSimpleHttpBinPathParamsGet(
 ): ApiResponse<any> {}
 ```
 
-##### Simple Post Rest Calls
+#### Simple Post Rest Calls
 ```
 @RestApi("/post", {
   method: "POST",
@@ -254,7 +257,7 @@ doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
 #### Type casting your response type
 Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
 
-Then RestClient class will look something like this
+**Then RestClient class will look something like this**
 ```
 import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
 
@@ -285,7 +288,7 @@ export class TypeCastApiDataStore {
 #### Transformations
 You can use `request_transform` and `response_transform` to do transformation on the request and response API
 
-##### Simple request transform
+#### Simple request transform
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
 
 
@@ -329,7 +332,7 @@ if(apiResponse){
 
 
 
-##### Simple response transform
+#### Simple response transform
 This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
 
 
@@ -368,21 +371,21 @@ if(apiResponse){
 ```
 
 
-##### Config Overrides
+#### Config Overrides
 We have 3 layers of configs: `DefaultConfig` (default configs from this library), `@RestClient` Custom Configs and `@RestApi` Custom Configs. The final config values are set using this order `DefaultConfig`, `@RestClient`, and `@RestApi`.
 
-##### Config Override Table
-| DefaultConfigs | @RestClient | @RestApi | Final Result |
-|----------------|-------------|----------|--------------|
-| a              | b           | c        | c            |
-| a              | b           |          | b            |
-| a              |             | c        | c            |
-|                | b           | c        | c            |
-| a              |             |          | a            |
-|                | b           |          | b            |
-|                |             | c        | c            |
+#### Config Override Table
+| `DefaultConfigs` | `@RestClient` | `@RestApi` | `Config To Use` |
+|------------------|---------------|------------|-----------------|
+| a                | b             | c          | c               |
+| a                | b             |            | b               |
+| a                |               | c          | c               |
+|                  | b             | c          | c               |
+| a                |               |            | a               |
+|                  | b             |            | b               |
+|                  |               | c          | c               |
 
-##### Config Override Example
+#### Config Override Example
 Below is an example on how to set Custom Config
 ```
 import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
