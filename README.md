@@ -28,6 +28,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type
+- [ ] Cleanup / Refactor and export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
@@ -45,6 +46,8 @@ npm i --save restapi-typescript-decorators@^3
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
 #### Simple Code Example
+Most of these examples return `ApiResponse<any>` for simplicity. You can use the library to cast the response object in a custom format. Refer to the bottom section of this guide for how to do type cast your requests and responses.
+
 ##### import the classes
 ```
 import {
@@ -249,8 +252,11 @@ doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
 #### Type casting your response type
 Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
 
-First define a custom interface
+Then RestClient class will look something like this
 ```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
+
+// First define a custom interface
 // interface for request
 interface NumberPair {
   a: number;
@@ -261,16 +267,11 @@ interface NumberPair {
 interface CollectionSum {
   sum: number;
 }
-```
-
-Then RestClient class will look something like this
-```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
 })
-export class TransformationApiDataStore {
+export class TypeCastApiDataStore {
   @RestApi('/calculateSum', {
     method: 'POST',
   })
@@ -349,7 +350,7 @@ export class TransformationApiDataStore {
         const pair = <NumberPair>JSON.parse(respJson.data);
         const sum = pair.a + pair.b;
 
-        return { sum };
+        return Promise.resolve({ sum });
       });
     },
   })
