@@ -74,9 +74,10 @@ const _getCredential = (instance) => {
       const username = instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])];
       const password = instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
 
-      // TODO: throws error here if no username or password...
-
-      return _getBase64FromString(`${username}:${password}`);
+      if (username && password) {
+        return _getBase64FromString(`${username}:${password}`);
+      }
+      return '';
   }
 };
 
