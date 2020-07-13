@@ -26,7 +26,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
 - [X] Integrate with CI pipeline to build stuffs and run tests automatically
-- [ ] Make CI pipeline publish to npm registry
+- [X] Make CI pipeline publish to npm registry
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
