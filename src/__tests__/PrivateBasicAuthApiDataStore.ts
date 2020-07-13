@@ -8,6 +8,8 @@ import {
   ApiResponse,
 } from '../index';
 
+import { HttpBinAuthResponse } from './HttpBinTypes';
+
 @RestClient({
   baseUrl: 'https://httpbin.org',
   authType: 'Basic',
@@ -27,5 +29,5 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): any {}
+  doApiCallWithBasicUsernameAndPassword(): ApiResponse<HttpBinAuthResponse> {}
 }

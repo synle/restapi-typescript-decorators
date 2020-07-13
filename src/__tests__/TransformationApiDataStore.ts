@@ -1,4 +1,6 @@
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from '../index';
+
+import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
 
 interface NumberPair {
   a: number;
@@ -10,6 +12,10 @@ interface FourNumberCollection {
   b: number;
   c: number;
   d: number;
+}
+
+interface CollectionSum {
+  sum: number;
 }
 
 @RestClient({
@@ -37,7 +43,9 @@ export class TransformationApiDataStore {
       );
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): any {}
+  doSimpleRequestTransformApi(
+    @RequestBody requestBody: NumberPair,
+  ): ApiResponse<HttpBinPostResponse> {}
 
   // this example will make the api response to the backend
   // then transform the returned data by adding the 2 numbers a and b
@@ -57,7 +65,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): any {}
+  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<CollectionSum> {}
 
   // this example will attempt making 2 async calls for 2 sums and then add them up
   // in the request body before sending them out to the backend
@@ -68,24 +76,35 @@ export class TransformationApiDataStore {
       fourNumbers: FourNumberCollection,
       instance: TransformationApiDataStore,
     ): Promise<Request> => {
-      const { a, b, c, d } = fourNumbers;
+      if (instance) {
+        const { a, b, c, d } = fourNumbers;
 
-      return Promise.all([
-        instance.doSimpleResponseTransformApi({ a: a, b: b }).result,
-        instance.doSimpleResponseTransformApi({ a: c, b: d }).result,
-      ]).then(([res1, res2]) => {
-        const sum1 = res1.sum;
-        const sum2 = res2.sum;
-        const totalAmount = sum1 + sum2;
-        const newBody = { totalAmount, sum1, sum2 };
+        const apiResponseSum1 = instance.doSimpleResponseTransformApi({ a: a, b: b });
+        const apiResponseSum2 = instance.doSimpleResponseTransformApi({ a: c, b: d });
 
-        return Promise.resolve(
-          Object.assign(fetchOptions, {
-            body: JSON.stringify(newBody),
-          }),
+        if (!apiResponseSum1 || !apiResponseSum2) {
+          throw 'One of the request for sum failed';
+        }
+
+        return Promise.all([apiResponseSum1.result, apiResponseSum2.result]).then(
+          ([res1, res2]) => {
+            const sum1 = res1.sum;
+            const sum2 = res2.sum;
+            const sum = sum1 + sum2;
+            const newBody = { sum };
+
+            return Promise.resolve(
+              Object.assign(fetchOptions, {
+                body: JSON.stringify(newBody),
+              }),
+            );
+          },
         );
-      });
+      }
+      return Promise.reject('Instance not available - cannot complete the calculation');
     },
   })
-  doComplexRequestTransformation(@RequestBody requestBody: FourNumberCollection): any {}
+  doComplexRequestTransformation(
+    @RequestBody requestBody: FourNumberCollection,
+  ): ApiResponse<HttpBinPostResponse> {}
 }

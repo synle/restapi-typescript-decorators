@@ -15,7 +15,7 @@ const _defaultRequestTransform = (
 ): Promise<Request> => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
-    case HttpVerb.GET:
+    case HttpVerbEnum.GET:
       break;
 
     default:
@@ -68,9 +68,9 @@ const _getQueryParams = (instance, methodName, inputs) =>
 
 const _getCredential = (instance) => {
   switch (instance.authType) {
-    case AuthType.Bearer:
+    case AuthTypeEnum.Bearer:
       return instance[get(instance, ['__decorators', '@CredentialProperty', 'AccessToken'])];
-    case AuthType.Basic:
+    case AuthTypeEnum.Basic:
       const username = instance[get(instance, ['__decorators', '@CredentialProperty', 'Username'])];
       const password = instance[get(instance, ['__decorators', '@CredentialProperty', 'Password'])];
 
@@ -91,22 +91,24 @@ const _getBase64FromString = (str) => {
 };
 
 // enums
-enum AuthType {
+enum AuthTypeEnum {
   Basic = 'Basic',
   Bearer = 'Bearer',
   Digest = 'Digest', // TODO: support this
 }
+type AuthType = AuthTypeEnum | 'Basic' | 'Bearer' | 'Digest' | undefined;
 
-enum HttpVerb {
+enum HttpVerbEnum {
   GET = 'GET',
   POST = 'POST',
   DELETE = 'DELETE',
   PUT = 'PUT',
   PATCH = 'PATCH',
 }
+type HttpVerb = HttpVerbEnum | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
 
 // types
-export interface ApiResponse {
+interface IApiResponse<T> {
   url: string;
   request_headers: object | null;
   request_body: any;
@@ -114,18 +116,19 @@ export interface ApiResponse {
   status: number;
   statusText: string;
   ok: boolean;
-  result: Promise<any>; // this is a promise for response data
+  result: Promise<T>; // this is a promise for response data
   abort(); // used to abort the api
 }
+export type ApiResponse<T> = IApiResponse<T> | void;
 
 export interface RestClientOptions extends RequestInit {
   baseUrl: string;
-  authType?: AuthType | 'Basic' | 'Bearer' | 'Digest' | undefined;
+  authType?: AuthType;
 }
 
 export interface RestApiOptions {
   headers?: Headers;
-  method?: HttpVerb | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
+  method?: HttpVerb;
   request_transform?(fetchOptions: Request, body: object, instance: any): Promise<Request>;
   response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
 }
@@ -193,7 +196,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string | symbol, descriptor: any) => {
     const {
       headers = {},
-      method = HttpVerb.GET,
+      method = HttpVerbEnum.GET,
       request_transform = _defaultRequestTransform,
       response_transform = _defaultResponseTransform,
       ...otherFetchOptions
@@ -235,39 +238,41 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       const controller = new AbortController();
 
       // doing the request transform
-      const finalResp = <ApiResponse>{
+      const finalResp = <ApiResponse<any>>{
         abort: () => {
           controller.abort();
         }, // used to abort the api
       };
 
-      finalResp.result = request_transform(
-        objectAssign(
-          {
-            url: urlToUse,
-            method: method.toUpperCase(),
-            signal: controller.signal,
-            headers: headersToUse,
-          },
-          otherFetchOptions,
-        ),
-        requestBody,
-        instance,
-      ).then((fetchOptionToUse) => {
-        finalResp.request_body = fetchOptionToUse.body;
-        finalResp.request_headers = fetchOptionToUse.headers;
+      if (finalResp) {
+        finalResp.result = request_transform(
+          objectAssign(
+            {
+              url: urlToUse,
+              method: method.toUpperCase(),
+              signal: controller.signal,
+              headers: headersToUse,
+            },
+            otherFetchOptions,
+          ),
+          requestBody,
+          instance,
+        ).then((fetchOptionToUse) => {
+          finalResp.request_body = fetchOptionToUse.body;
+          finalResp.request_headers = fetchOptionToUse.headers;
 
-        return _fetchData(fetchOptionToUse).then((resp) => {
-          finalResp.url = resp.url;
-          finalResp.ok = resp.ok;
-          finalResp.status = resp.status;
-          finalResp.statusText = resp.statusText;
-          finalResp.response_headers = resp.headers;
+          return _fetchData(fetchOptionToUse).then((resp) => {
+            finalResp.url = resp.url;
+            finalResp.ok = resp.ok;
+            finalResp.status = resp.status;
+            finalResp.statusText = resp.statusText;
+            finalResp.response_headers = resp.headers;
 
-          // doing the response transform
-          return response_transform(fetchOptionToUse, resp, instance);
+            // doing the response transform
+            return response_transform(fetchOptionToUse, resp, instance);
+          });
         });
-      });
+      }
 
       return finalResp;
     };
