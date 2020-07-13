@@ -333,14 +333,5 @@ Create PR against master.
 To publish directly to npm
 ```
 npm version patch && \
-npm run build && \
-npm publish
-```
-
-To create a release and has github workflow handles the release pipeline
-```
-npm version patch
-version="$(cat package.json  | jq .version)"
-git tag $version
-git push origin $version
+git push origin master
 ```
