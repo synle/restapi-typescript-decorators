@@ -1,3 +1,4 @@
+![Node.js CI](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20CI/badge.svg)
 ![Node.js Package](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20Package/badge.svg)
 
 # restapi-typescript-decorators
