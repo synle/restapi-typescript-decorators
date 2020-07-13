@@ -165,7 +165,13 @@ export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 
 };
 
 export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
-  const { baseUrl, authType, ...defaultConfigs } = restOptions;
+  const {
+    baseUrl,
+    authType,
+    request_transform = _defaultRequestTransform,
+    response_transform = _defaultResponseTransform,
+    ...defaultConfigs
+  } = restOptions;
 
   const original = target;
 
@@ -195,6 +201,8 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   f.prototype.defaultConfigs = defaultConfigsToUse;
   f.prototype.baseUrl = baseUrl;
   f.prototype.authType = authType || '';
+  f.prototype.default_request_transform = request_transform;
+  f.prototype.default_response_transform = response_transform;
 
   return f;
 };
@@ -204,8 +212,8 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
     const {
       headers = {},
       method = HttpVerbEnum.GET,
-      request_transform = _defaultRequestTransform,
-      response_transform = _defaultResponseTransform,
+      request_transform,
+      response_transform,
       ...otherFetchOptions
     } = restApiOptions;
 
@@ -251,9 +259,13 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         }, // used to abort the api
       };
 
+      // find out which transform to use (prioritize RestApi, then RestClient)
+      const requestTransformToUse = request_transform || instance.default_request_transform;
+      const responseTransformToUse = response_transform || instance.default_response_transform;
+
       if (finalResp) {
         finalResp.result = Promise.all([
-          request_transform(
+          requestTransformToUse(
             objectAssign(
               {
                 url: urlToUse,
@@ -278,7 +290,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
             finalResp.response_headers = resp.headers;
 
             // doing the response transform
-            return response_transform(fetchOptionToUse, resp, instance);
+            return responseTransformToUse(fetchOptionToUse, resp, instance);
           });
         });
       }

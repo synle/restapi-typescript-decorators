@@ -26,7 +26,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
-- [ ] Allows class level `@RestClient` override for `request_transform` and `response_transform`
+- [X] Allows class level `@RestClient` override for `request_transform` and `response_transform`
 - [ ] Support Post raw data to API
 - [ ] Support Post binary file to API
 - [ ] Cleanup / Refactor and export typescript types
@@ -286,7 +286,7 @@ export class TypeCastApiDataStore {
 
 
 #### Transformations
-You can use `request_transform` and `response_transform` to do transformation on the request and response API
+You can use `request_transform` and `response_transform` to do transformation on the request and response API. You can define the transformation at both the `@RestClient` or `@RestApi` level. When both are defined, a more specific tranformation at `@RestApi` will be used toward the final transformation.
 
 #### Simple request transform
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
