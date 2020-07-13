@@ -30,17 +30,15 @@ export class TransformationApiDataStore {
       fetchOptions: Request,
       pair: NumberPair,
       instance: TransformationApiDataStore,
-    ): Promise<Request> => {
+    ): Request => {
       const newBody = {
         a: pair.a * 100,
         b: pair.b * 200,
       };
 
-      return Promise.resolve(
-        Object.assign(fetchOptions, {
-          body: JSON.stringify(newBody),
-        }),
-      );
+      return Object.assign(fetchOptions, {
+        body: JSON.stringify(newBody),
+      });
     },
   })
   doSimpleRequestTransformApi(

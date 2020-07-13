@@ -129,7 +129,11 @@ export interface RestClientOptions extends RequestInit {
 export interface RestApiOptions {
   headers?: Headers;
   method?: HttpVerb;
-  request_transform?(fetchOptions: Request, body: object, instance: any): Promise<Request>;
+  request_transform?(
+    fetchOptions: Request,
+    body: object,
+    instance: any,
+  ): Request | Promise<Request>;
   response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
 }
 
@@ -245,19 +249,21 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       };
 
       if (finalResp) {
-        finalResp.result = request_transform(
-          objectAssign(
-            {
-              url: urlToUse,
-              method: method.toUpperCase(),
-              signal: controller.signal,
-              headers: headersToUse,
-            },
-            otherFetchOptions,
+        finalResp.result = Promise.all([
+          request_transform(
+            objectAssign(
+              {
+                url: urlToUse,
+                method: method.toUpperCase(),
+                signal: controller.signal,
+                headers: headersToUse,
+              },
+              otherFetchOptions,
+            ),
+            requestBody,
+            instance,
           ),
-          requestBody,
-          instance,
-        ).then((fetchOptionToUse) => {
+        ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
 
