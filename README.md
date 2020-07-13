@@ -27,7 +27,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Make CI pipeline publish to npm registry
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
-- [X] Support Serialization into an Object of custom types
+- [X] Support Serialization of Response Object into custom type
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
