@@ -41,6 +41,6 @@ test('Simple Request Transformation API should work - complex API transform befo
   return apiResponse.result.then((resp) => {
     expect(apiResponse.ok).toBe(true);
     expect(apiResponse.status).toEqual(200);
-    expect(resp).toEqual({ totalAmount: 1000, sum1: 300, sum2: 700 });
+    expect(resp.json).toEqual({ totalAmount: 1000, sum1: 300, sum2: 700 });
   });
 });

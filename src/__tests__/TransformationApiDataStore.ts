@@ -74,7 +74,6 @@ export class TransformationApiDataStore {
         instance.doSimpleResponseTransformApi({ a: a, b: b }).result,
         instance.doSimpleResponseTransformApi({ a: c, b: d }).result,
       ]).then(([res1, res2]) => {
-        console.log(res1, res2);
         const sum1 = res1.sum;
         const sum2 = res2.sum;
         const totalAmount = sum1 + sum2;

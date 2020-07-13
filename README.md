@@ -31,7 +31,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.2
+npm i --save restapi-typescript-decorators@^2.1.3
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -138,7 +138,7 @@ import {
   PathParam,
   QueryParams,
   ApiResponse,
-} from '../index';
+} from 'restapi-typescript-decorators';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -241,7 +241,7 @@ This example will transform the request before sending the request to the backen
 
 
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from 'restapi-typescript-decorators';
 
 interface NumberPair {
   a: number;
@@ -285,7 +285,7 @@ This example will transform the response before returning the final result to th
 
 
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from '../index';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from 'restapi-typescript-decorators';
 
 interface NumberPair {
   a: number;
