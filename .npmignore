@@ -3,3 +3,5 @@ src
 tsconfig.json
 .vscode
 build/__tests__/
+jest.setup.js
+.prettierrc
