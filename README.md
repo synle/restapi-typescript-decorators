@@ -20,7 +20,9 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Added Prettier for code format
 - [X] Support for basic authorization with username and passwords
 - [X] Clean up the types and use proper types from node-fetch instead of using our own
+- [X] Allow calling instance methods within `request_transform` and `response_transform`
 - [ ] Add API retry actions
+- [ ] Add API debounce actions
 - [ ] Integrate with CI pipeline to build stuffs automatically
 
 ### How to use
@@ -252,7 +254,7 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    request_transform: (fetchOptions: Request, pair: NumberPair): Promise<Request> => {
+    request_transform: (fetchOptions: Request, pair: NumberPair, instance: TransformationApiDataStore): Promise<Request> => {
       const newBody = {
         a: pair.a * 100,
         b: pair.b * 200,
@@ -296,7 +298,7 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    response_transform: (fetchOptions: Request, resp: Response): Promise<any> => {
+    response_transform: (fetchOptions: Request, resp: Response, instance: TransformationApiDataStore): Promise<any> => {
       return resp.json().then((respJson) => {
         const pair = <NumberPair>JSON.parse(respJson.data);
         const sum = pair.a + pair.b;

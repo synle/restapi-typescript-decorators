@@ -8,7 +8,11 @@ const AbortController = require('abort-controller');
 const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
 
-const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Promise<Request> => {
+const _defaultRequestTransform = (
+  fetchOptionToUse: Request,
+  body: object,
+  instance: any,
+): Promise<Request> => {
   let bodyToUse;
   switch (fetchOptionToUse.method) {
     case HttpVerb.GET:
@@ -31,7 +35,11 @@ const _defaultRequestTransform = (fetchOptionToUse: Request, body: object): Prom
   );
 };
 
-const _defaultResponseTransform = (fetchOptionToUse: Request, resp: Response): Promise<any> => {
+const _defaultResponseTransform = (
+  fetchOptionToUse: Request,
+  resp: Response,
+  instance: any,
+): Promise<any> => {
   return resp.text().then((respText) => {
     if (_isOfTypeJson(fetchOptionToUse['headers']['Accept'])) {
       try {
@@ -118,8 +126,8 @@ export interface RestClientOptions extends RequestInit {
 export interface RestApiOptions {
   headers?: Headers;
   method?: HttpVerb | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
-  request_transform?(fetchOptions: Request, body: object): Promise<Request>;
-  response_transform?(fetchOptions: Request, resp: Response): Promise<any>;
+  request_transform?(fetchOptions: Request, body: object, instance: any): Promise<Request>;
+  response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
 }
 
 // decorators
@@ -227,19 +235,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       const controller = new AbortController();
 
       // doing the request transform
-      const fetchOptionToUse = request_transform(
-        objectAssign(
-          {
-            url: urlToUse,
-            method: method.toUpperCase(),
-            signal: controller.signal,
-            headers: headersToUse,
-          },
-          otherFetchOptions,
-        ),
-        requestBody,
-      );
-
       const finalResp = <ApiResponse>{
         abort: () => {
           controller.abort();
@@ -257,6 +252,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           otherFetchOptions,
         ),
         requestBody,
+        instance,
       ).then((fetchOptionToUse) => {
         finalResp.request_body = fetchOptionToUse.body;
         finalResp.request_headers = fetchOptionToUse.headers;
@@ -269,7 +265,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           finalResp.response_headers = resp.headers;
 
           // doing the response transform
-          return response_transform(fetchOptionToUse, resp);
+          return response_transform(fetchOptionToUse, resp, instance);
         });
       });
 
