@@ -29,7 +29,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.1
+npm i --save restapi-typescript-decorators@^2.1.2
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -231,9 +231,11 @@ doSimpleHttpBinPost(@RequestBody _body): any {}
 ```
 
 
+#### Transformations
+You can use `request_transform` and `response_transform` to do transformation on the request and response API
+
 ##### Simple request transform
-This example will transform the request before sending the request to the backend. The example
-will do some translation to the input data before sending the data to the backend.
+This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
 
 
 ```
@@ -277,8 +279,7 @@ const apiResponse = <ApiResponse>(
 
 
 ##### Simple response transform
-This example will transform the response before returning the final result to the front end. The
-example code will add the response values and return the sum as the response
+This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
 
 
 ```
@@ -324,7 +325,7 @@ Create PR against master.
 
 #### Note on release pipeline
 ```
-npm run build && \
 npm version patch && \
+npm run build && \
 npm publish
 ```
