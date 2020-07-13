@@ -125,19 +125,18 @@ export type ApiResponse<T> = IApiResponse<T> | void;
 export interface RestClientOptions extends RequestInit {
   baseUrl: string;
   authType?: AuthType;
-}
-
-export interface RestApiOptions {
-  headers?: object;
-  method?: HttpVerb;
-  mode?: string;
-  cache?: string;
-  credentials?: string;
   request_transform?(
     fetchOptions: Request,
     body: object,
     instance: any,
   ): Request | Promise<Request>;
+  response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
+}
+
+export interface RestApiOptions extends RequestInit {
+  headers?: Record<string, string>;
+  method?: HttpVerb;
+  request_transform?(fetchOptions: Request, body: any, instance: any): Request | Promise<Request>;
   response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
 }
 
