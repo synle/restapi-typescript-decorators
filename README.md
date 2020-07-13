@@ -1,4 +1,4 @@
-![Node.js CI](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20CI/badge.svg)
+![Build and Test](https://github.com/synle/restapi-typescript-decorators/workflows/Build%20and%20Test/badge.svg)
 [![npm version](https://badge.fury.io/js/restapi-typescript-decorators.svg)](https://badge.fury.io/js/restapi-typescript-decorators)
 
 # restapi-typescript-decorators
@@ -35,7 +35,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.10
+npm i --save restapi-typescript-decorators@^2
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
