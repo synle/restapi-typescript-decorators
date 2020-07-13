@@ -25,7 +25,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Allow calling instance methods within `request_transform` and `response_transform`
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
-- [ ] Integrate with CI pipeline to build stuffs automatically
+- [X] Integrate with CI pipeline to build stuffs and run tests automatically
+- [ ] Make CI pipeline publish to npm registry
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
