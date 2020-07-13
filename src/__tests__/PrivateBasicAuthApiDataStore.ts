@@ -27,5 +27,5 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): any {}
+  doApiCallWithBasicUsernameAndPassword(): ApiResponse {}
 }

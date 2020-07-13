@@ -13,7 +13,6 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Allows custom deserialization for response
 - [X] Support for path params
 - [X] Support for query string
-- [ ] Throw exception when missing key params
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
 - [X] Document usages for the new Decorators
 - [X] Document steps for custom serialization (`request_transform`) and deserialization(`response_transform`)
@@ -24,10 +23,13 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support for basic authorization with username and passwords
 - [X] Clean up the types and use proper types from node-fetch instead of using our own
 - [X] Allow calling instance methods within `request_transform` and `response_transform`
-- [ ] Add API retry actions
-- [ ] Add API debounce actions
 - [X] Integrate with CI pipeline to build stuffs and run tests automatically
 - [X] Make CI pipeline publish to npm registry
+- [X] Uses `ApiResponse` for return type instead of `any`
+- [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
+- [ ] Throw exception when missing key params
+- [ ] Add API retry actions
+- [ ] Add API debounce actions
 
 ### How to use
 You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
@@ -64,6 +66,7 @@ import {
   PathParam,
   QueryParams,
   CredentialProperty,
+  ApiResponse,
 } from "restapi-typescript-decorators";
 
 @RestClient({
@@ -73,16 +76,16 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body): any {}
+  doSimpleHttpBinPost(@RequestBody _body): ApiResponse {}
 
   @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse {}
 
   @RestApi('/anything/{messageId}')
   doSimpleHttpBinPathParamsGet(
     @PathParam('messageId') _targetMessageId,
     @QueryParams _queryParams,
-  ): any {}
+  ): ApiResponse {}
 }
 ```
 
@@ -103,6 +106,7 @@ import {
   PathParam,
   QueryParams,
   CredentialProperty,
+  ApiResponse,
 } from "restapi-typescript-decorators";
 
 @RestClient({
@@ -120,7 +124,7 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): any {}
+  doApiCallWithBearerToken(): ApiResponse {}
 }
 ```
 
@@ -163,7 +167,7 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): any {}
+  doApiCallWithBasicUsernameAndPassword(): ApiResponse {}
 }
 ```
 
@@ -181,14 +185,16 @@ import { ApiResponse } from 'restapi-typescript-decorators';
 const testAccessToken = '<<some_strong_and_random_access_token>>';
 const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
 
-const apiResponse = <ApiResponse>myPrivateApiDataStoreInstance.doApiCallWithBearerToken();
+const apiResponse = myPrivateApiDataStoreInstance.doApiCallWithBearerToken();
 
-apiResponse.result.then((resp) => {
-  // ... do something with your response and status code ...
-  console.log("url", apiResponse.url);
-  console.log('status', apiResponse.status)
-  console.log('resp', resp)
-});
+if(apiResponse){
+  apiResponse.result.then((resp) => {
+    // ... do something with your response and status code ...
+    console.log("url", apiResponse.url);
+    console.log('status', apiResponse.status)
+    console.log('resp', resp)
+  });
+}
 ```
 
 ###### To abort pending Rest calls
@@ -196,19 +202,21 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 ```
 // ... your construction code here ...
 
-const apiResponse = <ApiResponse>myPrivateApiDataStore.doApiCallWithBearerToken();
+const apiResponse = myPrivateApiDataStore.doApiCallWithBearerToken();
 
-apiResponse.result.then((resp) => {
-  // ... api will be aborted, and this section will not be executed ...
-});
+if(apiResponse){
+  apiResponse.result.then((resp) => {
+    // ... api will be aborted, and this section will not be executed ...
+  });
 
-apiResponse.abort()
+  apiResponse.abort()
+}
 ```
 
 ##### Simple Get Rest Calls with Query String
 ```
 @RestApi("/get")
-doSimpleHttpBinGet(@QueryParams _queryParams): any {}
+doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse {}
 ```
 
 ##### Simple Get Rest Calls with Path Param
@@ -216,7 +224,7 @@ doSimpleHttpBinGet(@QueryParams _queryParams): any {}
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId: string
-): any {}
+): ApiResponse {}
 ```
 
 ##### Simple Get Rest Calls with Path Param and Query String
@@ -225,7 +233,7 @@ doSimpleHttpBinPathParamsGet(
 doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId : string,
   @QueryParams _queryParams
-): any {}
+): ApiResponse {}
 ```
 
 ##### Simple Post Rest Calls
@@ -233,7 +241,7 @@ doSimpleHttpBinPathParamsGet(
 @RestApi("/post", {
   method: "POST",
 })
-doSimpleHttpBinPost(@RequestBody _body): any {}
+doSimpleHttpBinPost(@RequestBody _body): ApiResponse {}
 ```
 
 
@@ -271,15 +279,15 @@ export class TransformationApiDataStore {
       );
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): any {}
+  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = <ApiResponse>(
-  myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({ a: 1, b: 2 })
-);
+const apiResponse = myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({ a: 1, b: 2 })
 
-//... follow the above example to get the data from result promise
+if(apiResponse){
+  //... follow the above example to get the data from result promise
+}
 ```
 
 
@@ -311,15 +319,15 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): any {}
+  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = <ApiResponse>(
-  myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({ a: 300, b: 700 })
-);
+const apiResponse = myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({ a: 300, b: 700 })
 
-//... follow the above example to get the data from result promise
+if(apiResponse){
+  //... follow the above example to get the data from result promise
+}
 ```
 
 #### Notes

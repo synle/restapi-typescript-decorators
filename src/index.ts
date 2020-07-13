@@ -119,7 +119,7 @@ interface IApiResponse {
   result: Promise<any>; // this is a promise for response data
   abort(); // used to abort the api
 }
-export type ApiResponse = IApiResponse | null;
+export type ApiResponse = IApiResponse | void;
 
 export interface RestClientOptions extends RequestInit {
   baseUrl: string;
@@ -244,7 +244,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         }, // used to abort the api
       };
 
-      if(finalResp){
+      if (finalResp) {
         finalResp.result = request_transform(
           objectAssign(
             {

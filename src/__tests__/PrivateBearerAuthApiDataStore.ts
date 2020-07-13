@@ -23,5 +23,5 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): any {}
+  doApiCallWithBearerToken(): ApiResponse {}
 }
