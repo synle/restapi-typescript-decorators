@@ -28,7 +28,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type
-- [ ] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`
+- [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`
 - [ ] Cleanup / Refactor and export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
@@ -366,6 +366,47 @@ if(apiResponse){
   //... follow the above example to get the data from result promise
 }
 ```
+
+
+##### Config Overrides
+We have 3 layers of configs: `DefaultConfig` (default configs from this library), `@RestClient` Custom Configs and `@RestApi` Custom Configs. The final config values are set using this order `DefaultConfig`, `@RestClient`, and `@RestApi`.
+
+Below is an example on how to set Custom Config
+```
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
+
+import { HttpBinPostResponse } from './HttpBinTypes';
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+  headers: {
+    'Accept-Encoding': 'ASCII',
+    '--Rest-Client-Custom-Header': '<some_value_@Restclient_111>',
+    '--Rest-Api-Custom-Header': '<this_value_will_overrided>',
+  },
+})
+export class OverrideConfigApiDataStore {
+  @RestApi('/anything', {
+    method: 'POST',
+    mode: 'no-cors',
+    cache: 'reload',
+    credentials: 'same-origin',
+    headers: {
+      'Accept-Encoding': 'UTF8',
+      'Content-Type': '<some_value_@RestApi_333>',
+      '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
+    },
+  })
+  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinPostResponse> {}
+}
+```
+
+With the above example
+- `--Rest-Api-Custom-Header`: will be `<some_value_@RestApi_222>` because it's set in @RestApi which has more specificity even though its value in `@RestClient` is `<this_value_will_overrided>`
+- `--Rest-Client-Custom-Header`: will be `<some_value_@Restclient_111>` because it's set inside of `@RestApi` although it's not defined anywhere else in `DefaultConfigs` or `@RestClient`
+- `Content-Type`: will be `application/json` because it's set in the `DefaultConfigs` even though we didn't specify it.
+
+
 
 #### Notes
 - For post method and post JSON body of `appplication/json`, the request will stringify and properly saves it into the body
