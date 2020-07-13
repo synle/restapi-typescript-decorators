@@ -1,5 +1,5 @@
 ![Node.js CI](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20CI/badge.svg)
-![Node.js Package](https://github.com/synle/restapi-typescript-decorators/workflows/Node.js%20Package/badge.svg)
+[![npm version](https://badge.fury.io/js/restapi-typescript-decorators.svg)](https://badge.fury.io/js/restapi-typescript-decorators)
 
 # restapi-typescript-decorators
 Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), my goal for this project is to create a similar rest client using just decorators (also known as annotations in the Java's world). These decorators are used to make REST API calls simpler.
@@ -35,7 +35,7 @@ You can also checkout the sample repo that has typescript and other things setup
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^2.1.4
+npm i --save restapi-typescript-decorators@^2.1.7
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`

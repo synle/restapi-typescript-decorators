@@ -1,6 +1,6 @@
 {
   "name": "restapi-typescript-decorators",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
   "main": "build/index",
   "scripts": {
