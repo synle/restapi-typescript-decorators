@@ -28,10 +28,12 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type
+- [ ] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`
 - [ ] Cleanup / Refactor and export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
+- [ ] Add API timeout actions
 
 
 ### How to use
@@ -370,7 +372,10 @@ if(apiResponse){
 
 
 ### How to contribute?
-Create PR against master.
+Make the change and create PR against master.
+
+### Issues?
+If you have any issue with the API, feel free to file a bug on Github at https://github.com/synle/restapi-typescript-decorators/issues/new
 
 #### Note on release pipeline
 To publish directly to npm
