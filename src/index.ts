@@ -3,8 +3,16 @@ const set = require('lodash.set');
 const objectAssign = require('lodash.assign');
 const qs = require('qs');
 const nodeFetch = require('node-fetch');
-const FormData = require('form-data');
+const FormDataForNode = require('form-data');
 const AbortController = require('abort-controller');
+
+// figure out which form data to use...
+let FormData = FormDataForNode;
+try{
+  FormData = window.FormData
+} catch(e){
+
+}
 
 const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
