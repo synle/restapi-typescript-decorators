@@ -68,7 +68,6 @@ const _getFormData = (instance, methodName, inputs) => {
   const paramKeys = Object.keys(get(instance, ['__decorators', methodName, '@FormData'], {}));
 
   if (paramKeys) {
-
     const myFormData = new FormData();
     paramKeys.forEach((paramKey) => {
       myFormData.append(
