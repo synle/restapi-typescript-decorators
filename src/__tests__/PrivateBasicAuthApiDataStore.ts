@@ -5,6 +5,7 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
+  FormDataBody,
   ApiResponse,
 } from '../index';
 

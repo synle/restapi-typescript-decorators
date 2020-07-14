@@ -1,4 +1,12 @@
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from '../index';
+import {
+  RestClient,
+  RestApi,
+  RequestBody,
+  PathParam,
+  QueryParams,
+  FormDataBody,
+  ApiResponse,
+} from '../index';
 
 import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
 
@@ -19,4 +27,12 @@ export class PublicApiDataStore {
     @PathParam('messageId') _targetMessageId: string,
     @QueryParams _queryParams,
   ): ApiResponse<HttpBinGetResponse> {}
+
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleFormDataHttpBinPost(
+    @FormDataBody('unitPrice') unitPrice: number,
+    @FormDataBody('quantity') qty: number,
+  ): ApiResponse<HttpBinPostResponse> {}
 }

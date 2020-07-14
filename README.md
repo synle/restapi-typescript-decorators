@@ -27,9 +27,11 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
 - [X] Allows class level `@RestClient` override for `request_transform` and `response_transform`
-- [ ] Support Post raw data to API
-- [ ] Support Post binary file to API
-- [ ] Cleanup / Refactor and export typescript types
+- [X] Support POST raw data to API with `@FormDataBody`. Refer to [Using FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
+- [ ] Support POST binary file to API
+- [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
+- [X] Have an example repo for frontend code. Refer to the front end example repo
+- [ ] Cleanup / Refactor and Export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
@@ -37,7 +39,9 @@ Another inspiration is to create a unified Rest Client library that works across
 
 
 ### How to use
-You can also checkout the sample repo that has typescript and other things setup at https://github.com/synle/restapi-typescript-decorators-example
+You can also checkout the sample repos that has typescript and other things setup:
+- [frontend with React sample code repo](https://github.com/synle/restapi-typescript-decorators-front-end-example)
+- [backend NodeJs sample code repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 
 #### Install it
 install from npm
@@ -59,6 +63,7 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
+  FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
 ```
@@ -72,6 +77,7 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
+  FormDataBody,
   CredentialProperty,
   ApiResponse,
 } from "restapi-typescript-decorators";
@@ -91,7 +97,8 @@ export class PublicApiDataStore {
   @RestApi('/anything/{messageId}')
   doSimpleHttpBinPathParamsGet(
     @PathParam('messageId') _targetMessageId,
-    @QueryParams _queryParams,
+    @QueryParams _QueryParams,
+    FormDataBody,
   ): ApiResponse<any> {}
 }
 ```
@@ -112,6 +119,7 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
+  FormDataBody,
   CredentialProperty,
   ApiResponse,
 } from "restapi-typescript-decorators";
@@ -152,6 +160,7 @@ import {
   RequestBody,
   PathParam,
   QueryParams,
+  FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
@@ -223,13 +232,13 @@ if(apiResponse){
 }
 ```
 
-#### Simple Get Rest Calls with Query String
+#### Simple GET REST Calls with Query String
 ```
 @RestApi("/get")
 doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
 ```
 
-#### Simple Get Rest Calls with Path Param
+#### Simple GET REST Calls with Path Param
 ```
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
@@ -237,7 +246,7 @@ doSimpleHttpBinPathParamsGet(
 ): ApiResponse<any> {}
 ```
 
-#### Simple Get Rest Calls with Path Param and Query String
+#### Simple GET REST Calls with Path Param and Query String
 ```
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
@@ -246,7 +255,7 @@ doSimpleHttpBinPathParamsGet(
 ): ApiResponse<any> {}
 ```
 
-#### Simple Post Rest Calls
+#### Simple POST Rest Calls with JSON Body
 ```
 @RestApi("/post", {
   method: "POST",
@@ -254,12 +263,28 @@ doSimpleHttpBinPathParamsGet(
 doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
 ```
 
+
+#### Simple POST Rest Calls with FormData Body
+The following will make a POST to the API with the form data body:
+`unitPrice=val1&qty=val2`
+
+```
+@RestApi('/anything', {
+  method: 'POST',
+})
+doSimpleFormDataHttpBinPost(
+  @FormDataBody('unitPrice') unitPrice: number,
+  @FormDataBody('quantity') qty: number,
+): ApiResponse<HttpBinPostResponse> {}
+```
+
 #### Type casting your response type
 Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
 
 **Then RestClient class will look something like this**
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, FormDataBody, ApiResponse } from 'restapi-typescript-
+decorators';
 
 // First define a custom interface
 // interface for request
@@ -388,7 +413,8 @@ We have 3 layers of configs: `DefaultConfig` (default configs from this library)
 #### Config Override Example
 Below is an example on how to set Custom Config
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, ApiResponse } from 'restapi-typescript-decorators';
+import { RestClient, RestApi, RequestBody, PathParam, QueryParams, FormDataBody, ApiResponse } from 'restapi-typescript-
+decorators';
 
 import { HttpBinPostResponse } from './HttpBinTypes';
 
@@ -424,8 +450,8 @@ With the above example
 
 
 #### Notes
-- For post method and post JSON body of `appplication/json`, the request will stringify and properly saves it into the body
-
+- For POST method and POST JSON body of `appplication/json`, the request will stringify and properly saves it into the body
+- Note that when both `@RequestBody` and `@FormDataBody` are used, `@FormDataBody` will have higher precendence
 
 ### How to contribute?
 Make the change and create PR against master.
