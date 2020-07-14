@@ -3,6 +3,7 @@ const set = require('lodash.set');
 const objectAssign = require('lodash.assign');
 const qs = require('qs');
 const nodeFetch = require('node-fetch');
+const FormData = require('form-data');
 const AbortController = require('abort-controller');
 
 const _isOfTypeJson = (typeAsString: string) =>
@@ -62,6 +63,25 @@ const _getRequestBody = (instance, methodName, inputs) =>
 
 const _getPathParams = (instance, methodName) =>
   get(instance, ['__decorators', methodName, '@PathParam'], {});
+
+const _getFormData = (instance, methodName, inputs) => {
+  const paramKeys = Object.keys(get(instance, ['__decorators', methodName, '@FormData'], {}));
+
+  if (paramKeys) {
+
+    const myFormData = new FormData();
+    paramKeys.forEach((paramKey) => {
+      myFormData.append(
+        paramKey,
+        inputs[set(instance, ['__decorators', methodName, '@FormData', paramKey])],
+      );
+    });
+
+    return myFormData;
+  }
+
+  return null;
+};
 
 const _getQueryParams = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
@@ -153,6 +173,14 @@ export const QueryParams = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@QueryParams'], paramIdx);
 };
 
+export const FormData = (paramKey) => (
+  target: any,
+  methodName: string | symbol,
+  paramIdx: number,
+) => {
+  set(target, ['__decorators', methodName, '@FormData', paramKey], paramIdx);
+};
+
 export const RequestBody = (target: any, methodName: string | symbol, paramIdx: number) => {
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
@@ -221,6 +249,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       const instance = this;
 
       const requestBody = _getRequestBody(instance, methodName, inputs);
+      const formData = _getFormData(instance, methodName, inputs);
 
       // construct the url wild cards {param1} {param2} etc...
       let urlToUse = '';
