@@ -29,7 +29,7 @@ const _defaultRequestTransform = (
 
     default:
       // POST, PUT, DELETE, etc...
-      if (_isOfTypeJson(fetchOptionToUse.headers['Accept'])) {
+      if (_isOfTypeJson(fetchOptionToUse.headers['Accept']) && !(body instanceof FormData)) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
