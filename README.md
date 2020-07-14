@@ -278,6 +278,33 @@ doSimpleFormDataHttpBinPost(
 ): ApiResponse<HttpBinPostResponse> {}
 ```
 
+
+#### Simple POST Rest Calls with File Upload as Stream
+This example uploads the file as a single stream
+
+```
+@RestApi('/post', {
+  method: 'POST',
+  headers:{
+    'Accept': 'multipart/form-data',
+  },
+},
+)
+doSimpleUploadFileWithStreamHttpBinPost(
+  @FileUploadBody _fileToUpload,
+): ApiResponse<HttpBinPostResponse> {}
+```
+
+This expects your response to be a buffer. Below is how you can craft the buffer for Node Js
+```
+import fs from 'fs';
+const sampleSmsFileStream = fs.createReadStream('SampleSms.txt');
+const apiResponse = myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBinPost(
+  sampleSmsFileStream,
+);
+```
+
+
 #### Type casting your response type
 Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
 

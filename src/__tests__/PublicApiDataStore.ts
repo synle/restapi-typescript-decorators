@@ -5,6 +5,7 @@ import {
   PathParam,
   QueryParams,
   FormDataBody,
+  FileUploadBody,
   ApiResponse,
 } from '../index';
 
@@ -32,7 +33,27 @@ export class PublicApiDataStore {
     method: 'POST',
   })
   doSimpleFormDataHttpBinPost(
-    @FormDataBody('unitPrice') unitPrice: number,
-    @FormDataBody('quantity') qty: number,
+    @FormDataBody('unitPrice') _unitPrice: number,
+    @FormDataBody('quantity') _qty: number,
+  ): ApiResponse<HttpBinPostResponse> {}
+
+  // this example uploads the file via input named `mySms`
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleUploadFileHttpBinPost(
+    @FormDataBody('mySms') _mySmsContent,
+  ): ApiResponse<HttpBinPostResponse> {}
+
+  // this example uploads the file as a single stream
+  @RestApi('/post', {
+    method: 'POST',
+    headers:{
+      'Accept': 'multipart/form-data',
+    },
+  },
+  )
+  doSimpleUploadFileWithStreamHttpBinPost(
+    @FileUploadBody _fileToUpload,
   ): ApiResponse<HttpBinPostResponse> {}
 }

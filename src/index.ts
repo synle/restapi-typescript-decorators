@@ -7,12 +7,7 @@ const FormDataForNode = require('form-data');
 const AbortController = require('abort-controller');
 
 // figure out which form data to use...
-let FormData = FormDataForNode;
-try{
-  FormData = window.FormData
-} catch(e){
-
-}
+const FormData = globalThis['FormData'] || FormDataForNode;
 
 const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
@@ -50,7 +45,7 @@ const _defaultResponseTransform = (
   instance: any,
 ): Promise<any> => {
   return resp.text().then((respText) => {
-    if (_isOfTypeJson(fetchOptionToUse['headers']['Accept'])) {
+    if (_isOfTypeJson(fetchOptionToUse['headers']['Content-Type'])) {
       try {
         return JSON.parse(respText);
       } catch (e) {
@@ -89,6 +84,9 @@ const _getFormDataBody = (instance, methodName, inputs) => {
 
   return null;
 };
+
+const _getFileUploadBody = (instance, methodName, inputs) =>
+  inputs[get(instance, ['__decorators', methodName, '@FileUploadBody'])];
 
 const _getQueryParams = (instance, methodName, inputs) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
@@ -192,6 +190,10 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
+export const FileUploadBody = (target: any, methodName: string | symbol, paramIdx: number) => {
+  set(target, ['__decorators', methodName, '@FileUploadBody'], paramIdx);
+};
+
 export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 'Password') => (
   target: any,
   propertyName: string | symbol,
@@ -255,8 +257,14 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
     descriptor.value = function(...inputs) {
       const instance = this;
 
+      // these are 3 types of body to be sent to the backend
+      // we will choose them in this order
+      // 1. requestBody
+      // 2. formDataBody
+      // 3. fileUploadBody
       const requestBody = _getRequestBody(instance, methodName, inputs);
       const formDataBody = _getFormDataBody(instance, methodName, inputs);
+      const fileUploadBody = _getFileUploadBody(instance, methodName, inputs);
 
       // construct the url wild cards {param1} {param2} etc...
       let urlToUse = '';
@@ -298,6 +306,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       // find out which transform to use (prioritize RestApi, then RestClient)
       const requestTransformToUse = request_transform || instance.default_request_transform;
       const responseTransformToUse = response_transform || instance.default_response_transform;
+      const bodyToUse = fileUploadBody || formDataBody || requestBody;
 
       if (finalResp) {
         finalResp.result = Promise.all([
@@ -311,12 +320,13 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
               },
               otherFetchOptions,
             ),
-            formDataBody || requestBody,
+            bodyToUse,
             instance,
           ),
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
+
 
           return _fetchData(fetchOptionToUse).then((resp) => {
             finalResp.url = resp.url;
