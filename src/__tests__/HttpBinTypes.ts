@@ -10,7 +10,7 @@ export interface HttpBinGetResponse {
   origin?: string;
   url?: string;
   data?: object;
-  json?: string;
+  json?: string | object;
   form?: object;
 }
 

@@ -53,3 +53,31 @@ test('Simple Public HTTP GET with path params and query params should work', () 
     });
   }
 });
+
+test('Simple Public HTTP POST with form data should work', () => {
+  const apiResponse = unAuthDataStoreInstance.doSimpleFormDataHttpBinPost(
+    123, // unit price
+    100, // qty
+  );
+
+  expect(apiResponse).toBeDefined();
+
+  if (apiResponse) {
+    return apiResponse.result.then((resp) => {
+      expect(apiResponse.ok).toBe(true);
+      expect(apiResponse.status).toEqual(200);
+
+      const respJson = <object>resp.json;
+
+      expect(respJson).toBeDefined();
+
+      if (respJson) {
+        const dataStream = respJson['_streams'].join('');
+        expect(dataStream).toContain('Content-Disposition: form-data; name="quantity"');
+        expect(dataStream).toContain('100');
+        expect(dataStream).toContain('Content-Disposition: form-data; name="unitPrice"');
+        expect(dataStream).toContain('123');
+      }
+    });
+  }
+});
