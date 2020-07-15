@@ -48,11 +48,10 @@ export class PublicApiDataStore {
   // this example uploads the file as a single stream
   @RestApi('/post', {
     method: 'POST',
-    headers:{
-      'Accept': 'multipart/form-data',
+    headers: {
+      Accept: 'multipart/form-data',
     },
-  },
-  )
+  })
   doSimpleUploadFileWithStreamHttpBinPost(
     @FileUploadBody _fileToUpload,
   ): ApiResponse<HttpBinPostResponse> {}

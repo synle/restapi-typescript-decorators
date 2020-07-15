@@ -62,6 +62,7 @@ import {
   CredentialProperty,
   RequestBody,
   PathParam,
+  FileUploadBody,
   QueryParams,
   FormDataBody,
   ApiResponse,
@@ -76,6 +77,7 @@ import {
   RestApi,
   RequestBody,
   PathParam,
+  FileUploadBody,
   QueryParams,
   FormDataBody,
   CredentialProperty,
@@ -118,6 +120,7 @@ import {
   RestApi,
   RequestBody,
   PathParam,
+  FileUploadBody,
   QueryParams,
   FormDataBody,
   CredentialProperty,
@@ -159,6 +162,7 @@ import {
   CredentialProperty,
   RequestBody,
   PathParam,
+  FileUploadBody,
   QueryParams,
   FormDataBody,
   ApiResponse,
@@ -310,8 +314,17 @@ Sometimes it might be useful to cast / parsing the json object in the response t
 
 **Then RestClient class will look something like this**
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, FormDataBody, ApiResponse } from 'restapi-typescript-
-decorators';
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  FileUploadBody,
+  QueryParams,
+  FormDataBody,
+  ApiResponse,
+} from 'restapi-typescript-decorators';
 
 // First define a custom interface
 // interface for request
@@ -345,7 +358,17 @@ This example will transform the request before sending the request to the backen
 
 
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from 'restapi-typescript-decorators';
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  FileUploadBody,
+  QueryParams,
+  FormDataBody,
+  ApiResponse,
+} from 'restapi-typescript-decorators';
 
 interface NumberPair {
   a: number;
@@ -389,7 +412,17 @@ This example will transform the response before returning the final result to th
 
 
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams } from 'restapi-typescript-decorators';
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  FileUploadBody,
+  QueryParams,
+  FormDataBody,
+  ApiResponse,
+} from 'restapi-typescript-decorators';
 
 interface NumberPair {
   a: number;
@@ -440,8 +473,17 @@ We have 3 layers of configs: `DefaultConfig` (default configs from this library)
 #### Config Override Example
 Below is an example on how to set Custom Config
 ```
-import { RestClient, RestApi, RequestBody, PathParam, QueryParams, FormDataBody, ApiResponse } from 'restapi-typescript-
-decorators';
+import {
+  RestClient,
+  RestApi,
+  CredentialProperty,
+  RequestBody,
+  PathParam,
+  FileUploadBody,
+  QueryParams,
+  FormDataBody,
+  ApiResponse,
+} from 'restapi-typescript-decorators';
 
 import { HttpBinPostResponse } from './HttpBinTypes';
 

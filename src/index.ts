@@ -327,7 +327,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
 
-
           return _fetchData(fetchOptionToUse).then((resp) => {
             finalResp.url = resp.url;
             finalResp.ok = resp.ok;
