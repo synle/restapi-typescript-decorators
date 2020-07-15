@@ -7,7 +7,7 @@ import {
   FormDataBody,
   FileUploadBody,
   ApiResponse,
-} from '../index';
+} from 'restapi-typescript-decorators';
 
 import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
 
