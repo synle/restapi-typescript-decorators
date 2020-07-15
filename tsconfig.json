@@ -15,7 +15,13 @@
     "moduleResolution": "node",
     "isolatedModules": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "restapi-typescript-decorators": [
+        "src/index"
+      ]
+    }
   },
   "include": ["src/index.ts", "src/**/*.ts"]
 }

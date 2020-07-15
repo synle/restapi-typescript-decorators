@@ -5,4 +5,7 @@ module.exports = {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
   setupFilesAfterEnv: ['./jest.setup.js'],
+  moduleNameMapper: {
+    "restapi-typescript-decorators": "<rootDir>/src/index",
+  },
 };
