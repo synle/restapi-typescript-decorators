@@ -18,9 +18,7 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
-      "restapi-typescript-decorators": [
-        "src/index"
-      ]
+      "restapi-typescript-decorators": ["src/index"]
     }
   },
   "include": ["src/index.ts", "src/**/*.ts"]
