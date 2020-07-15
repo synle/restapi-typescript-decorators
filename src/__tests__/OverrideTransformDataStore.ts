@@ -6,7 +6,7 @@ import {
   QueryParams,
   FormDataBody,
   ApiResponse,
-} from '../index';
+} from 'restapi-typescript-decorators';
 
 import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
 
