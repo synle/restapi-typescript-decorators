@@ -8,7 +8,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
+import { HttpBinResponse } from './types';
 
 interface NumberPair {
   a: number;
@@ -49,9 +49,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleRequestTransformApi(
-    @RequestBody requestBody: NumberPair,
-  ): ApiResponse<HttpBinPostResponse> {}
+  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<HttpBinResponse> {}
 
   // this example will make the api response to the backend
   // then transform the returned data by adding the 2 numbers a and b
@@ -112,5 +110,5 @@ export class TransformationApiDataStore {
   })
   doComplexRequestTransformation(
     @RequestBody requestBody: FourNumberCollection,
-  ): ApiResponse<HttpBinPostResponse> {}
+  ): ApiResponse<HttpBinResponse> {}
 }

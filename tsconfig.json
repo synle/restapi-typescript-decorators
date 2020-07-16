@@ -11,6 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
+    "declaration": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "isolatedModules": false,
@@ -21,5 +22,6 @@
       "restapi-typescript-decorators": ["src/index"]
     }
   },
-  "include": ["src/index.ts", "src/**/*.ts"]
+  "exclude": ["node_modules"],
+  "include": ["src/index.ts"]
 }

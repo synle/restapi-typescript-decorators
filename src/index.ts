@@ -1,13 +1,23 @@
-const get = require('lodash.get');
-const set = require('lodash.set');
-const objectAssign = require('lodash.assign');
-const qs = require('qs');
-const nodeFetch = require('node-fetch');
-const FormDataForNode = require('form-data');
-const AbortController = require('abort-controller');
+import get from 'lodash.get';
+import set from 'lodash.set';
+import objectAssign from 'lodash.assign';
+import qs from 'qs';
+import nodeFetch from 'node-fetch';
+import FormDataForNode from 'form-data';
+import AbortController from 'abort-controller';
+import {
+  AuthTypeEnum,
+  HttpVerbEnum,
+  RestClientOptions,
+  RestApiOptions,
+  IApiResponse,
+} from './types';
 
-// figure out which form data to use...
+export type ApiResponse<T> = IApiResponse<T> | void;
+
+// figure out which api to use
 const FormData = globalThis['FormData'] || FormDataForNode;
+const fetch = globalThis['fetch'] || nodeFetch;
 
 const _isOfTypeJson = (typeAsString: string) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
@@ -58,7 +68,7 @@ const _defaultResponseTransform = (
 
 const _fetchData = (fetchOptions): Promise<Response> => {
   const { url, ...restFetchOptions } = fetchOptions;
-  return nodeFetch(url, restFetchOptions);
+  return fetch(url, restFetchOptions);
 };
 
 const _getRequestBody = (instance, methodName, inputs) =>
@@ -116,55 +126,6 @@ const _getBase64FromString = (str) => {
   }
 };
 
-// enums
-enum AuthTypeEnum {
-  Basic = 'Basic',
-  Bearer = 'Bearer',
-  Digest = 'Digest', // TODO: support this
-}
-type AuthType = AuthTypeEnum | 'Basic' | 'Bearer' | 'Digest' | undefined;
-
-enum HttpVerbEnum {
-  GET = 'GET',
-  POST = 'POST',
-  DELETE = 'DELETE',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-}
-type HttpVerb = HttpVerbEnum | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
-
-// types
-interface IApiResponse<T> {
-  url: string;
-  request_headers: object | null;
-  request_body: any;
-  response_headers: object | null;
-  status: number;
-  statusText: string;
-  ok: boolean;
-  result: Promise<T>; // this is a promise for response data
-  abort(); // used to abort the api
-}
-export type ApiResponse<T> = IApiResponse<T> | void;
-
-export interface RestClientOptions extends RequestInit {
-  baseUrl: string;
-  authType?: AuthType;
-  request_transform?(
-    fetchOptions: Request,
-    body: object,
-    instance: any,
-  ): Request | Promise<Request>;
-  response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
-}
-
-export interface RestApiOptions extends RequestInit {
-  headers?: Record<string, string>;
-  method?: HttpVerb;
-  request_transform?(fetchOptions: Request, body: any, instance: any): Request | Promise<Request>;
-  response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
-}
-
 // decorators
 export const PathParam = (paramKey) => (
   target: any,
@@ -212,7 +173,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
 
   const original = target;
 
-  const f: any = function(...inputs) {
+  const f: any = function (...inputs) {
     return new original(...inputs);
   };
   f.prototype = original.prototype;
@@ -254,7 +215,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       ...otherFetchOptions
     } = restApiOptions;
 
-    descriptor.value = function(...inputs) {
+    descriptor.value = function (...inputs) {
       const instance = this;
 
       // these are 3 types of body to be sent to the backend
