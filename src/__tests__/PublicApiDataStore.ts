@@ -9,7 +9,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinGetResponse, HttpBinPostResponse } from './HttpBinTypes';
+import { HttpBinResponse } from './types';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -18,16 +18,16 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body): ApiResponse<HttpBinPostResponse> {}
+  doSimpleHttpBinPost(@RequestBody _body): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<HttpBinGetResponse> {}
+  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/anything/{messageId}')
   doSimpleHttpBinPathParamsGet(
     @PathParam('messageId') _targetMessageId: string,
     @QueryParams _queryParams,
-  ): ApiResponse<HttpBinGetResponse> {}
+  ): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/anything', {
     method: 'POST',
@@ -35,7 +35,7 @@ export class PublicApiDataStore {
   doSimpleFormDataHttpBinPost(
     @FormDataBody('unitPrice') _unitPrice: number,
     @FormDataBody('quantity') _qty: number,
-  ): ApiResponse<HttpBinPostResponse> {}
+  ): ApiResponse<HttpBinResponse> {}
 
   // this example uploads the file via input named `mySms`
   @RestApi('/anything', {
@@ -43,7 +43,7 @@ export class PublicApiDataStore {
   })
   doSimpleUploadFileHttpBinPost(
     @FormDataBody('mySms') _mySmsContent,
-  ): ApiResponse<HttpBinPostResponse> {}
+  ): ApiResponse<HttpBinResponse> {}
 
   // this example uploads the file as a single stream
   @RestApi('/post', {
@@ -54,5 +54,5 @@ export class PublicApiDataStore {
   })
   doSimpleUploadFileWithStreamHttpBinPost(
     @FileUploadBody _fileToUpload,
-  ): ApiResponse<HttpBinPostResponse> {}
+  ): ApiResponse<HttpBinResponse> {}
 }

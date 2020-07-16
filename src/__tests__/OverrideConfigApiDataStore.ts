@@ -8,7 +8,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinPostResponse } from './HttpBinTypes';
+import { HttpBinResponse } from './types';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -30,10 +30,10 @@ export class OverrideConfigApiDataStore {
       '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
     },
   })
-  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinPostResponse> {}
+  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimplePostWithCustomRestClientConfig(): ApiResponse<HttpBinPostResponse> {}
+  doSimplePostWithCustomRestClientConfig(): ApiResponse<HttpBinResponse> {}
 }

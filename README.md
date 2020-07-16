@@ -31,7 +31,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Support POST binary file to API
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 - [X] Have an example repo for frontend code. Refer to the front end example repo
-- [ ] Cleanup / Refactor and Export typescript types
+- [X] Cleanup / Refactor and Export typescript types
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
@@ -46,7 +46,7 @@ You can also checkout the sample repos that has typescript and other things setu
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^3
+npm i --save restapi-typescript-decorators@^4
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -279,7 +279,7 @@ The following will make a POST to the API with the form data body:
 doSimpleFormDataHttpBinPost(
   @FormDataBody('unitPrice') unitPrice: number,
   @FormDataBody('quantity') qty: number,
-): ApiResponse<HttpBinPostResponse> {}
+): ApiResponse<HttpBinResponse> {}
 ```
 
 
@@ -296,7 +296,7 @@ This example uploads the file as a single stream
 )
 doSimpleUploadFileWithStreamHttpBinPost(
   @FileUploadBody _fileToUpload,
-): ApiResponse<HttpBinPostResponse> {}
+): ApiResponse<HttpBinResponse> {}
 ```
 
 This expects your response to be a buffer. Below is how you can craft the buffer for Node Js
@@ -485,7 +485,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinPostResponse } from './HttpBinTypes';
+import { HttpBinResponse } from './types';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -507,7 +507,7 @@ export class OverrideConfigApiDataStore {
       '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
     },
   })
-  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinPostResponse> {}
+  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
 }
 ```
 

@@ -9,7 +9,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinAuthResponse } from './HttpBinTypes';
+import { HttpBinAuthResponse } from './types';
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
