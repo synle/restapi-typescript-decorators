@@ -1,10 +1,10 @@
-const get = require('lodash.get');
-const set = require('lodash.set');
-const objectAssign = require('lodash.assign');
-const qs = require('qs');
-const nodeFetch = require('node-fetch');
-const FormDataForNode = require('form-data');
-const AbortController = require('abort-controller');
+import get from 'lodash.get';
+import set from 'lodash.set';
+import objectAssign from 'lodash.assign';
+import qs from 'qs';
+import nodeFetch from 'node-fetch';
+import FormDataForNode from 'form-data';
+import AbortController from 'abort-controller';
 
 // figure out which form data to use...
 const FormData = globalThis['FormData'] || FormDataForNode;
