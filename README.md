@@ -446,6 +446,16 @@ export class TypeCastApiDataStore {
 }
 ```
 
+#### Max timeout for API
+You can set a max timeout using the `timeout` attribute. In which the API will be aborted if the timeout has passed.
+
+In this example, the actual API will return in 10 seconds, but the client will timeout and abort the request in 3 seconds
+```
+@RestApi('/delay/10', {
+  timeout: 3000,
+})
+doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+```
 
 #### Transformations
 You can use `request_transform` and `response_transform` to do transformation on the request and response API. You can define the transformation at both the `@RestClient` or `@RestApi` level. When both are defined, a more specific tranformation at `@RestApi` will be used toward the final transformation.
