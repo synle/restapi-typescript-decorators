@@ -13,6 +13,8 @@ import {
   IApiResponse,
 } from './types';
 
+const DEFAULT_TIMEOUT = 60000;
+
 export type ApiResponse<T> = IApiResponse<T> | void;
 
 // figure out which api to use
@@ -166,6 +168,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   const {
     baseUrl,
     authType,
+    timeout = DEFAULT_TIMEOUT,
     request_transform = _defaultRequestTransform,
     response_transform = _defaultResponseTransform,
     ...defaultConfigs
@@ -199,6 +202,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   f.prototype.defaultConfigs = defaultConfigsToUse;
   f.prototype.baseUrl = baseUrl;
   f.prototype.authType = authType || '';
+  f.prototype.timeout = timeout;
   f.prototype.default_request_transform = request_transform;
   f.prototype.default_response_transform = response_transform;
 
@@ -210,6 +214,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
     const {
       headers = {},
       method = HttpVerbEnum.GET,
+      timeout,
       request_transform,
       response_transform,
       ...otherFetchOptions
@@ -268,8 +273,12 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       const requestTransformToUse = request_transform || instance.default_request_transform;
       const responseTransformToUse = response_transform || instance.default_response_transform;
       const bodyToUse = fileUploadBody || formDataBody || requestBody;
+      const timeoutToUse = timeout || instance.timeout;
 
       if (finalResp) {
+        // hook up a set timeout to abort the request if needed
+        const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
+
         finalResp.result = Promise.all([
           requestTransformToUse(
             objectAssign(
@@ -287,17 +296,35 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
+          finalResp.url = fetchOptionToUse.url;
 
-          return _fetchData(fetchOptionToUse).then((resp) => {
-            finalResp.url = resp.url;
-            finalResp.ok = resp.ok;
-            finalResp.status = resp.status;
-            finalResp.statusText = resp.statusText;
-            finalResp.response_headers = resp.headers;
+          return _fetchData(fetchOptionToUse).then(
+            (resp) => {
+              // if fetch succeeds
+              finalResp.ok = resp.ok;
+              finalResp.status = resp.status;
+              finalResp.statusText = resp.statusText;
+              finalResp.response_headers = resp.headers;
 
-            // doing the response transform
-            return responseTransformToUse(fetchOptionToUse, resp, instance);
-          });
+              // if API succeeds, then cancel the timer
+              clearTimeout(timeoutAbortApi);
+
+              // doing the response transform
+              return responseTransformToUse(fetchOptionToUse, resp, instance);
+            },
+            function (error) {
+              // if fetch fails...
+              finalResp.ok = false;
+              // finalResp.status = resp.status;
+              // finalResp.statusText = resp.statusText;
+              // finalResp.response_headers = resp.headers;
+
+              // if API succeeds, then cancel the timer
+              clearTimeout(timeoutAbortApi);
+
+              throw error;
+            },
+          );
         });
       }
 

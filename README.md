@@ -26,9 +26,9 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
-- [X] Allows class level `@RestClient` override for `request_transform` and `response_transform`
+- [X] Allows class level `@RestClient` override for `requesgt_transform` and `response_transform`
 - [X] Support POST raw data to API with `@FormDataBody`. Refer to [Using FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
-- [ ] Support POST binary file to API
+- [X] Support POST binary file to API
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 - [X] Have an example repo for frontend code. Refer to the front end example repo
 - [X] Cleanup / Refactor and Export typescript types
@@ -36,7 +36,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
-- [ ] Add API timeout actions
+- [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 
 
 ### How to use
@@ -446,6 +446,16 @@ export class TypeCastApiDataStore {
 }
 ```
 
+#### Max timeout for API
+You can set a max timeout using the `timeout` attribute. In which the API will be aborted if the timeout has passed.
+
+In this example, the actual API will return in 10 seconds, but the client will timeout and abort the request in 3 seconds
+```
+@RestApi('/delay/10', {
+  timeout: 3000,
+})
+doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+```
 
 #### Transformations
 You can use `request_transform` and `response_transform` to do transformation on the request and response API. You can define the transformation at both the `@RestClient` or `@RestApi` level. When both are defined, a more specific tranformation at `@RestApi` will be used toward the final transformation.
