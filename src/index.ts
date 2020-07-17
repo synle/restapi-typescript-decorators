@@ -303,13 +303,11 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         }, // used to abort the api
       };
 
-      // find out which transform to use (prioritize RestApi, then RestClient)
-      const requestTransformToUse = request_transform || instance.default_request_transform;
-      const responseTransformToUse = response_transform || instance.default_response_transform;
-      const timeoutToUse = timeout || instance.timeout;
-
       if (finalResp) {
         // hook up a set timeout to abort the request if needed
+        const requestTransformToUse = request_transform || instance.default_request_transform;
+        const responseTransformToUse = response_transform || instance.default_response_transform;
+        const timeoutToUse = timeout || instance.timeout;
         const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
 
         const baseOptions = Object.assign(
@@ -322,11 +320,27 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           otherFetchOptions,
         );
 
+        // figure out the request transformation to use
+        let promisePreProcessRequest;
+        if (fileUploadBody) {
+          promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
+        } else if (formDataBody) {
+          promisePreProcessRequest = (request_transform || instance.default_request_transform)(
+            baseOptions,
+            formDataBody,
+            instance,
+          );
+        } else {
+          promisePreProcessRequest = (request_transform || instance.default_request_transform)(
+            baseOptions,
+            requestBody,
+            instance,
+          );
+        }
+
         finalResp.result = Promise.all([
           // if file upload is present, then use it
-          fileUploadBody
-            ? Object.assign(baseOptions, { body: fileUploadBody })
-            : requestTransformToUse(baseOptions, formDataBody || requestBody, instance),
+          promisePreProcessRequest,
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
