@@ -117,3 +117,32 @@ test('Simple Public HTTP POST to upload binary file using a single stream should
     });
   }
 });
+
+test('Simple Timeout API HTTP GET should work', (done) => {
+  const apiResponse = myPublicDataStoreInstance.doSimpleTimeoutAPI();
+
+  expect(apiResponse).toBeDefined();
+
+  if (apiResponse) {
+    apiResponse.result.then(() => {
+      done.fail(new Error('This is the error'));
+    }, () => {
+      expect(apiResponse.ok).toBe(false);
+      done();
+    });
+  }
+});
+
+test('Simple Erroneous API HTTP GET should always fail', (done) => {
+  const apiResponse = myPublicDataStoreInstance.doSimpleErroneousAPI();
+
+  expect(apiResponse).toBeDefined();
+
+  if (apiResponse) {
+    return apiResponse.result.then((resp) => {
+      expect(apiResponse.ok).toBe(false);
+      expect(apiResponse.status).toEqual(405);
+      expect(resp).toEqual('');
+    });
+  }
+});
