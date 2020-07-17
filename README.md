@@ -58,15 +58,15 @@ Most of these examples return `ApiResponse<any>` for simplicity. You can use the
 #### import the classes
 ```
 import {
-  RestClient,
-  RestApi,
-  CredentialProperty,
-  RequestBody,
-  PathParam,
-  FileUploadBody,
-  QueryParams,
-  FormDataBody,
   ApiResponse,
+  CredentialProperty,
+  FileUploadBody,
+  FormDataBody,
+  PathParam,
+  QueryParams,
+  RequestBody,
+  RestApi,
+  RestClient,
 } from 'restapi-typescript-decorators';
 ```
 
