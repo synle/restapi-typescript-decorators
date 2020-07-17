@@ -164,7 +164,7 @@ describe('PublicApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
-        expect(resp.brotli).toBe(true)
+        expect(resp.brotli).toBe(true);
       });
     }
   });
@@ -178,7 +178,7 @@ describe('PublicApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
-        expect(resp.deflated).toBe(true)
+        expect(resp.deflated).toBe(true);
       });
     }
   });
@@ -192,7 +192,7 @@ describe('PublicApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
-        expect(resp.gzipped).toBe(true)
+        expect(resp.gzipped).toBe(true);
       });
     }
   });
