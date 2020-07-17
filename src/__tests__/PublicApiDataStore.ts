@@ -73,22 +73,8 @@ export class PublicApiDataStore {
   doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 
   // this example uploads the file as a single stream
-  // TODO: due to an issue with httpbin for binary file upload
-  // we need to manually set the request_transform here
   @RestApi('/post', {
     method: 'POST',
-    headers: {
-      // 'Content-Type': 'multipart/form-data',
-    },
-    request_transform: (
-      fetchOptions: Request,
-      body: any,
-      _instance: PublicApiDataStore,
-    ): Request => {
-      return Object.assign(fetchOptions, {
-        body,
-      });
-    },
   })
   doSimpleUploadFileWithStreamHttpBinPost(
     @FileUploadBody _fileToUpload: any,

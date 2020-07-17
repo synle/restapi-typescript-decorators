@@ -174,7 +174,16 @@ export class PublicApiDataStore {
     },
   })
   doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+
+  // this example uploads the file as a single stream
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doSimpleUploadFileWithStreamHttpBinPost(
+    @FileUploadBody _fileToUpload: any,
+  ): ApiResponse<HttpBinResponse> {}
 }
+
 ```
 
 **Then instantiate it as**

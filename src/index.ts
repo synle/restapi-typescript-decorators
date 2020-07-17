@@ -1,6 +1,5 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
-import objectAssign from 'lodash.assign';
 import qs from 'qs';
 import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
@@ -74,7 +73,7 @@ const _defaultRequestTransform = (
   }
 
   return Promise.resolve(
-    objectAssign(fetchOptionToUse, {
+    Object.assign(fetchOptionToUse, {
       body: bodyToUse,
     }),
   );
@@ -215,7 +214,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   };
   f.prototype = original.prototype;
 
-  const defaultConfigsToUse = objectAssign(
+  const defaultConfigsToUse = Object.assign(
     {
       mode: 'cors',
       cache: 'no-cache',
@@ -225,7 +224,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     defaultConfigs,
   );
 
-  defaultConfigsToUse.headers = objectAssign(
+  defaultConfigsToUse.headers = Object.assign(
     {
       Accept: 'application/json',
       'Accept-Encoding': 'gzip, deflate, br',
@@ -286,7 +285,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       // set up the headers
       const defaultConfigs = instance.defaultConfigs;
-      const headersToUse = objectAssign({}, defaultConfigs.headers, headers);
+      const headersToUse = Object.assign({}, defaultConfigs.headers, headers);
 
       // add auth header if needed
       const authType = instance.authType;
@@ -314,20 +313,21 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         // hook up a set timeout to abort the request if needed
         const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
 
+        const baseOptions = Object.assign(
+          {
+            url: urlToUse,
+            method: method.toUpperCase(),
+            signal: controller.signal,
+            headers: headersToUse,
+          },
+          otherFetchOptions,
+        );
+
         finalResp.result = Promise.all([
-          requestTransformToUse(
-            objectAssign(
-              {
-                url: urlToUse,
-                method: method.toUpperCase(),
-                signal: controller.signal,
-                headers: headersToUse,
-              },
-              otherFetchOptions,
-            ),
-            bodyToUse,
-            instance,
-          ),
+          // if file upload is present, then use it
+          fileUploadBody
+            ? Object.assign(baseOptions, { body: fileUploadBody })
+            : requestTransformToUse(baseOptions, bodyToUse, instance),
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
