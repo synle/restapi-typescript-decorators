@@ -5,6 +5,9 @@ import qs from 'qs';
 import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
 import AbortControllerForNode from 'abort-controller';
+import parser from 'fast-xml-parser';
+import he from 'he';
+
 import {
   AuthTypeEnum,
   HttpVerbEnum,
@@ -22,8 +25,30 @@ const fetch = globalThis['fetch'] || FetchForNode;
 const FormData = globalThis['FormData'] || FormDataForNode;
 const AbortController = globalThis['AbortController'] || AbortControllerForNode;
 
+const xmlParseOptions = {
+  attributeNamePrefix: '@_',
+  attrNodeName: 'attr', //default is 'false'
+  textNodeName: '#text',
+  ignoreAttributes: true,
+  ignoreNameSpace: false,
+  allowBooleanAttributes: false,
+  parseNodeValue: true,
+  parseAttributeValue: false,
+  trimValues: true,
+  cdataTagName: '__cdata', //default is 'false'
+  cdataPositionChar: '\\c',
+  parseTrueNumberOnly: false,
+  arrayMode: false, //"strict"
+  attrValueProcessor: (val: any, _attrName: string) => he.decode(val, { isAttributeValue: true }), //default is a=>a
+  tagValueProcessor: (val: any, _tagName: string) => he.decode(val), //default is a=>a
+  stopNodes: ['parse-me-as-string'],
+};
+
 const _isOfTypeJson = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
+
+const _isOfTypeXml = (typeAsString: string | null) =>
+  (typeAsString || '').toLowerCase().indexOf('application/xml') >= 0;
 
 const _defaultRequestTransform = (
   fetchOptionToUse: any,
@@ -37,10 +62,10 @@ const _defaultRequestTransform = (
 
     default:
       // POST, PUT, DELETE, etc...
-      const acceptHeaderHeaderVal = fetchOptionToUse.headers['Accept'];
+      const requestFormat = fetchOptionToUse.headers['Content-Type'];
       if (body instanceof FormData) {
         bodyToUse = body;
-      } else if (_isOfTypeJson(acceptHeaderHeaderVal)) {
+      } else if (_isOfTypeJson(requestFormat)) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
@@ -61,13 +86,17 @@ const _defaultResponseTransform = (
   instance: any,
 ): Promise<any> => {
   return resp.text().then((respText) => {
-    const contentTypeHeaderVal = fetchOptionToUse.headers['Content-Type'];
-    if (_isOfTypeJson(contentTypeHeaderVal)) {
+    const responseFormat = fetchOptionToUse.headers['Accept'];
+    if (_isOfTypeJson(responseFormat)) {
+      // client wants json response
       try {
         return JSON.parse(respText);
       } catch (e) {
         return respText;
       }
+    } else if (_isOfTypeXml(responseFormat)) {
+      // client wants xml response
+      return parser.parse(respText, xmlParseOptions);
     }
     return respText;
   });

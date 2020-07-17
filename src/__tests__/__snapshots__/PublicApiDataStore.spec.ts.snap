@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PublicApiDataStore Simple Public HTTP POST to upload binary file using a single stream should work 1`] = `
+"Hello world, this is a test. 123. ping. pong
+"
+`;
+
+exports[`PublicApiDataStore Simple XML Response should work 1`] = `
+Object {
+  "slideshow": Object {
+    "slide": Array [
+      Object {
+        "title": "Wake up to WonderWidgets!",
+      },
+      Object {
+        "item": Array [
+          Object {
+            "#text": "Whyare great",
+            "em": "WonderWidgets",
+          },
+          "",
+          Object {
+            "#text": "WhoWonderWidgets",
+            "em": "buys",
+          },
+        ],
+        "title": "Overview",
+      },
+    ],
+  },
+}
+`;

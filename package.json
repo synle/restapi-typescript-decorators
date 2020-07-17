@@ -8,7 +8,8 @@
     "build": "rm -rf build/* && tsc",
     "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
     "clean": "jest --clearCache && rm -rf build/*",
-    "test": "jest --ci"
+    "test": "jest --ci",
+    "test:resetSnapshot": "jest --ci --updateSnapshot"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,9 @@
   "homepage": "https://github.com/synle/restapi-typescript-decorators#readme",
   "dependencies": {
     "abort-controller": "^3.0.0",
+    "fast-xml-parser": "^3.17.4",
     "form-data": "^3.0.0",
+    "he": "^1.2.0",
     "lodash.assign": "^4.2.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
@@ -36,6 +39,7 @@
     "qs": "^6.9.4"
   },
   "devDependencies": {
+    "@types/he": "^1.1.1",
     "@types/jest": "^26.0.4",
     "@types/lodash.assign": "^4.2.6",
     "@types/lodash.get": "^4.4.6",

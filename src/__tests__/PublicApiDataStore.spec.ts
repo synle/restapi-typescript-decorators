@@ -118,7 +118,7 @@ describe('PublicApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
-        expect(resp.data).toContain(`Hello world, this is a test. 123. ping. pong`);
+        expect(resp.data).toMatchSnapshot();
       });
     }
   });
@@ -193,6 +193,20 @@ describe('PublicApiDataStore', () => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
         expect(resp.gzipped).toBe(true);
+      });
+    }
+  });
+
+  it('Simple XML Response should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpGetWithXmlData();
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp).toMatchSnapshot();
       });
     }
   });

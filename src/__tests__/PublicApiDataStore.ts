@@ -49,17 +49,6 @@ export class PublicApiDataStore {
     @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
-  // this example uploads the file as a single stream
-  @RestApi('/post', {
-    method: 'POST',
-    headers: {
-      Accept: 'multipart/form-data',
-    },
-  })
-  doSimpleUploadFileWithStreamHttpBinPost(
-    @FileUploadBody _fileToUpload: any,
-  ): ApiResponse<HttpBinResponse> {}
-
   // the actual API will return in 10 seconds, but the client
   // will fail and timeout in 3 seconds
   @RestApi('/delay/10', {
@@ -74,5 +63,34 @@ export class PublicApiDataStore {
   @RestApi('/{encodingToUse}')
   doSimpleHttpGetWithEncoding(
     @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
+  ): ApiResponse<HttpBinResponse> {}
+
+  @RestApi('/xml', {
+    headers: {
+      Accept: 'application/xml',
+    },
+  })
+  doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+
+  // this example uploads the file as a single stream
+  // TODO: due to an issue with httpbin for binary file upload
+  // we need to manually set the request_transform here
+  @RestApi('/post', {
+    method: 'POST',
+    headers: {
+      // 'Content-Type': 'multipart/form-data',
+    },
+    request_transform: (
+      fetchOptions: Request,
+      body: any,
+      _instance: PublicApiDataStore,
+    ): Request => {
+      return Object.assign(fetchOptions, {
+        body,
+      });
+    },
+  })
+  doSimpleUploadFileWithStreamHttpBinPost(
+    @FileUploadBody _fileToUpload: any,
   ): ApiResponse<HttpBinResponse> {}
 }
