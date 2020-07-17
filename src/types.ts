@@ -25,7 +25,7 @@ export interface IApiResponse<T> {
   statusText: string;
   ok: boolean;
   result: Promise<T>; // this is a promise for response data
-  abort(); // used to abort the api
+  abort(): void; // used to abort the api
 }
 
 export interface RestClientOptions extends RequestInit {

@@ -41,6 +41,7 @@
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.set": "^4.3.6",
     "@types/node": "^14.0.23",
+    "@types/node-fetch": "^2.5.7",
     "@types/qs": "^6.9.3",
     "install": "^0.13.0",
     "jest": "^26.1.0",

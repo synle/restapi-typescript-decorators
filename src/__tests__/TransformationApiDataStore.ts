@@ -49,7 +49,9 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<HttpBinResponse> {}
+  doSimpleRequestTransformApi(
+    @RequestBody _requestBody: NumberPair,
+  ): ApiResponse<HttpBinResponse> {}
 
   // this example will make the api response to the backend
   // then transform the returned data by adding the 2 numbers a and b
@@ -69,7 +71,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<CollectionSum> {}
+  doSimpleResponseTransformApi(@RequestBody _requestBody: NumberPair): ApiResponse<CollectionSum> {}
 
   // this example will attempt making 2 async calls for 2 sums and then add them up
   // in the request body before sending them out to the backend
@@ -109,6 +111,6 @@ export class TransformationApiDataStore {
     },
   })
   doComplexRequestTransformation(
-    @RequestBody requestBody: FourNumberCollection,
+    @RequestBody _requestBody: FourNumberCollection,
   ): ApiResponse<HttpBinResponse> {}
 }

@@ -32,6 +32,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 - [X] Have an example repo for frontend code. Refer to the front end example repo
 - [X] Cleanup / Refactor and Export typescript types
+- [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
@@ -77,38 +78,110 @@ import {
   RestApi,
   RequestBody,
   PathParam,
-  FileUploadBody,
   QueryParams,
   FormDataBody,
-  CredentialProperty,
+  FileUploadBody,
   ApiResponse,
-} from "restapi-typescript-decorators";
+} from 'restapi-typescript-decorators';
 
+
+// first define your request and response body
+export interface HttpBinRequest {
+  [propName: string]: any;
+}
+export interface HttpBinResponse {
+  args?: {
+    [propName: string]: any;
+  };
+  headers?: {
+    [propName: string]: any;
+  };
+  origin?: string;
+  url?: string;
+  data?: {
+    [propName: string]: any;
+  };
+  json?:
+    | string
+    | {
+        [propName: string]: any;
+      };
+  form?: {
+    [propName: string]: any;
+  };
+  [propName: string]: any;
+}
+
+
+// Rest Client
 @RestClient({
   baseUrl: 'https://httpbin.org',
 })
 export class PublicApiDataStore {
+  // do simple get with query params
+  @RestApi('/get')
+  doSimpleHttpBinGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  // do simple get with path params
+  @RestApi('/anything/{messageId}')
+  doSimpleHttpBinPathParamsGet(
+    @PathParam('messageId') _targetMessageId: string,
+    @QueryParams _queryParams: HttpBinRequest,
+  ): ApiResponse<HttpBinResponse> {}
+
+  // do simple post with request body
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
+  doSimpleHttpBinPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
-  @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
+  // do simple post with formData
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleFormDataHttpBinPost(
+    @FormDataBody('unitPrice') _unitPrice: number,
+    @FormDataBody('quantity') _qty: number,
+  ): ApiResponse<HttpBinResponse> {}
 
-  @RestApi('/anything/{messageId}')
-  doSimpleHttpBinPathParamsGet(
-    @PathParam('messageId') _targetMessageId,
-    @QueryParams _QueryParams,
-    FormDataBody,
-  ): ApiResponse<any> {}
+  // this example uploads the file via input named `mySms`
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleUploadFileHttpBinPost(
+    @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
+  ): ApiResponse<HttpBinResponse> {}
+
+  // this example uploads the file as a single stream
+  @RestApi('/post', {
+    method: 'POST',
+    headers: {
+      Accept: 'multipart/form-data',
+    },
+  })
+  doSimpleUploadFileWithStreamHttpBinPost(
+    @FileUploadBody _fileToUpload: any,
+  ): ApiResponse<HttpBinResponse> {}
 }
+
 ```
 
 **Then instantiate it as**
 ```
 import { PublicApiDataStore } from './PublicApiDataStore';
-const unAuthDataStoreInstance = new PublicApiDataStore();
+const myRestClientInstance = new PublicApiDataStore();
+```
+
+**Use it**
+```
+apiResponse = myRestClientInstance.doSimpleHttpBinGet({a: 1, b: 2});
+if(apiResponse){
+  apiResponse.result.then(
+    resp => {
+      // do something with your response
+    }
+  );
+}
 ```
 
 
@@ -118,15 +191,24 @@ Below is an example on the definition for private API data store.
 import {
   RestClient,
   RestApi,
+  CredentialProperty,
   RequestBody,
   PathParam,
-  FileUploadBody,
   QueryParams,
   FormDataBody,
-  CredentialProperty,
   ApiResponse,
-} from "restapi-typescript-decorators";
+} from 'restapi-typescript-decorators';
 
+
+// first define your request and response body
+export interface HttpBinAuthResponse {
+  authenticated: boolean;
+  user?: string;
+  token?: string;
+  [propName: string]: any;
+}
+
+// Rest Client
 @RestClient({
   baseUrl: 'https://httpbin.org',
   authType: 'Bearer',
@@ -142,14 +224,20 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): ApiResponse<any> {}
+  doApiCallWithBearerToken(): ApiResponse<HttpBinAuthResponse> {}
 }
 ```
 
 **Then instantiate it as**
 ```
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
-const myPrivateBearerAuthApiDataStoreInstance = new PrivateBearerAuthApiDataStore('<<some_strong_and_random_access_token>>');
+const myRestClientInstance = new PrivateBearerAuthApiDataStore(
+  'good_username',
+  'good_password'
+);
+
+
+// refer to other section for how to execute the calls
 ```
 
 
@@ -162,12 +250,21 @@ import {
   CredentialProperty,
   RequestBody,
   PathParam,
-  FileUploadBody,
   QueryParams,
   FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
+
+// first define your request and response body
+export interface HttpBinAuthResponse {
+  authenticated: boolean;
+  user?: string;
+  token?: string;
+  [propName: string]: any;
+}
+
+// Rest Client
 @RestClient({
   baseUrl: 'https://httpbin.org',
   authType: 'Basic',
@@ -187,35 +284,35 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): ApiResponse<any> {}
+  doApiCallWithBasicUsernameAndPassword(): ApiResponse<HttpBinAuthResponse> {}
 }
 ```
 
 **Then instantiate it as**
 ```
-import { PrivateApiDataStore } from './PrivateApiDataStore';
-const myPrivateBasicAuthApiDataStoreInstance = new PrivateBasicAuthApiDataStore(
+import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
+const myRestClientInstance = new PrivateBasicAuthApiDataStore(
   'good_username',
   'good_password'
 );
+
+// refer to other section for how to execute the calls
 ```
 
 
 #### To execute the RestClient
 ```
-import { ApiResponse } from 'restapi-typescript-decorators';
+const myRestClientInstance = new PrivateApiDataStore('<<some_strong_and_random_access_token>>');
 
-const testAccessToken = '<<some_strong_and_random_access_token>>';
-const myPrivateApiDataStoreInstance = new PrivateApiDataStore(testAccessToken);
-
-const apiResponse = myPrivateApiDataStoreInstance.doApiCallWithBearerToken();
+const apiResponse = myRestClientInstance.doApiCallWithBearerToken();
 
 if(apiResponse){
   apiResponse.result.then((resp) => {
     // ... do something with your response and status code ...
+    console.log('ok', apiResponse.ok);
     console.log("url", apiResponse.url);
-    console.log('status', apiResponse.status)
-    console.log('resp', resp)
+    console.log('status', apiResponse.status);
+    console.log('resp', resp);
   });
 }
 ```
@@ -225,7 +322,7 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 ```
 // ... your construction code here ...
 
-const apiResponse = myPrivateApiDataStore.doApiCallWithBearerToken();
+const apiResponse = myRestClientInstance.doApiCallWithBearerToken();
 
 if(apiResponse){
   apiResponse.result.then((resp) => {
@@ -239,7 +336,7 @@ if(apiResponse){
 #### Simple GET REST Calls with Query String
 ```
 @RestApi("/get")
-doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<any> {}
+doSimpleHttpBinGet(@QueryParams _queryParams: any): ApiResponse<any> {}
 ```
 
 #### Simple GET REST Calls with Path Param
@@ -255,7 +352,7 @@ doSimpleHttpBinPathParamsGet(
 @RestApi("/anything/{messageId}")
 doSimpleHttpBinPathParamsGet(
   @PathParam("messageId") _targetMessageId : string,
-  @QueryParams _queryParams
+  @QueryParams _queryParams: any
 ): ApiResponse<any> {}
 ```
 
@@ -264,7 +361,7 @@ doSimpleHttpBinPathParamsGet(
 @RestApi("/post", {
   method: "POST",
 })
-doSimpleHttpBinPost(@RequestBody _body): ApiResponse<any> {}
+doSimpleHttpBinPost(@RequestBody _body: any): ApiResponse<any> {}
 ```
 
 
@@ -295,7 +392,7 @@ This example uploads the file as a single stream
 },
 )
 doSimpleUploadFileWithStreamHttpBinPost(
-  @FileUploadBody _fileToUpload,
+  @FileUploadBody _fileToUpload: any,
 ): ApiResponse<HttpBinResponse> {}
 ```
 

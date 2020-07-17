@@ -69,7 +69,7 @@ test('Simple Public HTTP POST with form data should work', () => {
       expect(apiResponse.ok).toBe(true);
       expect(apiResponse.status).toEqual(200);
 
-      const respJson = <object>resp.json;
+      const respJson = <{ [propName: string]: any }>resp.json;
 
       expect(respJson).toBeDefined();
 
