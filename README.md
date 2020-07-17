@@ -663,6 +663,14 @@ If you have any issue with the API, feel free to file a bug on Github at https:/
 
 #### Note on release pipeline
 To publish directly to npm
+
+##### Beta Tags
+```
+npm version prepatch && \
+npm publish --tag beta
+```
+
+##### Prod Tags
 ```
 npm version patch && \
 git push origin master
