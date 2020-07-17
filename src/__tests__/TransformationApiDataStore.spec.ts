@@ -15,7 +15,7 @@ describe('TransformationApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toEqual(200);
-        expect(apiResponse.request_body).toEqual('{"a":100,"b":400}');
+        expect(apiResponse.requestBody).toEqual('{"a":100,"b":400}');
         expect(resp.json).toEqual({ a: 100, b: 400 });
       });
     }

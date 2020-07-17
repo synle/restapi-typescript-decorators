@@ -14,7 +14,7 @@ import { HttpBinResponse, HttpBinRequest } from './types';
 // transform and return a list of keys of the response object in the final result
 @RestClient({
   baseUrl: 'https://httpbin.org',
-  response_transform: (
+  responseTransform: (
     fetchOptions: Request,
     resp: Response,
     instance: OverrideTransformDataStore,
@@ -33,7 +33,7 @@ export class OverrideTransformDataStore {
   doSimpleHttpBinPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/get', {
-    response_transform: (
+    responseTransform: (
       fetchOptions: Request,
       resp: Response,
       instance: OverrideTransformDataStore,

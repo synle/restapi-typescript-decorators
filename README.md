@@ -12,11 +12,11 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Support for path params. See usages for `@PathParam`
 - [X] Support for query string. See usages for `@QueryParams`
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
-- [X] Document steps for custom serialization (`request_transform`) and deserialization(`response_transform`). Refer to [Transformation Section](#transformations) for more details
+- [X] Document steps for custom serialization (`requestTransform`) and deserialization(`responseTransform`). Refer to [Transformation Section](#transformations) for more details
 - [X] Deploy to npm modules instead of using github
 - [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Support for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
-- [X] Allow calling instance methods within `request_transform` and `response_transform`
+- [X] Allow calling instance methods within `requestTransform` and `responseTransform`
 - [X] Added Prettier for code format
 - [X] Support for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
 - [X] Clean up the types and use proper types from node-fetch instead of using our own
@@ -26,7 +26,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
-- [X] Allows class level `@RestClient` override for `requesgt_transform` and `response_transform`
+- [X] Allows class level `@RestClient` override for `requesgt_transform` and `responseTransform`
 - [X] Support POST raw data to API with `@FormDataBody`. Refer to [Using FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [X] Support POST binary file to API
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
@@ -517,7 +517,7 @@ export class TransformationApiDataStore {
 ```
 
 #### Transformations
-You can use `request_transform` and `response_transform` to do transformation on the request and response API. You can define the transformation at both the `@RestClient` or `@RestApi` level. When both are defined, a more specific tranformation at `@RestApi` will be used toward the final transformation.
+You can use `requestTransform` and `responseTransform` to do transformation on the request and response API. You can define the transformation at both the `@RestClient` or `@RestApi` level. When both are defined, a more specific tranformation at `@RestApi` will be used toward the final transformation.
 
 #### Simple request transform
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
@@ -547,7 +547,7 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    request_transform: (fetchOptions: Request, pair: NumberPair, instance: TransformationApiDataStore): Promise<Request> => {
+    requestTransform: (fetchOptions: Request, pair: NumberPair, instance: TransformationApiDataStore): Promise<Request> => {
       const newBody = {
         a: pair.a * 100,
         b: pair.b * 200,
@@ -601,7 +601,7 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    response_transform: (fetchOptions: Request, resp: Response, instance: TransformationApiDataStore): Promise<any> => {
+    responseTransform: (fetchOptions: Request, resp: Response, instance: TransformationApiDataStore): Promise<any> => {
       return resp.json().then((respJson) => {
         const pair = <NumberPair>JSON.parse(respJson.data);
         const sum = pair.a + pair.b;
