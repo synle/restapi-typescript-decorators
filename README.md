@@ -37,6 +37,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
 - [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
+- [ ] Add XML Parser for Response
 
 
 ### How to use

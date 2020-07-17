@@ -21,6 +21,9 @@ export interface HttpBinResponse {
   form?: {
     [propName: string]: any;
   };
+  brotli?: boolean;
+  deflated?: boolean;
+  gzipped?: boolean;
   [propName: string]: any;
 }
 

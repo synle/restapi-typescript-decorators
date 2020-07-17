@@ -13,7 +13,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
         expect(resp.json).toEqual({ a: 1, b: 2, c: 3 });
         expect(resp.url).toEqual('https://httpbin.org/post');
       });
@@ -28,7 +28,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
         expect(resp.args).toEqual({ a: '1', b: '2', c: '3' });
         expect(resp.url).toEqual('https://httpbin.org/get?a=1&b=2&c=3');
       });
@@ -50,7 +50,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
         expect(resp.args).toEqual({ aa: '1', bb: '2', cc: '3' });
         expect(resp.url).toEqual(
           'https://httpbin.org/anything/secret_message_id_123?aa=1&bb=2&cc=3',
@@ -70,7 +70,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
 
         const respJson = <{ [propName: string]: any }>resp.json;
 
@@ -99,7 +99,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
         expect(resp.data).toEqual('[object FormData]');
       });
     }
@@ -117,7 +117,7 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+        expect(apiResponse.status).toBe(200);
         expect(resp.data).toContain(`Hello world, this is a test. 123. ping. pong`);
       });
     }
@@ -149,8 +149,50 @@ describe('PublicApiDataStore', () => {
     if (apiResponse) {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(false);
-        expect(apiResponse.status).toEqual(405);
+        expect(apiResponse.status).toBe(405);
         expect(resp).toEqual('');
+      });
+    }
+  });
+
+  it('`brotli` Accept-Encoding should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpGetWithEncoding('brotli');
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.brotli).toBe(true);
+      });
+    }
+  });
+
+  it('`deflate` Accept-Encoding should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpGetWithEncoding('deflate');
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.deflated).toBe(true);
+      });
+    }
+  });
+
+  it('`gzip` Accept-Encoding should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpGetWithEncoding('gzip');
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.gzipped).toBe(true);
       });
     }
   });
