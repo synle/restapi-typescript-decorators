@@ -15,13 +15,51 @@ export enum HttpVerbEnum {
 }
 export type HttpVerb = HttpVerbEnum | 'GET' | 'POST' | 'DELETE' | 'PUT' | 'PATCH';
 
+// used for xml parsing options
+type X2jOptions = {
+  attributeNamePrefix: string;
+  attrNodeName: false | string;
+  textNodeName: string;
+  ignoreAttributes: boolean;
+  ignoreNameSpace: boolean;
+  allowBooleanAttributes: boolean;
+  parseNodeValue: boolean;
+  parseAttributeValue: boolean;
+  arrayMode: boolean | 'strict';
+  trimValues: boolean;
+  cdataTagName: false | string;
+  cdataPositionChar: string;
+  parseTrueNumberOnly: boolean;
+  tagValueProcessor: (tagValue: string, tagName: string) => string;
+  attrValueProcessor: (attrValue: string, attrName: string) => string;
+  stopNodes: string[];
+};
+
 // types
 export interface IApiResponse<T> {
+  /**
+   * full url for the API
+   */
   url: string;
+  /**
+   * request headers
+   */
   request_headers: object | null;
+  /**
+   * request body
+   */
   request_body: any;
+  /**
+   * response status headers
+   */
   response_headers: object | null;
+  /**
+   * response status code
+   */
   status: number;
+  /**
+   * response status text
+   */
   statusText: string;
   /**
    * whether or not the API succeeds
@@ -80,6 +118,11 @@ export interface RestClientOptions extends BaseRestOptions {
    * API Authorization mode
    */
   authType?: AuthType;
+
+  /**
+   * XML parsing options to be provided for `fast-xml-parser` library
+   */
+  xmlParseOptions?: X2jOptions;
 }
 
 export interface RestApiOptions extends BaseRestOptions {}

@@ -38,7 +38,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Add API debounce actions
 - [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 - [X] Add simple XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
-- [ ] Add support for custom `fast-xml-parser` options
+- [X] Add support for custom `fast-xml-parser` options
 
 
 ### How to use
@@ -490,6 +490,30 @@ To use the default parser, you can set the Accept Header. This example below wil
   },
 })
 doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+```
+
+You can also provide `fast-xml-parser` custom configurations for the client using `@RestClient` property `xmlParseOptions` at the class level.
+```
+
+@RestClient({
+  baseUrl: 'https://httpbin.org',
+  xmlParseOptions: {
+    attrPrefix : "@_",
+    textNodeName : "#text",
+    ignoreNonTextNodeAttr : true,
+    ignoreTextNodeAttr : true,
+    ignoreNameSpace : true
+  }
+})
+export class TransformationApiDataStore {
+  @RestApi('/xml', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/xml',
+    },
+  })
+  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
+}
 ```
 
 #### Transformations
