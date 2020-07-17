@@ -8,7 +8,7 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-import { HttpBinResponse } from './types';
+import { HttpBinResponse, HttpBinRequest } from './types';
 
 // for demonstration, this transformation is done on all methods of this class, and simply
 // transform and return a list of keys of the response object in the final result
@@ -30,7 +30,7 @@ export class OverrideTransformDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body): ApiResponse<HttpBinResponse> {}
+  doSimpleHttpBinPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/get', {
     response_transform: (
@@ -46,5 +46,5 @@ export class OverrideTransformDataStore {
       });
     },
   })
-  doSimpleHttpBinGet(@QueryParams _queryParams): ApiResponse<HttpBinResponse> {}
+  doSimpleHttpBinGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 }
