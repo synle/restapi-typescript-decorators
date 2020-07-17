@@ -37,7 +37,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
 - [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
-- [ ] Add XML Parser for Response
+- [X] Add simple XML Parser for Response with `Accept=application/xml`.
+- [ ] Add support for custom `fast-xml-parser` options
 
 
 ### How to use
@@ -113,8 +114,6 @@ export interface HttpBinResponse {
   [propName: string]: any;
 }
 
-
-// Rest Client
 @RestClient({
   baseUrl: 'https://httpbin.org',
 })
@@ -153,17 +152,6 @@ export class PublicApiDataStore {
     @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
-  // this example uploads the file as a single stream
-  @RestApi('/post', {
-    method: 'POST',
-    headers: {
-      Accept: 'multipart/form-data',
-    },
-  })
-  doSimpleUploadFileWithStreamHttpBinPost(
-    @FileUploadBody _fileToUpload: any,
-  ): ApiResponse<HttpBinResponse> {}
-
   // the actual API will return in 10 seconds, but the client
   // will fail and timeout in 3 seconds
   @RestApi('/delay/10', {
@@ -179,7 +167,23 @@ export class PublicApiDataStore {
   doSimpleHttpGetWithEncoding(
     @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
   ): ApiResponse<HttpBinResponse> {}
+
+  @RestApi('/xml', {
+    headers: {
+      Accept: 'application/xml',
+    },
+  })
+  doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+
+  // this example uploads the file as a single stream
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doSimpleUploadFileWithStreamHttpBinPost(
+    @FileUploadBody _fileToUpload: any,
+  ): ApiResponse<HttpBinResponse> {}
 }
+
 ```
 
 **Then instantiate it as**
@@ -403,7 +407,7 @@ This example uploads the file as a single stream
 @RestApi('/post', {
   method: 'POST',
   headers: {
-    Accept: 'multipart/form-data',
+    'Content-Type': 'multipart/form-data',
   },
 })
 doSimpleUploadFileWithStreamHttpBinPost(
@@ -470,6 +474,22 @@ In this example, the actual API will return in 10 seconds, but the client will t
   timeout: 3000,
 })
 doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+```
+
+
+#### Request and Response Format
+By default, the library will help parsing of the response when you set the proper value for `Accept` Header.
+
+To use the default parser, you can set the Accept Header. This example below will tell the library to parse the response as if the response is a XML. The default behavior is to parse response as JSON.
+
+##### Parse Response as XML
+```
+@RestApi('/xml', {
+  headers: {
+    'Accept': 'application/xml',
+  },
+})
+doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 ```
 
 #### Transformations
@@ -652,6 +672,14 @@ If you have any issue with the API, feel free to file a bug on Github at https:/
 
 #### Note on release pipeline
 To publish directly to npm
+
+##### Beta Tags
+```
+npm version prepatch && \
+npm publish --tag beta
+```
+
+##### Prod Tags
 ```
 npm version patch && \
 git push origin master

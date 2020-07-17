@@ -1,10 +1,12 @@
 import get from 'lodash.get';
 import set from 'lodash.set';
-import objectAssign from 'lodash.assign';
 import qs from 'qs';
 import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
 import AbortControllerForNode from 'abort-controller';
+import parser from 'fast-xml-parser';
+import he from 'he';
+
 import {
   AuthTypeEnum,
   HttpVerbEnum,
@@ -22,8 +24,30 @@ const fetch = globalThis['fetch'] || FetchForNode;
 const FormData = globalThis['FormData'] || FormDataForNode;
 const AbortController = globalThis['AbortController'] || AbortControllerForNode;
 
+const xmlParseOptions = {
+  attributeNamePrefix: '@_',
+  attrNodeName: 'attr', //default is 'false'
+  textNodeName: '#text',
+  ignoreAttributes: true,
+  ignoreNameSpace: false,
+  allowBooleanAttributes: false,
+  parseNodeValue: true,
+  parseAttributeValue: false,
+  trimValues: true,
+  cdataTagName: '__cdata', //default is 'false'
+  cdataPositionChar: '\\c',
+  parseTrueNumberOnly: false,
+  arrayMode: false, //"strict"
+  attrValueProcessor: (val: any, _attrName: string) => he.decode(val, { isAttributeValue: true }), //default is a=>a
+  tagValueProcessor: (val: any, _tagName: string) => he.decode(val), //default is a=>a
+  stopNodes: ['parse-me-as-string'],
+};
+
 const _isOfTypeJson = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
+
+const _isOfTypeXml = (typeAsString: string | null) =>
+  (typeAsString || '').toLowerCase().indexOf('application/xml') >= 0;
 
 const _defaultRequestTransform = (
   fetchOptionToUse: any,
@@ -37,10 +61,10 @@ const _defaultRequestTransform = (
 
     default:
       // POST, PUT, DELETE, etc...
-      const acceptHeaderHeaderVal = fetchOptionToUse.headers['Accept'];
+      const requestFormat = fetchOptionToUse.headers['Content-Type'];
       if (body instanceof FormData) {
         bodyToUse = body;
-      } else if (_isOfTypeJson(acceptHeaderHeaderVal)) {
+      } else if (_isOfTypeJson(requestFormat)) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
@@ -49,7 +73,7 @@ const _defaultRequestTransform = (
   }
 
   return Promise.resolve(
-    objectAssign(fetchOptionToUse, {
+    Object.assign(fetchOptionToUse, {
       body: bodyToUse,
     }),
   );
@@ -61,13 +85,17 @@ const _defaultResponseTransform = (
   instance: any,
 ): Promise<any> => {
   return resp.text().then((respText) => {
-    const contentTypeHeaderVal = fetchOptionToUse.headers['Content-Type'];
-    if (_isOfTypeJson(contentTypeHeaderVal)) {
+    const responseFormat = fetchOptionToUse.headers['Accept'];
+    if (_isOfTypeJson(responseFormat)) {
+      // client wants json response
       try {
         return JSON.parse(respText);
       } catch (e) {
         return respText;
       }
+    } else if (_isOfTypeXml(responseFormat)) {
+      // client wants xml response
+      return parser.parse(respText, xmlParseOptions);
     }
     return respText;
   });
@@ -186,7 +214,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   };
   f.prototype = original.prototype;
 
-  const defaultConfigsToUse = objectAssign(
+  const defaultConfigsToUse = Object.assign(
     {
       mode: 'cors',
       cache: 'no-cache',
@@ -196,7 +224,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     defaultConfigs,
   );
 
-  defaultConfigsToUse.headers = objectAssign(
+  defaultConfigsToUse.headers = Object.assign(
     {
       Accept: 'application/json',
       'Accept-Encoding': 'gzip, deflate, br',
@@ -257,7 +285,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       // set up the headers
       const defaultConfigs = instance.defaultConfigs;
-      const headersToUse = objectAssign({}, defaultConfigs.headers, headers);
+      const headersToUse = Object.assign({}, defaultConfigs.headers, headers);
 
       // add auth header if needed
       const authType = instance.authType;
@@ -278,27 +306,27 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       // find out which transform to use (prioritize RestApi, then RestClient)
       const requestTransformToUse = request_transform || instance.default_request_transform;
       const responseTransformToUse = response_transform || instance.default_response_transform;
-      const bodyToUse = fileUploadBody || formDataBody || requestBody;
       const timeoutToUse = timeout || instance.timeout;
 
       if (finalResp) {
         // hook up a set timeout to abort the request if needed
         const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
 
+        const baseOptions = Object.assign(
+          {
+            url: urlToUse,
+            method: method.toUpperCase(),
+            signal: controller.signal,
+            headers: headersToUse,
+          },
+          otherFetchOptions,
+        );
+
         finalResp.result = Promise.all([
-          requestTransformToUse(
-            objectAssign(
-              {
-                url: urlToUse,
-                method: method.toUpperCase(),
-                signal: controller.signal,
-                headers: headersToUse,
-              },
-              otherFetchOptions,
-            ),
-            bodyToUse,
-            instance,
-          ),
+          // if file upload is present, then use it
+          fileUploadBody
+            ? Object.assign(baseOptions, { body: fileUploadBody })
+            : requestTransformToUse(baseOptions, formDataBody || requestBody, instance),
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
