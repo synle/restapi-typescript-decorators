@@ -306,7 +306,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       // find out which transform to use (prioritize RestApi, then RestClient)
       const requestTransformToUse = request_transform || instance.default_request_transform;
       const responseTransformToUse = response_transform || instance.default_response_transform;
-      const bodyToUse = fileUploadBody || formDataBody || requestBody;
       const timeoutToUse = timeout || instance.timeout;
 
       if (finalResp) {
@@ -327,7 +326,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           // if file upload is present, then use it
           fileUploadBody
             ? Object.assign(baseOptions, { body: fileUploadBody })
-            : requestTransformToUse(baseOptions, bodyToUse, instance),
+            : requestTransformToUse(baseOptions, formDataBody || requestBody, instance),
         ]).then(([fetchOptionToUse]) => {
           finalResp.request_body = fetchOptionToUse.body;
           finalResp.request_headers = fetchOptionToUse.headers;
