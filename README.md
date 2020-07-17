@@ -26,7 +26,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
 - [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
-- [X] Allows class level `@RestClient` override for `request_transform` and `response_transform`
+- [X] Allows class level `@RestClient` override for `requesgt_transform` and `response_transform`
 - [X] Support POST raw data to API with `@FormDataBody`. Refer to [Using FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [X] Support POST binary file to API
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
@@ -36,7 +36,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Throw exception when missing key params
 - [ ] Add API retry actions
 - [ ] Add API debounce actions
-- [X] Add API timeout actions
+- [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 
 
 ### How to use
