@@ -5,7 +5,6 @@ import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
 import AbortControllerForNode from 'abort-controller';
 import parser from 'fast-xml-parser';
-import he from 'he';
 
 import {
   AuthTypeEnum,
@@ -24,25 +23,13 @@ const fetch = globalThis['fetch'] || FetchForNode;
 const FormData = globalThis['FormData'] || FormDataForNode;
 const AbortController = globalThis['AbortController'] || AbortControllerForNode;
 
-const xmlParseOptions = {
-  attributeNamePrefix: '@_',
-  attrNodeName: 'attr', //default is 'false'
+const DEFAULT_XML_PARSE_OPTIONS = {
+  attrPrefix: '@_',
   textNodeName: '#text',
-  ignoreAttributes: true,
-  ignoreNameSpace: false,
-  allowBooleanAttributes: false,
-  parseNodeValue: true,
-  parseAttributeValue: false,
-  trimValues: true,
-  cdataTagName: '__cdata', //default is 'false'
-  cdataPositionChar: '\\c',
-  parseTrueNumberOnly: false,
-  arrayMode: false, //"strict"
-  attrValueProcessor: (val: any, _attrName: string) => he.decode(val, { isAttributeValue: true }), //default is a=>a
-  tagValueProcessor: (val: any, _tagName: string) => he.decode(val), //default is a=>a
-  stopNodes: ['parse-me-as-string'],
+  ignoreNonTextNodeAttr: true,
+  ignoreTextNodeAttr: true,
+  ignoreNameSpace: true,
 };
-
 const _isOfTypeJson = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
 
@@ -95,7 +82,7 @@ const _defaultResponseTransform = (
       }
     } else if (_isOfTypeXml(responseFormat)) {
       // client wants xml response
-      return parser.parse(respText, xmlParseOptions);
+      return parser.parse(respText, instance.xmlParseOptions);
     }
     return respText;
   });
@@ -202,6 +189,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     baseUrl,
     authType,
     timeout = DEFAULT_TIMEOUT,
+    xmlParseOptions = DEFAULT_XML_PARSE_OPTIONS,
     request_transform = _defaultRequestTransform,
     response_transform = _defaultResponseTransform,
     ...defaultConfigs
@@ -237,8 +225,9 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   f.prototype.baseUrl = baseUrl;
   f.prototype.authType = authType || '';
   f.prototype.timeout = timeout;
-  f.prototype.default_request_transform = request_transform;
-  f.prototype.default_response_transform = response_transform;
+  f.prototype.defaultRequestTransform = request_transform;
+  f.prototype.defaultResponseTransform = response_transform;
+  f.prototype.xmlParseOptions = xmlParseOptions;
 
   return f;
 };
@@ -305,8 +294,8 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       if (finalResp) {
         // hook up a set timeout to abort the request if needed
-        const requestTransformToUse = request_transform || instance.default_request_transform;
-        const responseTransformToUse = response_transform || instance.default_response_transform;
+        const requestTransformToUse = request_transform || instance.defaultRequestTransform;
+        const responseTransformToUse = response_transform || instance.defaultResponseTransform;
         const timeoutToUse = timeout || instance.timeout;
         const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
 
@@ -325,13 +314,13 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         if (fileUploadBody) {
           promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
         } else if (formDataBody) {
-          promisePreProcessRequest = (request_transform || instance.default_request_transform)(
+          promisePreProcessRequest = (request_transform || instance.defaultRequestTransform)(
             baseOptions,
             formDataBody,
             instance,
           );
         } else {
-          promisePreProcessRequest = (request_transform || instance.default_request_transform)(
+          promisePreProcessRequest = (request_transform || instance.defaultRequestTransform)(
             baseOptions,
             requestBody,
             instance,
