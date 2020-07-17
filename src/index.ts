@@ -37,7 +37,10 @@ const _defaultRequestTransform = (
 
     default:
       // POST, PUT, DELETE, etc...
-      if (_isOfTypeJson(fetchOptionToUse.headers['Accept']) && !(body instanceof FormData)) {
+      const acceptHeaderHeaderVal = fetchOptionToUse.headers['Accept'];
+      if (body instanceof FormData) {
+        bodyToUse = body;
+      } else if (_isOfTypeJson(acceptHeaderHeaderVal)) {
         bodyToUse = JSON.stringify(body);
       } else {
         bodyToUse = body || null;
@@ -58,7 +61,8 @@ const _defaultResponseTransform = (
   instance: any,
 ): Promise<any> => {
   return resp.text().then((respText) => {
-    if (_isOfTypeJson(fetchOptionToUse.headers['Content-Type'])) {
+    const contentTypeHeaderVal = fetchOptionToUse.headers['Content-Type'];
+    if (_isOfTypeJson(contentTypeHeaderVal)) {
       try {
         return JSON.parse(respText);
       } catch (e) {
@@ -177,7 +181,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
 
   const original = target;
 
-  const f: any = function (...inputs: any[]) {
+  const f: any = function(...inputs: any[]) {
     return new original(...inputs);
   };
   f.prototype = original.prototype;
@@ -222,7 +226,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       ...otherFetchOptions
     } = restApiOptions;
 
-    descriptor.value = function (...inputs: any[]) {
+    descriptor.value = function(...inputs: any[]) {
       const instance = this;
 
       // these are 3 types of body to be sent to the backend
@@ -314,7 +318,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
               // doing the response transform
               return responseTransformToUse(fetchOptionToUse, resp, instance);
             },
-            function (error) {
+            function(error) {
               // if fetch fails...
               finalResp.ok = false;
               // finalResp.status = resp.status;

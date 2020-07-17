@@ -163,8 +163,23 @@ export class PublicApiDataStore {
   doSimpleUploadFileWithStreamHttpBinPost(
     @FileUploadBody _fileToUpload: any,
   ): ApiResponse<HttpBinResponse> {}
-}
 
+  // the actual API will return in 10 seconds, but the client
+  // will fail and timeout in 3 seconds
+  @RestApi('/delay/10', {
+    timeout: 3000,
+  })
+  doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+
+  // this API will always return 405 error
+  @RestApi('/status/405')
+  doSimpleErroneousAPI(): ApiResponse<HttpBinResponse> {}
+
+  @RestApi('/{encodingToUse}')
+  doSimpleHttpGetWithEncoding(
+    @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
+  ): ApiResponse<HttpBinResponse> {}
+}
 ```
 
 **Then instantiate it as**
@@ -387,11 +402,10 @@ This example uploads the file as a single stream
 ```
 @RestApi('/post', {
   method: 'POST',
-  headers:{
-    'Accept': 'multipart/form-data',
+  headers: {
+    Accept: 'multipart/form-data',
   },
-},
-)
+})
 doSimpleUploadFileWithStreamHttpBinPost(
   @FileUploadBody _fileToUpload: any,
 ): ApiResponse<HttpBinResponse> {}

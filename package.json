@@ -6,9 +6,9 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "rm -rf build/* && tsc",
-    "format": "npx prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
-    "clean": "npx jest --clearCache && rm -rf build/*",
-    "test": "npx jest --ci"
+    "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
+    "clean": "jest --clearCache && rm -rf build/*",
+    "test": "jest --ci"
   },
   "repository": {
     "type": "git",
