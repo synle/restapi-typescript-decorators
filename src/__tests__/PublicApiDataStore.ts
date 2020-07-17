@@ -70,4 +70,9 @@ export class PublicApiDataStore {
   // this API will always return 405 error
   @RestApi('/status/405')
   doSimpleErroneousAPI(): ApiResponse<HttpBinResponse> {}
+
+  @RestApi('/{encodingToUse}')
+  doSimpleHttpGetWithEncoding(
+    @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
+  ): ApiResponse<HttpBinResponse> {}
 }

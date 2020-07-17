@@ -2,9 +2,9 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import objectAssign from 'lodash.assign';
 import qs from 'qs';
-import nodeFetch from 'node-fetch';
+import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
-import AbortController from 'abort-controller';
+import AbortControllerForNode from 'abort-controller';
 import {
   AuthTypeEnum,
   HttpVerbEnum,
@@ -18,8 +18,9 @@ const DEFAULT_TIMEOUT = 60000;
 export type ApiResponse<T> = IApiResponse<T> | void;
 
 // figure out which api to use
+const fetch = globalThis['fetch'] || FetchForNode;
 const FormData = globalThis['FormData'] || FormDataForNode;
-const fetch = globalThis['fetch'] || nodeFetch;
+const AbortController = globalThis['AbortController'] || AbortControllerForNode;
 
 const _isOfTypeJson = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
@@ -194,6 +195,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   defaultConfigsToUse.headers = objectAssign(
     {
       Accept: 'application/json',
+      'Accept-Encoding': 'gzip, deflate, br',
       'Content-Type': 'application/json',
     },
     defaultConfigsToUse.headers,
