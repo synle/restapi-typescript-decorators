@@ -71,13 +71,13 @@ const _fetchData = (fetchOptions): Promise<Response> => {
   return fetch(url, restFetchOptions);
 };
 
-const _getRequestBody = (instance, methodName, inputs) =>
+const _getRequestBody = (instance : any, methodName: any, inputs: any) =>
   inputs[get(instance, ['__decorators', methodName, '@RequestBody'])];
 
-const _getPathParams = (instance, methodName) =>
+const _getPathParams = (instance : any, methodName: any) =>
   get(instance, ['__decorators', methodName, '@PathParam'], {});
 
-const _getFormDataBody = (instance, methodName, inputs) => {
+const _getFormDataBody = (instance : any, methodName: any, inputs: any) => {
   const paramKeys = Object.keys(get(instance, ['__decorators', methodName, '@FormDataBody'], {}));
 
   if (paramKeys.length > 0) {
@@ -95,13 +95,13 @@ const _getFormDataBody = (instance, methodName, inputs) => {
   return null;
 };
 
-const _getFileUploadBody = (instance, methodName, inputs) =>
+const _getFileUploadBody = (instance : any, methodName: any, inputs: any) =>
   inputs[get(instance, ['__decorators', methodName, '@FileUploadBody'])];
 
-const _getQueryParams = (instance, methodName, inputs) =>
+const _getQueryParams = (instance : any, methodName: any, inputs: any) =>
   inputs[get(instance, ['__decorators', methodName, '@QueryParams'])] || {};
 
-const _getCredential = (instance) => {
+const _getCredential = (instance: any) => {
   switch (instance.authType) {
     case AuthTypeEnum.Bearer:
       return instance[get(instance, ['__decorators', '@CredentialProperty', 'AccessToken'])];
@@ -116,7 +116,7 @@ const _getCredential = (instance) => {
   }
 };
 
-const _getBase64FromString = (str) => {
+const _getBase64FromString = (str: string) => {
   try {
     // for node
     return Buffer.from(str).toString('base64');
@@ -127,7 +127,7 @@ const _getBase64FromString = (str) => {
 };
 
 // decorators
-export const PathParam = (paramKey) => (
+export const PathParam = (paramKey: string) => (
   target: any,
   methodName: string | symbol,
   paramIdx: number,
@@ -139,7 +139,7 @@ export const QueryParams = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@QueryParams'], paramIdx);
 };
 
-export const FormDataBody = (paramKey) => (
+export const FormDataBody = (paramKey: string) => (
   target: any,
   methodName: string | symbol,
   paramIdx: number,
@@ -173,7 +173,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
 
   const original = target;
 
-  const f: any = function (...inputs) {
+  const f: any = function (...inputs: any[]) {
     return new original(...inputs);
   };
   f.prototype = original.prototype;
@@ -215,7 +215,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       ...otherFetchOptions
     } = restApiOptions;
 
-    descriptor.value = function (...inputs) {
+    descriptor.value = function (...inputs: any[]) {
       const instance = this;
 
       // these are 3 types of body to be sent to the backend
