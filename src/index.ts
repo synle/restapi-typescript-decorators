@@ -190,8 +190,8 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     authType,
     timeout = DEFAULT_TIMEOUT,
     xmlParseOptions = DEFAULT_XML_PARSE_OPTIONS,
-    requestTransform: request_transform = _defaultRequestTransform,
-    responseTransform: response_transform = _defaultResponseTransform,
+    requestTransform = _defaultRequestTransform,
+    responseTransform = _defaultResponseTransform,
     ...defaultConfigs
   } = restOptions;
 
@@ -225,8 +225,8 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   f.prototype.baseUrl = baseUrl;
   f.prototype.authType = authType || '';
   f.prototype.timeout = timeout;
-  f.prototype.defaultRequestTransform = request_transform;
-  f.prototype.defaultResponseTransform = response_transform;
+  f.prototype.defaultRequestTransform = requestTransform;
+  f.prototype.defaultResponseTransform = responseTransform;
   f.prototype.xmlParseOptions = xmlParseOptions;
 
   return f;
@@ -238,8 +238,8 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       headers = {},
       method = HttpVerbEnum.GET,
       timeout,
-      requestTransform: request_transform,
-      responseTransform: response_transform,
+      requestTransform,
+      responseTransform,
       ...otherFetchOptions
     } = restApiOptions;
 
@@ -294,8 +294,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       if (finalResp) {
         // hook up a set timeout to abort the request if needed
-        const requestTransformToUse = request_transform || instance.defaultRequestTransform;
-        const responseTransformToUse = response_transform || instance.defaultResponseTransform;
+        const responseTransformToUse = responseTransform || instance.defaultResponseTransform;
         const timeoutToUse = timeout || instance.timeout;
         const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
 
@@ -314,13 +313,13 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         if (fileUploadBody) {
           promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
         } else if (formDataBody) {
-          promisePreProcessRequest = (request_transform || instance.defaultRequestTransform)(
+          promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
             baseOptions,
             formDataBody,
             instance,
           );
         } else {
-          promisePreProcessRequest = (request_transform || instance.defaultRequestTransform)(
+          promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
             baseOptions,
             requestBody,
             instance,

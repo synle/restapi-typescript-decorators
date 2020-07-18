@@ -91,11 +91,7 @@ interface BaseRestOptions extends RequestInit {
    * @param body
    * @param instance
    */
-  requestTransform?(
-    fetchOptions: Request,
-    body: object,
-    instance: any,
-  ): Request | Promise<Request>;
+  requestTransform?(fetchOptions: Request, body: object, instance: any): Request | Promise<Request>;
 
   /**
    * response transformation - to be called before the response finally returned
