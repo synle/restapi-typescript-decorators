@@ -6,7 +6,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "rm -rf build/* && tsc",
-    "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
+    "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} mock-server/**/**/*.js *.{json,MD}",
     "clean": "jest --clearCache && rm -rf build/*",
     "test": "jest --ci",
     "test:resetSnapshot": "jest --ci --updateSnapshot"

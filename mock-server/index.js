@@ -10,7 +10,7 @@ function between(min, max) {
 function respond(req, res, next) {
   const num = between(1, 10);
   if(num <= 4){
-    res.send({ message: 'SUCCESS' });
+    res.send({ code: 'OK', message: 'SUCCESS' });
     next();
   } else {
     return next(new Error('FAILED'));

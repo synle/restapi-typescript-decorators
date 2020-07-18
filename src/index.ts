@@ -244,7 +244,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       ...otherFetchOptions
     } = restApiOptions;
 
-    const doApiCall = (instance: any, ...inputs: any[]): IApiResponse<any> => {
+    const _doApiCall = (instance: any, ...inputs: any[]): IApiResponse<any> => {
       // these are 3 types of body to be sent to the backend
       // we will choose them in this order
       // 1. requestBody
@@ -283,20 +283,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       }
 
       const controller = new AbortController();
-
-      // doing the request transform
-      const finalResp = <IApiResponse<any>>{
-        abort: () => {
-          controller.abort();
-        }, // used to abort the api
-      };
-
-
-      // hook up a set timeout to abort the request if needed
-      const responseTransformToUse = responseTransform || instance.defaultResponseTransform;
-      const timeoutToUse = timeout || instance.timeout;
-      const timeoutAbortApi = setTimeout(finalResp.abort, timeoutToUse);
-
       const baseOptions = Object.assign(
         {
           url: urlToUse,
@@ -325,6 +311,12 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         );
       }
 
+      const finalResp = <IApiResponse<any>>{
+        abort: () => {
+          controller.abort();
+        }, // used to abort the api
+      };
+      const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
       finalResp.result = Promise.all([
         // if file upload is present, then use it
         promisePreProcessRequest,
@@ -345,7 +337,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
             clearTimeout(timeoutAbortApi);
 
             // doing the response transform
-            return responseTransformToUse(fetchOptionToUse, resp, instance);
+            return (responseTransform || instance.defaultResponseTransform)(fetchOptionToUse, resp, instance);
           },
           function(error) {
             // if fetch fails...
@@ -363,37 +355,22 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       });
 
       return finalResp;
-    }
+    };
 
     descriptor.value = function(...inputs: any[]) {
       const instance = this;
 
-      let retryTotalLeft, retryDelay;
+      let retyTotal, retryDelay;
       if (retryConfigs) {
-        retryTotalLeft = retryConfigs.count;
+        retyTotal = retryConfigs.count;
         retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
+      } else {
+        retyTotal = 1;
       }
 
-      let apiResponse = doApiCall(instance, ...inputs);
-      return apiResponse
-
-      // const instance = this;
-      // let retryTotalLeft, retryDelay;
-      // if (retryConfigs) {
-      //   retryTotalLeft = retryConfigs.count;
-      //   retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
-      // } else {
-      //   retryTotalLeft = 1; // base case when you want to try one time only
-      // }
-
-      // while (retryTotalLeft > 0) {
-      //   retryTotalLeft--;
-      //   try {
-      //     const apiResponse = doApiCall(instance, ...inputs);
-      //     return apiResponse;
-      //   } catch (e) { }
-      // }
-      // return null; // this is when the API failed after all the retry...
+      let apiResponse = _doApiCall(instance, ...inputs);
+      apiResponse.retry = 1;
+      return apiResponse;
     };
 
     return descriptor;
