@@ -190,8 +190,8 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
     authType,
     timeout = DEFAULT_TIMEOUT,
     xmlParseOptions = DEFAULT_XML_PARSE_OPTIONS,
-    request_transform = _defaultRequestTransform,
-    response_transform = _defaultResponseTransform,
+    requestTransform: request_transform = _defaultRequestTransform,
+    responseTransform: response_transform = _defaultResponseTransform,
     ...defaultConfigs
   } = restOptions;
 
@@ -238,8 +238,8 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       headers = {},
       method = HttpVerbEnum.GET,
       timeout,
-      request_transform,
-      response_transform,
+      requestTransform: request_transform,
+      responseTransform: response_transform,
       ...otherFetchOptions
     } = restApiOptions;
 
@@ -331,8 +331,8 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
           // if file upload is present, then use it
           promisePreProcessRequest,
         ]).then(([fetchOptionToUse]) => {
-          finalResp.request_body = fetchOptionToUse.body;
-          finalResp.request_headers = fetchOptionToUse.headers;
+          finalResp.requestBody = fetchOptionToUse.body;
+          finalResp.requestHeaders = fetchOptionToUse.headers;
           finalResp.url = fetchOptionToUse.url;
 
           return _fetchData(fetchOptionToUse).then(
@@ -341,7 +341,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
               finalResp.ok = resp.ok;
               finalResp.status = resp.status;
               finalResp.statusText = resp.statusText;
-              finalResp.response_headers = resp.headers;
+              finalResp.responseHeaders = resp.headers;
 
               // if API succeeds, then cancel the timer
               clearTimeout(timeoutAbortApi);

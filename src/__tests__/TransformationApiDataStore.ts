@@ -34,7 +34,7 @@ export class TransformationApiDataStore {
   // them by 100 and 200 respectively before sending them to the back end
   @RestApi('/anything', {
     method: 'POST',
-    request_transform: (
+    requestTransform: (
       fetchOptions: Request,
       pair: NumberPair,
       instance: TransformationApiDataStore,
@@ -58,7 +58,7 @@ export class TransformationApiDataStore {
   // and return the result as a sum
   @RestApi('/anything', {
     method: 'POST',
-    response_transform: (
+    responseTransform: (
       fetchOptions: Request,
       resp: Response,
       instance: TransformationApiDataStore,
@@ -77,7 +77,7 @@ export class TransformationApiDataStore {
   // in the request body before sending them out to the backend
   @RestApi('/anything', {
     method: 'POST',
-    request_transform: (
+    requestTransform: (
       fetchOptions: Request,
       fourNumbers: FourNumberCollection,
       instance: TransformationApiDataStore,

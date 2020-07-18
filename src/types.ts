@@ -44,15 +44,15 @@ export interface IApiResponse<T> {
   /**
    * request headers
    */
-  request_headers: object | null;
+  requestHeaders: object | null;
   /**
    * request body
    */
-  request_body: any;
+  requestBody: any;
   /**
    * response status headers
    */
-  response_headers: object | null;
+  responseHeaders: object | null;
   /**
    * response status code
    */
@@ -91,7 +91,7 @@ interface BaseRestOptions extends RequestInit {
    * @param body
    * @param instance
    */
-  request_transform?(
+  requestTransform?(
     fetchOptions: Request,
     body: object,
     instance: any,
@@ -104,7 +104,7 @@ interface BaseRestOptions extends RequestInit {
    * @param resp
    * @param instance
    */
-  response_transform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
+  responseTransform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
 }
 
 export interface RestClientOptions extends BaseRestOptions {
