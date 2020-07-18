@@ -75,6 +75,11 @@ export interface IApiResponse<T> {
   abort(): void;
 }
 
+export interface RetryConfigs {
+  count: number;
+  delay?: number;
+}
+
 interface BaseRestOptions extends RequestInit {
   /**
    * map of request headers
@@ -121,4 +126,9 @@ export interface RestClientOptions extends BaseRestOptions {
   xmlParseOptions?: X2jOptions;
 }
 
-export interface RestApiOptions extends BaseRestOptions {}
+export interface RestApiOptions extends BaseRestOptions {
+  /**
+   * retry configs
+   */
+  retryConfigs?: RetryConfigs;
+}
