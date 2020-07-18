@@ -699,12 +699,14 @@ To publish directly to npm
 
 ##### Beta Tags
 ```
+npm run build && \
 npm version prepatch && \
 npm publish --tag beta
 ```
 
 ##### Prod Tags
 ```
+npm run build && \
 npm version patch && \
 git push origin master
 ```
