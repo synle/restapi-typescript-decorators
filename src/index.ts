@@ -311,22 +311,22 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         );
       }
 
+      let retryTotal = 1,
+        retryDelay = 3000;
+      let hasRetriedCount = 0; // how many time has we done retries so far
+      if (retryConfigs) {
+        retryTotal = retryConfigs.count; // how many time to retry
+        retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
+      }
+
       const finalResp = <IApiResponse<any>>{
         abort: () => {
+          // when the API is aborted manually by the user
           controller.abort();
+          hasRetriedCount = retryTotal; // do this to stop further API retries attempt
         }, // used to abort the api
       };
       const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
-
-      let retryTotal: number, retryDelay: number;
-      if (retryConfigs) {
-        retryTotal = retryConfigs.count;
-        retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
-      } else {
-        retryTotal = 1;
-        retryDelay = 3000; // retry after 3 seconds
-      }
-      let hasRetriedCount = 0; // how many time has we do retried
 
       finalResp.result = new Promise((resolve, reject) => {
         const _doFetchApi = () =>

@@ -34,8 +34,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Cleanup / Refactor and Export typescript types
 - [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
-- [X] Add support for API retrying. Currently only support a fixed delay after before retry.
-- [X] Add support for custom retry, aka has it more dynamic as a custom function...
+- [X] Add support for API retrying. Currently only support a fixed delay after before retry. [setting max timeout for request section](#api-retries)
+- [ ] Add support for custom retry, aka has it more dynamic as a custom function...
 - [ ] Add API debounce actions
 - [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 - [X] Add simple XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
@@ -339,7 +339,8 @@ if(apiResponse){
 ```
 
 #### To abort pending Rest calls
-Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`
+Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`. Note that this action will also disable any attempt to retry the API for any pending instance method invokation. Say you are calling a fetch user with 5 retries, if you do `abort`. At that moment in time, the API will stop the pending API call and any retry.
+
 ```
 // ... your construction code here ...
 
@@ -478,11 +479,13 @@ doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
 ```
 
 #### API Retries
-Sometimes API can fail, you can set the parameter for retryConfigs which allows the API to be retried. This way the API will be called again until the totalRetry has passed. To use this, simply set the `retryConfigs` under the `@RestApi`  decorator.
+For cases when API can fail due to some QPS (Query Per Second) requirements and the vendor wants the user to attempt a retry at a later time, you can set the parameter for retryConfigs which allows the API to be retried. This way the API will be called again until the totalRetry has passed. To use this, simply set the `retryConfigs` under the `@RestApi`  decorator.
 
 This example below will retry if there's failure in the response. It will wait a second before attempting a new retry.
 
-As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`
+As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`.
+
+Note that when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
 ```
 @RestClient({
   baseUrl: 'http://localhost:8080',
