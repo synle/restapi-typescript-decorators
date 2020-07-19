@@ -6,38 +6,43 @@ Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), 
 
 Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
-### TODO's
+### Features
+- [X] Supports for path params. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
+- [X] Supports for query string. See usages for `@QueryParams`. Refer to [Using @QueryParams Section](#simple-get-rest-calls-with-query-string) for more details.
+- [X] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
+- [X] Supports File Upload. See usages for `@FileUploadBody`. Refer to [Using @FileUploadBody Section](#simple-post-rest-calls-with-file-upload-as-stream) for more details.
+- [X] Supports XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
+- [X] Supports XML Parser for Response with `Accept=application/json`. refer to [parse JSON response section](#parse-response-as-json) for more information.
+- [X] Supports for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
+- [X] Supports for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
+- [X] Supports custom serialization (`requestTransform`) and deserialization(`responseTransform`). Refer to [Transformation Section](#transformations) for more details
+- [X] Supports Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
+- [X] Supports for API retry config. Currently only support a fixed delay after before retry. [Max timeout for request section](#api-retries)
+- [X] Supports for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 - [X] Supports abort pending API requests.  Refer to [Aborting Pending Requests](#to-abort-pending-rest-calls) for more details
+- [X] Supports overrides for headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
+
+### TODO's
 - [X] Supports proper serialization of request based on headers accept
-- [X] Support for path params. See usages for `@PathParam`
-- [X] Support for query string. See usages for `@QueryParams`
 - [X] Add a new class decorator and supports default custom properties and baseUrl at a class / repo level
-- [X] Document steps for custom serialization (`requestTransform`) and deserialization(`responseTransform`). Refer to [Transformation Section](#transformations) for more details
 - [X] Deploy to npm modules instead of using github
-- [X] Support to instantiate multiple classes, useful when we need to support Api with different tokens.
-- [X] Support for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
+- [X] Supports to instantiate multiple classes, useful when we need to support Api with different tokens.
 - [X] Allow calling instance methods within `requestTransform` and `responseTransform`
 - [X] Added Prettier for code format
-- [X] Support for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
 - [X] Clean up the types and use proper types from node-fetch instead of using our own
 - [X] Integrate with CI pipeline to build stuffs and run tests automatically
 - [X] Make CI pipeline publish to npm registry
 - [X] Uses `ApiResponse` for return type instead of `any`
 - [X] Consolidate enum / string types for `HttpVerb` and `AuthType`
-- [X] Support Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
-- [X] Adds more examples / tests on how to override headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
 - [X] Allows class level `@RestClient` override for `requesgt_transform` and `responseTransform`
-- [X] Support POST raw data to API with `@FormDataBody`. Refer to [Using FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [X] Support POST binary file to API
 - [X] Have an example repo for backend NodeJS code. Refer to the demos at [frontend example repo](https://github.com/synle/restapi-typescript-decorators-front-end-example) or [backend node js example repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 - [X] Have an example repo for frontend code. Refer to the front end example repo
 - [X] Cleanup / Refactor and Export typescript types
 - [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
-- [ ] Add API retry actions
+- [ ] Add support for custom retry, aka has it more dynamic as a custom function...
 - [ ] Add API debounce actions
-- [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
-- [X] Add simple XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
 - [X] Add support for custom `fast-xml-parser` options
 
 
@@ -49,7 +54,7 @@ You can also checkout the sample repos that has typescript and other things setu
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^5
+npm i --save restapi-typescript-decorators@^6
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
@@ -338,7 +343,8 @@ if(apiResponse){
 ```
 
 #### To abort pending Rest calls
-Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`
+Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`. Note that this action will also disable any attempt to retry the API for any pending instance method invokation. Say you are calling a fetch user with 5 retries, if you do `abort`. At that moment in time, the API will stop the pending API call and any retry.
+
 ```
 // ... your construction code here ...
 
@@ -476,6 +482,33 @@ In this example, the actual API will return in 10 seconds, but the client will t
 doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
 ```
 
+#### API Retries
+For cases when API can fail due to some QPS (Query Per Second) requirements and the vendor wants the user to attempt a retry at a later time, you can set the parameter for retryConfigs which allows the API to be retried. This way the API will be called again until the totalRetry has passed. To use this, simply set the `retryConfigs` under the `@RestApi`  decorator.
+
+This example below will retry if there's failure in the response. It will wait a second before attempting a new retry.
+
+As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`.
+
+Note that when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
+```
+@RestClient({
+  baseUrl: 'http://localhost:8080',
+})
+export class RetryDataStore {
+  @RestApi('/hello', {
+    retryConfigs: {
+      count: 5, // maximum retry 5 times
+      delay: 1000, // retry after 1 second
+    },
+  })
+  doApiWithRetry(): ApiResponse<HttpBinResponse> {}
+}
+```
+
+
+#### Understanding the ApiResponse.result Promise
+It's the promise that wrapped around the fetch calls. At the moment, the API will return the resolved promise state when the API is successful, and rejected state if the call is aborted by the user or it's an API network error.
+
 
 #### Request and Response Format
 By default, the library will help parsing of the response when you set the proper value for `Accept` Header.
@@ -483,6 +516,7 @@ By default, the library will help parsing of the response when you set the prope
 To use the default parser, you can set the Accept Header. This example below will tell the library to parse the response as if the response is a XML. The default behavior is to parse response as JSON.
 
 ##### Parse Response as XML
+This will parse the XML response and return them as JSON object
 ```
 @RestApi('/xml', {
   headers: {
@@ -491,6 +525,18 @@ To use the default parser, you can set the Accept Header. This example below wil
 })
 doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 ```
+
+##### Parse Response as JSON
+The default header value for `Accept` is `application/json`. You can also be explicit about it. But basically it will transform your response into JSON objects.
+```
+@RestApi('/json', {
+  headers: {
+    'Accept': 'application/json',
+  },
+})
+doSimpleJSONGet(): ApiResponse<HttpBinResponse> {}
+```
+
 
 You can also provide `fast-xml-parser` custom configurations for the client using `@RestClient` property `xmlParseOptions` at the class level.
 ```

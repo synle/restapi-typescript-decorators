@@ -1,12 +1,12 @@
 {
   "name": "restapi-typescript-decorators",
-  "version": "5.0.4",
+  "version": "6.0.0",
   "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "rm -rf build/* && tsc",
-    "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} *.{json,MD}",
+    "format": "prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} mock-server/**/**/*.js *.{json,MD}",
     "clean": "jest --clearCache && rm -rf build/*",
     "test": "jest --ci",
     "test:resetSnapshot": "jest --ci --updateSnapshot"

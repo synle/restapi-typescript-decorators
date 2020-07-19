@@ -147,7 +147,7 @@ describe('PublicApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
+      return apiResponse.result.catch((resp) => {
         expect(apiResponse.ok).toBe(false);
         expect(apiResponse.status).toBe(405);
         expect(resp).toEqual('');

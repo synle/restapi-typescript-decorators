@@ -70,9 +70,18 @@ export interface IApiResponse<T> {
    */
   result: Promise<T>;
   /**
+   * total number of retry has done to fulfill this request
+   */
+  retryCount: number;
+  /**
    * method which you can use to abort the API...
    */
   abort(): void;
+}
+
+export interface RetryConfigs {
+  count: number;
+  delay?: number;
 }
 
 interface BaseRestOptions extends RequestInit {
@@ -121,4 +130,9 @@ export interface RestClientOptions extends BaseRestOptions {
   xmlParseOptions?: X2jOptions;
 }
 
-export interface RestApiOptions extends BaseRestOptions {}
+export interface RestApiOptions extends BaseRestOptions {
+  /**
+   * retry configs
+   */
+  retryConfigs?: RetryConfigs;
+}
