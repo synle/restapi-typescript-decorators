@@ -490,7 +490,9 @@ This example below will retry if there's failure in the response. It will wait a
 
 As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`.
 
-Note that when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
+Note:
+- That when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
+- Another note is that the client will respect server `Retry-After` response header. And will attempt to retry after that delay. At the moment we only support `Retry-After` that is of number of seconds to invoke an API retry
 ```
 @RestClient({
   baseUrl: 'http://localhost:8080',
