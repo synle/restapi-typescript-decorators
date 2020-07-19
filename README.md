@@ -9,6 +9,7 @@ Another inspiration is to create a unified Rest Client library that works across
 ### Features
 - [X] Supports for path params. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
 - [X] Supports for query string. See usages for `@QueryParams`. Refer to [Using @QueryParams Section](#simple-get-rest-calls-with-query-string) for more details.
+- [X] Supports for POSTING JSON requests. See usages for `@RequestBody`. Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
 - [X] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [X] Supports File Upload. See usages for `@FileUploadBody`. Refer to [Using @FileUploadBody Section](#simple-post-rest-calls-with-file-upload-as-stream) for more details.
 - [X] Supports XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
