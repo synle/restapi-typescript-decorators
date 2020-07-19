@@ -4,7 +4,7 @@ const myApiInstance = new RetryDataStore();
 
 // NOTE: this test can only be run against the custom server which we have here in this repo.
 // to run this test, start that Node server and remove the `skip` to re-run the test
-describe('RetryDataStore', () => {
+describe.skip('RetryDataStore', () => {
   it('Simple API Retry with fixed delay should work', () => {
     const apiResponse = myApiInstance.doApiWithFixedRetryAfter();
 

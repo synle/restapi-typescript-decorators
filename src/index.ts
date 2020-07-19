@@ -392,7 +392,9 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
                       // if not then fall back to provided retryDelay in the config
                       let retryDelayToUse = retryDelay;
                       if (finalResp.responseHeaders) {
-                        retryDelayToUse = parseInt(finalResp.responseHeaders['retry-after']) * 1000;
+                        retryDelayToUse =
+                          parseInt(finalResp.responseHeaders['retry-after']) * 1000 ||
+                          retryDelayToUse;
                       }
                       setTimeout(_doFetchApi, retryDelayToUse);
                     } else {

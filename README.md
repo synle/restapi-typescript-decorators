@@ -42,6 +42,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Cleanup / Refactor and Export typescript types
 - [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
+- [X] Make sure the retry logics respect Server side `retry-after` response header.
 - [ ] Add support for custom retry, aka has it more dynamic as a custom function...
 - [ ] Add API debounce actions
 - [X] Add support for custom `fast-xml-parser` options
