@@ -52,7 +52,7 @@ export interface IApiResponse<T> {
   /**
    * response status headers
    */
-  responseHeaders: object | null;
+  responseHeaders: Record<string, any>;
   /**
    * response status code
    */
@@ -88,7 +88,7 @@ interface BaseRestOptions extends RequestInit {
   /**
    * map of request headers
    */
-  headers?: Record<string, string>;
+  headers?: Record<string, any>;
   /**
    * request timeout in miliseconds
    */

@@ -14,11 +14,19 @@ import { HttpBinResponse, HttpBinRequest } from './types';
   baseUrl: 'http://localhost:8080',
 })
 export class RetryDataStore {
-  @RestApi('/hello', {
+  @RestApi('/retry/no_extra_headers', {
     retryConfigs: {
       count: 5, // maximum retry 5 times
       delay: 1000, // retry after 1 second
     },
   })
-  doApiWithRetry(): ApiResponse<HttpBinResponse> {}
+  doApiWithFixedRetryAfter(): ApiResponse<HttpBinResponse> {}
+
+  @RestApi('/retry/retry_after_as_seconds', {
+    retryConfigs: {
+      count: 5, // maximum retry 5 times
+      delay: 1000, // retry after 1 second
+    },
+  })
+  doApiWithRetryAfterAsSeconds(): ApiResponse<HttpBinResponse> {}
 }

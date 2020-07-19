@@ -36,6 +36,15 @@ const _isOfTypeJson = (typeAsString: string | null) =>
 const _isOfTypeXml = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().indexOf('application/xml') >= 0;
 
+const _getHeadersAsJson = (headers: Headers) => {
+  const responseHeaders = {};
+  [...headers.keys()].forEach((headerKey) => {
+    set(responseHeaders, headerKey, headers.get(headerKey));
+  });
+
+  return responseHeaders;
+};
+
 const _defaultRequestTransform = (
   fetchOptionToUse: any,
   body: object,
@@ -320,6 +329,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       }
 
       const finalResp = <IApiResponse<any>>{
+        responseHeaders: {},
         abort: () => {
           // when the API is aborted manually by the user
           controller.abort();
@@ -338,12 +348,14 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
               return _fetchData(fetchOptionToUse)
                 .then(
-                  (resp) => {
+                  (resp: Response) => {
                     // if fetch succeeds
                     finalResp.ok = resp.ok;
                     finalResp.status = resp.status;
                     finalResp.statusText = resp.statusText;
-                    finalResp.responseHeaders = resp.headers;
+
+                    // transform the response header
+                    finalResp.responseHeaders = _getHeadersAsJson(resp.headers);
 
                     // if API succeeds, then cancel the timer
                     clearTimeout(timeoutAbortApi);
@@ -360,7 +372,6 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
                     finalResp.ok = false;
                     // finalResp.status = resp.status;
                     // finalResp.statusText = resp.statusText;
-                    // finalResp.response_headers = resp.headers;
 
                     // if API fails, then cancel the timer
                     clearTimeout(timeoutAbortApi);
@@ -377,7 +388,15 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
                     resolve(resp);
                   } else {
                     if (hasRetriedCount < retryTotal) {
-                      setTimeout(_doFetchApi, retryDelay);
+                      // by default check if we have a valid `retry-after` response header, if yes, then use it
+                      // if not then fall back to provided retryDelay in the config
+                      let retryDelayToUse = retryDelay;
+                      if (finalResp.responseHeaders) {
+                        retryDelayToUse =
+                          parseInt(finalResp.responseHeaders['retry-after']) * 1000 ||
+                          retryDelayToUse;
+                      }
+                      setTimeout(_doFetchApi, retryDelayToUse);
                     } else {
                       // no more retry, reject the promise
                       reject(resp);

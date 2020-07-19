@@ -42,6 +42,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Cleanup / Refactor and Export typescript types
 - [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
+- [X] Make sure the retry logics respect Server side `retry-after` response header.
 - [ ] Add support for custom retry, aka has it more dynamic as a custom function...
 - [ ] Add API debounce actions
 - [X] Add support for custom `fast-xml-parser` options
@@ -490,7 +491,9 @@ This example below will retry if there's failure in the response. It will wait a
 
 As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`.
 
-Note that when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
+Note:
+- That when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
+- Another note is that the client will respect server `Retry-After` response header. And will attempt to retry after that delay. At the moment we only support `Retry-After` that is of number of seconds to invoke an API retry
 ```
 @RestClient({
   baseUrl: 'http://localhost:8080',
