@@ -16,7 +16,8 @@ import { HttpBinResponse, HttpBinRequest } from './types';
 export class RetryDataStore {
   @RestApi('/hello', {
     retryConfigs: {
-      count: 5,
+      count: 5, // maximum retry 5 times
+      delay: 1000, // retry after 1 second
     },
   })
   doApiWithRetry(): ApiResponse<HttpBinResponse> {}

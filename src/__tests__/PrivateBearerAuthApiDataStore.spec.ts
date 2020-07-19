@@ -28,7 +28,7 @@ describe('PrivateBearerAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
+      return apiResponse.result.catch((resp) => {
         expect(apiResponse.url).toBe('https://httpbin.org/bearer');
         expect(apiResponse.ok).toBe(false);
         expect(apiResponse.status).toBe(401);

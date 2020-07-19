@@ -294,7 +294,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       );
 
       // figure out the request transformation to use
-      let promisePreProcessRequest;
+      let promisePreProcessRequest: any;
       if (fileUploadBody) {
         promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
       } else if (formDataBody) {
@@ -317,41 +317,77 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
         }, // used to abort the api
       };
       const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
-      finalResp.result = Promise.all([
-        // if file upload is present, then use it
-        promisePreProcessRequest,
-      ]).then(([fetchOptionToUse]) => {
-        finalResp.requestBody = fetchOptionToUse.body;
-        finalResp.requestHeaders = fetchOptionToUse.headers;
-        finalResp.url = fetchOptionToUse.url;
 
-        return _fetchData(fetchOptionToUse).then(
-          (resp) => {
-            // if fetch succeeds
-            finalResp.ok = resp.ok;
-            finalResp.status = resp.status;
-            finalResp.statusText = resp.statusText;
-            finalResp.responseHeaders = resp.headers;
+      let retryTotal: number, retryDelay: number;
+      if (retryConfigs) {
+        retryTotal = retryConfigs.count;
+        retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
+      } else {
+        retryTotal = 1;
+        retryDelay = 3000; // retry after 3 seconds
+      }
+      let hasRetriedCount = 0; // how many time has we do retried
 
-            // if API succeeds, then cancel the timer
-            clearTimeout(timeoutAbortApi);
+      finalResp.result = new Promise((resolve, reject) => {
+        const _doFetchApi = () =>
+          Promise.all([Promise.resolve(<Promise<any>>promisePreProcessRequest)]).then(
+            ([fetchOptionToUse]) => {
+              finalResp.requestBody = fetchOptionToUse.body;
+              finalResp.requestHeaders = fetchOptionToUse.headers;
+              finalResp.url = fetchOptionToUse.url;
 
-            // doing the response transform
-            return (responseTransform || instance.defaultResponseTransform)(fetchOptionToUse, resp, instance);
-          },
-          function(error) {
-            // if fetch fails...
-            finalResp.ok = false;
-            // finalResp.status = resp.status;
-            // finalResp.statusText = resp.statusText;
-            // finalResp.response_headers = resp.headers;
+              return _fetchData(fetchOptionToUse)
+                .then(
+                  (resp) => {
+                    // if fetch succeeds
+                    finalResp.ok = resp.ok;
+                    finalResp.status = resp.status;
+                    finalResp.statusText = resp.statusText;
+                    finalResp.responseHeaders = resp.headers;
 
-            // if API succeeds, then cancel the timer
-            clearTimeout(timeoutAbortApi);
+                    // if API succeeds, then cancel the timer
+                    clearTimeout(timeoutAbortApi);
 
-            throw error;
-          },
-        );
+                    // doing the response transform
+                    return (responseTransform || instance.defaultResponseTransform)(
+                      fetchOptionToUse,
+                      resp,
+                      instance,
+                    );
+                  },
+                  function(error) {
+                    // if fetch fails...
+                    finalResp.ok = false;
+                    // finalResp.status = resp.status;
+                    // finalResp.statusText = resp.statusText;
+                    // finalResp.response_headers = resp.headers;
+
+                    // if API fails, then cancel the timer
+                    clearTimeout(timeoutAbortApi);
+
+                    return { error };
+                  },
+                )
+                .then((resp) => {
+                  hasRetriedCount++;
+
+                  finalResp.retryCount = hasRetriedCount;
+
+                  if (finalResp.ok) {
+                    resolve(resp);
+                  } else {
+                    if (hasRetriedCount < retryTotal) {
+                      setTimeout(_doFetchApi, retryDelay);
+                    } else {
+                      // no more retry, reject the promise
+                      reject(resp);
+                    }
+                  }
+                });
+            },
+          );
+
+        _doFetchApi(); // invoke the first call
       });
 
       return finalResp;
@@ -359,18 +395,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
     descriptor.value = function(...inputs: any[]) {
       const instance = this;
-
-      let retyTotal, retryDelay;
-      if (retryConfigs) {
-        retyTotal = retryConfigs.count;
-        retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
-      } else {
-        retyTotal = 1;
-      }
-
-      let apiResponse = _doApiCall(instance, ...inputs);
-      apiResponse.retry = 1;
-      return apiResponse;
+      return _doApiCall(instance, ...inputs);
     };
 
     return descriptor;

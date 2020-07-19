@@ -70,9 +70,9 @@ export interface IApiResponse<T> {
    */
   result: Promise<T>;
   /**
-   * total number of retry
+   * total number of retry has done to fulfill this request
    */
-  retry: number;
+  retryCount: number;
   /**
    * method which you can use to abort the API...
    */

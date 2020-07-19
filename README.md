@@ -34,7 +34,8 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Cleanup / Refactor and Export typescript types
 - [X] Enforce `noImplicitAny`
 - [ ] Throw exception when missing key params
-- [ ] Add API retry actions
+- [X] Add support for API retrying. Currently only support a fixed delay after before retry.
+- [X] Add support for custom retry, aka has it more dynamic as a custom function...
 - [ ] Add API debounce actions
 - [X] Add support for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
 - [X] Add simple XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
@@ -475,6 +476,31 @@ In this example, the actual API will return in 10 seconds, but the client will t
 })
 doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
 ```
+
+#### API Retries
+Sometimes API can fail, you can set the parameter for retryConfigs which allows the API to be retried. This way the API will be called again until the totalRetry has passed. To use this, simply set the `retryConfigs` under the `@RestApi`  decorator.
+
+This example below will retry if there's failure in the response. It will wait a second before attempting a new retry.
+
+As for checking how many retries has been attempted to reach the API. You can refer to the `retryCount` property of the `ApiResponse`
+```
+@RestClient({
+  baseUrl: 'http://localhost:8080',
+})
+export class RetryDataStore {
+  @RestApi('/hello', {
+    retryConfigs: {
+      count: 5, // maximum retry 5 times
+      delay: 1000, // retry after 1 second
+    },
+  })
+  doApiWithRetry(): ApiResponse<HttpBinResponse> {}
+}
+```
+
+
+#### Understanding the ApiResponse.result Promise
+It's the promise that wrapped around the fetch calls. At the moment, the API will return the resolved promise state when the API is successful, and rejected state if the call is aborted by the user or it's an API network error.
 
 
 #### Request and Response Format
