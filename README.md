@@ -50,7 +50,7 @@ You can also checkout the sample repos that has typescript and other things setu
 #### Install it
 install from npm
 ```
-npm i --save restapi-typescript-decorators@^5
+npm i --save restapi-typescript-decorators@^6
 ```
 
 Make sure you have the typescript and decorator enabled in your `tsconfig.json`
