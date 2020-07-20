@@ -31,10 +31,13 @@ const DEFAULT_XML_PARSE_OPTIONS = {
   ignoreNameSpace: true,
 };
 const _isOfTypeJson = (typeAsString: string | null) =>
-  (typeAsString || '').toLowerCase().indexOf('application/json') >= 0;
+  (typeAsString || '').toLowerCase().includes('application/json');
 
 const _isOfTypeXml = (typeAsString: string | null) =>
-  (typeAsString || '').toLowerCase().indexOf('application/xml') >= 0;
+  (typeAsString || '').toLowerCase().includes('application/xml');
+
+const _isOfTypeUrlEncodedForm = (typeAsString: string | null) =>
+  (typeAsString || '').toLowerCase().includes('application/x-www-form-urlencoded');
 
 const _getHeadersAsJson = (headers: Headers) => {
   const responseHeaders = {};
@@ -60,6 +63,8 @@ const _defaultRequestTransform = (
       const requestFormat = fetchOptionToUse.headers['Content-Type'];
       if (body instanceof FormData) {
         bodyToUse = body;
+      } else if (_isOfTypeUrlEncodedForm(requestFormat)) {
+        bodyToUse = qs.stringify(body);
       } else if (_isOfTypeJson(requestFormat)) {
         bodyToUse = JSON.stringify(body);
       } else {

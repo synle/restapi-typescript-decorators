@@ -5,8 +5,8 @@ const myPublicDataStoreInstance = new PublicApiDataStore();
 const sampleTextFile = 'SampleSms.txt';
 
 describe('PublicApiDataStore', () => {
-  it('Simple Public HTTP POST should work', () => {
-    const apiResponse = myPublicDataStoreInstance.doSimpleHttpBinPost({ a: 1, b: 2, c: 3 });
+  it('Simple Public HTTP POST with JSON @RequestBody should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpBinPostJsonBody({ a: 1, b: 2, c: 3 });
 
     expect(apiResponse).toBeDefined();
 
@@ -15,6 +15,25 @@ describe('PublicApiDataStore', () => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
         expect(resp.json).toEqual({ a: 1, b: 2, c: 3 });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('Simple Public HTTP POST with encoded form @RequestBody should work', () => {
+    const apiResponse = myPublicDataStoreInstance.doSimpleHttpBinPostEncodedForm({
+      a: 1,
+      b: 2,
+      c: 3,
+    });
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.form).toEqual({ a: '1', b: '2', c: '3' });
         expect(resp.url).toEqual('https://httpbin.org/post');
       });
     }

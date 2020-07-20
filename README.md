@@ -12,8 +12,10 @@ Another inspiration is to create a unified Rest Client library that works across
 - [X] Supports for POSTING JSON requests. See usages for `@RequestBody`. Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
 - [X] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [X] Supports File Upload. See usages for `@FileUploadBody`. Refer to [Using @FileUploadBody Section](#simple-post-rest-calls-with-file-upload-as-stream) for more details.
+- [X] Supports JSON Parser for Request with `Content-Type=application/json`.  Refer to [Parse JSON Request](#parse-json-request) for more details.
+- [X] Supports URL Encoded Form Parser for POST Request with `Content-Type=application/x-www-form-urlencoded`.  Refer to [Parse URL Encoded Form Request](#parse-url-encoded-form-request) for more details.
 - [X] Supports XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
-- [X] Supports XML Parser for Response with `Accept=application/json`. refer to [parse JSON response section](#parse-response-as-json) for more information.
+- [X] Supports JSON Parser for Response with `Accept=application/json`. refer to [parse JSON response section](#parse-response-as-json) for more information.
 - [X] Supports for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
 - [X] Supports for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
 - [X] Supports custom serialization (`requestTransform`) and deserialization(`responseTransform`). Refer to [Transformation Section](#transformations) for more details
@@ -136,29 +138,6 @@ export class PublicApiDataStore {
     @QueryParams _queryParams: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
-  // do simple post with request body
-  @RestApi('/post', {
-    method: 'POST',
-  })
-  doSimpleHttpBinPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
-
-  // do simple post with formData
-  @RestApi('/anything', {
-    method: 'POST',
-  })
-  doSimpleFormDataHttpBinPost(
-    @FormDataBody('unitPrice') _unitPrice: number,
-    @FormDataBody('quantity') _qty: number,
-  ): ApiResponse<HttpBinResponse> {}
-
-  // this example uploads the file via input named `mySms`
-  @RestApi('/anything', {
-    method: 'POST',
-  })
-  doSimpleUploadFileHttpBinPost(
-    @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
-  ): ApiResponse<HttpBinResponse> {}
-
   // the actual API will return in 10 seconds, but the client
   // will fail and timeout in 3 seconds
   @RestApi('/delay/10', {
@@ -182,6 +161,40 @@ export class PublicApiDataStore {
   })
   doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 
+  // do simple post with JSON request body
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doSimpleHttpBinPostJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  // do simple post with URL encoded form request body
+  @RestApi('/post', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+  doSimpleHttpBinPostEncodedForm(
+    @RequestBody _body: HttpBinRequest,
+  ): ApiResponse<HttpBinResponse> {}
+
+  // do simple post with formData
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleFormDataHttpBinPost(
+    @FormDataBody('unitPrice') _unitPrice: number,
+    @FormDataBody('quantity') _qty: number,
+  ): ApiResponse<HttpBinResponse> {}
+
+  // this example uploads the file via input named `mySms`
+  @RestApi('/anything', {
+    method: 'POST',
+  })
+  doSimpleUploadFileHttpBinPost(
+    @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
+  ): ApiResponse<HttpBinResponse> {}
+
   // this example uploads the file as a single stream
   @RestApi('/post', {
     method: 'POST',
@@ -190,6 +203,7 @@ export class PublicApiDataStore {
     @FileUploadBody _fileToUpload: any,
   ): ApiResponse<HttpBinResponse> {}
 }
+
 
 ```
 
@@ -519,13 +533,45 @@ By default, the library will help parsing of the response when you set the prope
 
 To use the default parser, you can set the Accept Header. This example below will tell the library to parse the response as if the response is a XML. The default behavior is to parse response as JSON.
 
+
+##### Parse JSON Request
+The default header value for `Content-Type` is `application/json`. You can also be explicit about it. But basically it will transform your JSON request object into JSON string understood by the backend that consumes JSON.
+```
+@RestApi('/post', {
+  method: 'POST',
+  // the following header value is implied
+  //  headers: {
+  //    'Content-Type': 'application/xml',
+  //  },
+})
+doSimpleHttpBinPostJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+```
+
+
+##### Parse URL Encoded Form Request
+The default header value for `Content-Type` is `application/x-www-form-urlencoded`. When this is provided, the library will send your request in url encoded form format.
+```
+@RestApi('/post', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+})
+doSimpleHttpBinPostEncodedForm(
+  @RequestBody _body: HttpBinRequest,
+): ApiResponse<HttpBinResponse> {}
+```
+
+
+
 ##### Parse Response as XML
 This will parse the XML response and return them as JSON object
 ```
 @RestApi('/xml', {
-  headers: {
-    'Accept': 'application/xml',
-  },
+// the following header value is implied
+//  headers: {
+//    'Accept': 'application/xml',
+//  },
 })
 doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 ```
