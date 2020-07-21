@@ -49,9 +49,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleRequestTransformApi(
-    @RequestBody _requestBody: NumberPair,
-  ): ApiResponse<HttpBinResponse> {}
+  doRequestTransformApi(@RequestBody _requestBody: NumberPair): ApiResponse<HttpBinResponse> {}
 
   // this example will make the api response to the backend
   // then transform the returned data by adding the 2 numbers a and b
@@ -71,7 +69,7 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody _requestBody: NumberPair): ApiResponse<CollectionSum> {}
+  doResponseTransformApi(@RequestBody _requestBody: NumberPair): ApiResponse<CollectionSum> {}
 
   // this example will attempt making 2 async calls for 2 sums and then add them up
   // in the request body before sending them out to the backend
@@ -85,8 +83,8 @@ export class TransformationApiDataStore {
       if (instance) {
         const { a, b, c, d } = fourNumbers;
 
-        const apiResponseSum1 = instance.doSimpleResponseTransformApi({ a: a, b: b });
-        const apiResponseSum2 = instance.doSimpleResponseTransformApi({ a: c, b: d });
+        const apiResponseSum1 = instance.doResponseTransformApi({ a: a, b: b });
+        const apiResponseSum2 = instance.doResponseTransformApi({ a: c, b: d });
 
         if (!apiResponseSum1 || !apiResponseSum2) {
           throw 'One of the request for sum failed';

@@ -1,7 +1,12 @@
+.gitignore
+.nvmrc
+.prettierrc
+.vscode
+build/__tests__
+coverage
 jest.config.js
+jest.setup.js
+mock-server
+SampleSms.txt
 src
 tsconfig.json
-.vscode
-build/__tests__/
-jest.setup.js
-.prettierrc

@@ -1,10 +1,10 @@
 import { OverrideTransformDataStore } from './OverrideTransformDataStore';
 
-const myOverrideTransformDataStoreInstance = new OverrideTransformDataStore();
+const myApiInstance = new OverrideTransformDataStore();
 
 describe('OverrideTransformDataStore', () => {
-  it('Simple Override of Transformation at @RestClient should work - example 1', () => {
-    const apiResponse = myOverrideTransformDataStoreInstance.doSimpleHttpBinPost({
+  it('Override of Transformation at @RestClient should work - example 1', () => {
+    const apiResponse = myApiInstance.doPost({
       a: 1,
       b: 2,
       c: 3,
@@ -21,8 +21,8 @@ describe('OverrideTransformDataStore', () => {
     }
   });
 
-  it('Simple Override of Transformation at @RestClient should work - example 2', () => {
-    const apiResponse = myOverrideTransformDataStoreInstance.doSimpleHttpBinGet({
+  it('Override of Transformation at @RestClient should work - example 2', () => {
+    const apiResponse = myApiInstance.doGet({
       d: 4,
       e: 5,
       f: 6,

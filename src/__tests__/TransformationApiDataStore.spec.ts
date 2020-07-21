@@ -1,10 +1,10 @@
 import { TransformationApiDataStore } from './TransformationApiDataStore';
 
-const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
+const myApiInstance = new TransformationApiDataStore();
 
 describe('TransformationApiDataStore', () => {
-  it('Simple Request Transformation API should work - transform before request is sent', () => {
-    const apiResponse = myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({
+  it('Request Transformation API should work - transform before request is sent', () => {
+    const apiResponse = myApiInstance.doRequestTransformApi({
       a: 1,
       b: 2,
     });
@@ -21,8 +21,8 @@ describe('TransformationApiDataStore', () => {
     }
   });
 
-  it('Simple Request Transformation API should work - transform before response is returned', () => {
-    const apiResponse = myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({
+  it('Request Transformation API should work - transform before response is returned', () => {
+    const apiResponse = myApiInstance.doResponseTransformApi({
       a: 300,
       b: 700,
     });
@@ -38,8 +38,8 @@ describe('TransformationApiDataStore', () => {
     }
   });
 
-  it('Simple Request Transformation API should work - complex API transform before response is returned', () => {
-    const apiResponse = myTransformationApiDataStoreInstance.doComplexRequestTransformation({
+  it('Request Transformation API should work - complex API transform before response is returned', () => {
+    const apiResponse = myApiInstance.doComplexRequestTransformation({
       a: 100,
       b: 200,
       c: 300,
