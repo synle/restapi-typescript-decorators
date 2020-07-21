@@ -690,11 +690,11 @@ export class TransformationApiDataStore {
       );
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
+  doPostWithRequestTransformation(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({ a: 1, b: 2 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithRequestTransformation({ a: 1, b: 2 })
 
 if(apiResponse){
   //... follow the above example to get the data from result promise
@@ -740,11 +740,11 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
+  doPostWithResponseTransformation(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({ a: 300, b: 700 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithResponseTransformation({ a: 300, b: 700 })
 
 if(apiResponse){
   //... follow the above example to get the data from result promise
@@ -803,7 +803,7 @@ export class OverrideConfigApiDataStore {
       '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
     },
   })
-  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
+  doPostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
 }
 ```
 
