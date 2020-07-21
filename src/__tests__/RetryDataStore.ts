@@ -11,12 +11,12 @@ import {
 import { HttpBinResponse, HttpBinRequest } from './types';
 
 @RestClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'https://synle-mock-server.herokuapp.com',
 })
 export class RetryDataStore {
   @RestApi('/retry/no_extra_headers', {
     retryConfigs: {
-      count: 5, // maximum retry 5 times
+      count: 10, // maximum retries
       delay: 1000, // retry after 1 second
     },
   })
@@ -24,8 +24,8 @@ export class RetryDataStore {
 
   @RestApi('/retry/retry_after_as_seconds', {
     retryConfigs: {
-      count: 5, // maximum retry 5 times
-      delay: 1000, // retry after 1 second
+      count: 10, //  maximum retries
+      delay: 1000, // this is ignored, because the API will set the retry-after
     },
   })
   doApiWithRetryAfterAsSeconds(): ApiResponse<HttpBinResponse> {}
