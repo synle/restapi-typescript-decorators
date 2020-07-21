@@ -61,6 +61,3 @@ typings/
 # src/**/*.js
 build
 .env
-
-
-.vscode
