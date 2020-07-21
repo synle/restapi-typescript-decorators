@@ -110,8 +110,30 @@ const _fetchData = (fetchOptions: Request): Promise<Response> => {
 const _getRequestBody = (instance: any, methodName: string, inputs: any[]) =>
   inputs[get(instance, ['__decorators', methodName, '@RequestBody'])];
 
-const _getPathParams = (instance: any, methodName: string) =>
-  get(instance, ['__decorators', methodName, '@PathParam'], {});
+const _getPathParams = (instance: any, methodName: string, inputs: any[]) => {
+  const pathParamValues: Record<string, any> = {};
+
+  // get the path params from the method inputs
+  const paramKeysFromMethod = get(
+    instance,
+    ['__decorators', methodName, '@PathParam-ParamIdx'],
+    {},
+  );
+  Object.keys(paramKeysFromMethod).forEach((paramKey) => {
+    const paramValue = inputs[paramKeysFromMethod[paramKey]];
+    pathParamValues[paramKey] = paramValue;
+  });
+
+  // get the path params from the class members
+  const paramKeysFromClassMember = get(instance, ['__decorators', '@PathParam-ClassMember'], {});
+
+  Object.keys(paramKeysFromClassMember).forEach((paramKey) => {
+    const paramValue = instance[paramKeysFromClassMember[paramKey]];
+    pathParamValues[paramKey] = paramValue;
+  });
+
+  return pathParamValues;
+};
 
 const _getFormDataBody = (instance: any, methodName: string, inputs: any[]) => {
   const paramKeys = Object.keys(get(instance, ['__decorators', methodName, '@FormDataBody'], {}));
@@ -163,12 +185,17 @@ const _getBase64FromString = (strVal: string) => {
 };
 
 // decorators
-export const PathParam = (paramKey: string) => (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number,
-) => {
-  set(target, ['__decorators', methodName, '@PathParam', paramKey], paramIdx);
+export const PathParam = (paramKey: string) => {
+  return function(...inputs: any[]) {
+    const [target, methodName, paramIdx] = inputs;
+    if (paramIdx >= 0) {
+      // this decorator is used in a context of a method parameter
+      set(target, ['__decorators', methodName, '@PathParam-ParamIdx', paramKey], paramIdx);
+    } else {
+      // this decorator is used in a context of a class property
+      set(target, ['__decorators', '@PathParam-ClassMember', paramKey], methodName);
+    }
+  };
 };
 
 export const QueryParams = (target: any, methodName: string | symbol, paramIdx: number) => {
@@ -222,6 +249,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
       cache: 'no-cache',
       credentials: 'include',
       headers: {},
+      redirect: 'follow',
     },
     defaultConfigs,
   );
@@ -246,7 +274,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   return f;
 };
 
-export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
+export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string, descriptor: any) => {
     const {
       headers = {},
@@ -270,12 +298,20 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
 
       // construct the url wild cards {param1} {param2} etc...
       let urlToUse = '';
-      const baseUrl = instance.baseUrl;
-      urlToUse = `${baseUrl}${url}`;
-      const pathParams = _getPathParams(instance, methodName);
+
+      if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+        // if the current url is absolute, then use it
+        urlToUse = url;
+      } else {
+        // if not then appended current url to baseUrl
+        const baseUrl = instance.baseUrl;
+        urlToUse = `${baseUrl}${url}`;
+      }
+
+      // replace the url fragments from @PathParams
+      const pathParams = _getPathParams(instance, methodName, inputs);
       Object.keys(pathParams).forEach((paramKey) => {
-        const paramIdx = pathParams[paramKey];
-        const paramValue = inputs[paramIdx];
+        const paramValue = pathParams[paramKey];
         urlToUse = urlToUse.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
       });
 
@@ -334,6 +370,7 @@ export const RestApi = (url: string, restApiOptions: RestApiOptions = {}) => {
       }
 
       const finalResp = <IApiResponse<any>>{
+        url: baseOptions.url,
         responseHeaders: {},
         abort: () => {
           // when the API is aborted manually by the user

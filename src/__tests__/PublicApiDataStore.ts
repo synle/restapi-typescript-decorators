@@ -17,11 +17,17 @@ import { HttpBinResponse, HttpBinRequest } from './types';
 export class PublicApiDataStore {
   // do simple get with query params
   @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doGetWithQueryParams(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  // do simple get with absolute URL
+  // this example will use url defined here
+  // instead of appended it to the baseUrl
+  @RestApi('https://httpbin.org/get')
+  doGetWithAbsoluteUrl(): ApiResponse<HttpBinResponse> {}
 
   // do simple get with path params
   @RestApi('/anything/{messageId}')
-  doSimpleHttpBinPathParamsGet(
+  doGetWithPathParamsAndQueryParams(
     @PathParam('messageId') _targetMessageId: string,
     @QueryParams _queryParams: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
@@ -31,14 +37,14 @@ export class PublicApiDataStore {
   @RestApi('/delay/10', {
     timeout: 3000,
   })
-  doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+  doGetWithTimeout(): ApiResponse<HttpBinResponse> {}
 
   // this API will always return 405 error
   @RestApi('/status/405')
-  doSimpleErroneousAPI(): ApiResponse<HttpBinResponse> {}
+  doErroneousAPI(): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/{encodingToUse}')
-  doSimpleHttpGetWithEncoding(
+  doGetWithResponseEncoding(
     @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
   ): ApiResponse<HttpBinResponse> {}
 
@@ -47,13 +53,13 @@ export class PublicApiDataStore {
       Accept: 'application/xml',
     },
   })
-  doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+  doGetWithXmlResponse(): ApiResponse<HttpBinResponse> {}
 
   // do simple post with JSON request body
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPostJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   // do simple post with URL encoded form request body
   @RestApi('/post', {
@@ -62,7 +68,7 @@ export class PublicApiDataStore {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
-  doSimpleHttpBinPostEncodedForm(
+  doPostWithEncodedFormData(
     @RequestBody _body: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
@@ -70,7 +76,7 @@ export class PublicApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimpleFormDataHttpBinPost(
+  doPostWithFormBodyData(
     @FormDataBody('unitPrice') _unitPrice: number,
     @FormDataBody('quantity') _qty: number,
   ): ApiResponse<HttpBinResponse> {}
@@ -79,7 +85,7 @@ export class PublicApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimpleUploadFileHttpBinPost(
+  doUploadFileWithFormBodyData(
     @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
@@ -87,7 +93,7 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleUploadFileWithStreamHttpBinPost(
+  doUploadFileWithStreamRequest(
     @FileUploadBody _fileToUpload: any,
   ): ApiResponse<HttpBinResponse> {}
 }

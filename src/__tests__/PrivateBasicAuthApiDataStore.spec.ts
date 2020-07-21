@@ -4,8 +4,8 @@ const validDataStore = new PrivateBasicAuthApiDataStore('good_username', 'good_p
 const invalidDataStore = new PrivateBasicAuthApiDataStore('bogus_u1', 'bogus_pwd1');
 
 describe('PrivateBasicAuthApiDataStore', () => {
-  it('Simple Basic Auth Private Authenticated API Should work with good credentials', () => {
-    const apiResponse = validDataStore.doApiCallWithBasicUsernameAndPassword();
+  it('Basic Auth Private Authenticated API Should work with good credentials', () => {
+    const apiResponse = validDataStore.doAuthenticatedCall();
 
     expect(apiResponse).toBeDefined();
 
@@ -20,8 +20,8 @@ describe('PrivateBasicAuthApiDataStore', () => {
     }
   });
 
-  it('Simple Basic Auth Private Authenticated API Should fail with bad credentials', () => {
-    const apiResponse = invalidDataStore.doApiCallWithBasicUsernameAndPassword();
+  it('Basic Auth Private Authenticated API Should fail with bad credentials', () => {
+    const apiResponse = invalidDataStore.doAuthenticatedCall();
 
     expect(apiResponse).toBeDefined();
 

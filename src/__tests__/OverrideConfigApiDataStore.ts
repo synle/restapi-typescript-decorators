@@ -30,10 +30,10 @@ export class OverrideConfigApiDataStore {
       '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
     },
   })
-  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
+  doPostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimplePostWithCustomRestClientConfig(): ApiResponse<HttpBinResponse> {}
+  doPostWithCustomRestClientConfig(): ApiResponse<HttpBinResponse> {}
 }
