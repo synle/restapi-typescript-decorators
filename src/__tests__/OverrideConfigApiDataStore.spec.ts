@@ -1,10 +1,10 @@
 import { OverrideConfigApiDataStore } from './OverrideConfigApiDataStore';
 
-const myOverrideConfigApiDataStoreInstance = new OverrideConfigApiDataStore();
+const myApiInstance = new OverrideConfigApiDataStore();
 
 describe('OverrideConfigApiDataStore', () => {
-  it('Simple Override Config from @RestApi API should work', () => {
-    const apiResponse = myOverrideConfigApiDataStoreInstance.doSimplePostWithCustomRestApiConfig();
+  it('Override Config from @RestApi API should work', () => {
+    const apiResponse = myApiInstance.doPostWithCustomRestApiConfig();
 
     expect(apiResponse).toBeDefined();
 
@@ -29,8 +29,8 @@ describe('OverrideConfigApiDataStore', () => {
     }
   });
 
-  it('Simple Override Config from @RestClient API should work', () => {
-    const apiResponse = myOverrideConfigApiDataStoreInstance.doSimplePostWithCustomRestClientConfig();
+  it('Override Config from @RestClient API should work', () => {
+    const apiResponse = myApiInstance.doPostWithCustomRestClientConfig();
 
     expect(apiResponse).toBeDefined();
 

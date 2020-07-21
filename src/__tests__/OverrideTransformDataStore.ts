@@ -30,7 +30,7 @@ export class OverrideTransformDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doPost(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/get', {
     responseTransform: (
@@ -46,5 +46,5 @@ export class OverrideTransformDataStore {
       });
     },
   })
-  doSimpleHttpBinGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 }

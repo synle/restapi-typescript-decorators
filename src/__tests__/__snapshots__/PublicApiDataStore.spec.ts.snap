@@ -1,7 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`PublicApiDataStore Simple Public HTTP POST to upload binary file using a single stream should work 1`] = `
+exports[`PublicApiDataStore POST to upload binary file using a single stream should work 1`] = `
 "Hello world, this is a test. 123. ping. pong
+"
+`;
+
+exports[`PublicApiDataStore Simple Plain Text Response should work 1`] = `
+"User-agent: *
+Disallow: /deny
 "
 `;
 

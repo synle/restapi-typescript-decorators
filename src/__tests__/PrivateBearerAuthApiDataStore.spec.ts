@@ -2,12 +2,12 @@ import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 
 const testAccessToken = '<<some_strong_and_random_access_token>>';
 
-const invalidDataStore = new PrivateBearerAuthApiDataStore('');
-const validDataStore = new PrivateBearerAuthApiDataStore(testAccessToken);
+const myBadApiInstance = new PrivateBearerAuthApiDataStore('');
+const myGoodApiInstance = new PrivateBearerAuthApiDataStore(testAccessToken);
 
 describe('PrivateBearerAuthApiDataStore', () => {
-  it('Simple Private Authenticated API Should work with correct access token', () => {
-    const apiResponse = validDataStore.doApiCallWithBearerToken();
+  it('Private Authenticated API Should work with correct access token', () => {
+    const apiResponse = myGoodApiInstance.doAuthenticatedCall();
 
     expect(apiResponse).toBeDefined();
 
@@ -22,8 +22,8 @@ describe('PrivateBearerAuthApiDataStore', () => {
     }
   });
 
-  it('Simple Private Authenticated API Should fail with no access token', () => {
-    const apiResponse = invalidDataStore.doApiCallWithBearerToken();
+  it('Private Authenticated API Should fail with no access token', () => {
+    const apiResponse = myBadApiInstance.doAuthenticatedCall();
 
     expect(apiResponse).toBeDefined();
 

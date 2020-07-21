@@ -7,7 +7,7 @@ Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), 
 Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
 ### Features
-- [X] Supports for path params. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
+- [X] Supports for path params. `@PathParam` can be used in a class member or a method parameter. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
 - [X] Supports for query string. See usages for `@QueryParams`. Refer to [Using @QueryParams Section](#simple-get-rest-calls-with-query-string) for more details.
 - [X] Supports for POSTING JSON requests. See usages for `@RequestBody`. Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
 - [X] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
@@ -129,11 +129,17 @@ export interface HttpBinResponse {
 export class PublicApiDataStore {
   // do simple get with query params
   @RestApi('/get')
-  doSimpleHttpBinGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doGetWithQueryParams(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  // do simple get with absolute URL
+  // this example will use url defined here
+  // instead of appended it to the baseUrl
+  @RestApi('https://httpbin.org/get')
+  doGetWithAbsoluteUrl(): ApiResponse<HttpBinResponse> {}
 
   // do simple get with path params
   @RestApi('/anything/{messageId}')
-  doSimpleHttpBinPathParamsGet(
+  doGetWithPathParamsAndQueryParams(
     @PathParam('messageId') _targetMessageId: string,
     @QueryParams _queryParams: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
@@ -143,14 +149,14 @@ export class PublicApiDataStore {
   @RestApi('/delay/10', {
     timeout: 3000,
   })
-  doSimpleTimeoutAPI(): ApiResponse<HttpBinResponse> {}
+  doGetWithTimeout(): ApiResponse<HttpBinResponse> {}
 
   // this API will always return 405 error
   @RestApi('/status/405')
-  doSimpleErroneousAPI(): ApiResponse<HttpBinResponse> {}
+  doErroneousAPI(): ApiResponse<HttpBinResponse> {}
 
   @RestApi('/{encodingToUse}')
-  doSimpleHttpGetWithEncoding(
+  doGetWithResponseEncoding(
     @PathParam('encodingToUse') _encoding: 'brotli' | 'gzip' | 'deflate',
   ): ApiResponse<HttpBinResponse> {}
 
@@ -159,13 +165,13 @@ export class PublicApiDataStore {
       Accept: 'application/xml',
     },
   })
-  doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
+  doGetWithXmlResponse(): ApiResponse<HttpBinResponse> {}
 
   // do simple post with JSON request body
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleHttpBinPostJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   // do simple post with URL encoded form request body
   @RestApi('/post', {
@@ -174,7 +180,7 @@ export class PublicApiDataStore {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
-  doSimpleHttpBinPostEncodedForm(
+  doPostWithEncodedFormData(
     @RequestBody _body: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
@@ -182,7 +188,7 @@ export class PublicApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimpleFormDataHttpBinPost(
+  doPostWithFormBodyData(
     @FormDataBody('unitPrice') _unitPrice: number,
     @FormDataBody('quantity') _qty: number,
   ): ApiResponse<HttpBinResponse> {}
@@ -191,7 +197,7 @@ export class PublicApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
   })
-  doSimpleUploadFileHttpBinPost(
+  doUploadFileWithFormBodyData(
     @FormDataBody('mySms') _mySmsContent: HttpBinRequest,
   ): ApiResponse<HttpBinResponse> {}
 
@@ -199,23 +205,21 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doSimpleUploadFileWithStreamHttpBinPost(
+  doUploadFileWithStreamRequest(
     @FileUploadBody _fileToUpload: any,
   ): ApiResponse<HttpBinResponse> {}
 }
-
-
 ```
 
 **Then instantiate it as**
 ```
 import { PublicApiDataStore } from './PublicApiDataStore';
-const myRestClientInstance = new PublicApiDataStore();
+const myApiInstance = new PublicApiDataStore();
 ```
 
 **Use it**
 ```
-apiResponse = myRestClientInstance.doSimpleHttpBinGet({a: 1, b: 2});
+apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
 if(apiResponse){
   apiResponse.result.then(
     resp => {
@@ -265,20 +269,19 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): ApiResponse<HttpBinAuthResponse> {}
+  doAuthenticatedCall(): ApiResponse<HttpBinAuthResponse> {}
 }
 ```
 
 **Then instantiate it as**
 ```
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
-const myRestClientInstance = new PrivateBearerAuthApiDataStore(
+const myApiInstance = new PrivateBearerAuthApiDataStore(
   'good_username',
   'good_password'
 );
 
-
-// refer to other section for how to execute the calls
+// ... refer to other section for how to execute the calls
 ```
 
 
@@ -325,27 +328,27 @@ export class PrivateBasicAuthApiDataStore {
   @RestApi('/basic-auth/good_username/good_password', {
     method: 'GET',
   })
-  doApiCallWithBasicUsernameAndPassword(): ApiResponse<HttpBinAuthResponse> {}
+  doAuthenticatedCall(): ApiResponse<HttpBinAuthResponse> {}
 }
 ```
 
 **Then instantiate it as**
 ```
 import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
-const myRestClientInstance = new PrivateBasicAuthApiDataStore(
+const myApiInstance = new PrivateBasicAuthApiDataStore(
   'good_username',
   'good_password'
 );
 
-// refer to other section for how to execute the calls
+// ... refer to other section for how to execute the calls
 ```
 
 
 #### To execute the RestClient
 ```
-const myRestClientInstance = new PrivateApiDataStore('<<some_strong_and_random_access_token>>');
+const myApiInstance = new PrivateApiDataStore('<<some_strong_and_random_access_token>>');
 
-const apiResponse = myRestClientInstance.doApiCallWithBearerToken();
+const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
 if(apiResponse){
   apiResponse.result.then((resp) => {
@@ -364,7 +367,7 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 ```
 // ... your construction code here ...
 
-const apiResponse = myRestClientInstance.doApiCallWithBearerToken();
+const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
 if(apiResponse){
   apiResponse.result.then((resp) => {
@@ -376,48 +379,67 @@ if(apiResponse){
 ```
 
 #### Simple GET REST Calls with Query String
+This will send a GET request to the backend with query string attached. The library will handle url encoding for your data. So no need to encode it when using this API.
 ```
-@RestApi("/get")
-doSimpleHttpBinGet(@QueryParams _queryParams: any): ApiResponse<any> {}
+@RestApi('/get')
+doGetWithQueryParams(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 ```
 
 #### Simple GET REST Calls with Path Param
+@PathParams can be used in a class members (class attributes) or method parameters.
+
+Below is an example of how path params can be used in a class member
 ```
 @RestApi("/anything/{messageId}")
-doSimpleHttpBinPathParamsGet(
+doGetWithPathParams(
   @PathParam("messageId") _targetMessageId: string
 ): ApiResponse<any> {}
 ```
 
+The following code shows how path params can be used in class members and method parameters
+```
+@RestClient({
+  baseUrl: 'https://httpbin.org/cookies/set/{cookieName}/{cookieValue}',
+})
+export class PathParamApiDataStore {
+  @PathParam('cookieName')
+  cookieName: string;
+
+  constructor(newCookieName: string = '') {
+    this.cookieName = newCookieName;
+  }
+
+  @RestApi()
+  doGet(@PathParam('cookieValue') _newCookieValue: string): ApiResponse<HttpBinResponse> {}
+}
+```
+
 #### Simple GET REST Calls with Path Param and Query String
 ```
-@RestApi("/anything/{messageId}")
-doSimpleHttpBinPathParamsGet(
-  @PathParam("messageId") _targetMessageId : string,
-  @QueryParams _queryParams: any
-): ApiResponse<any> {}
+@RestApi('/anything/{messageId}')
+doGetWithPathParamsAndQueryParams(
+  @PathParam('messageId') _targetMessageId: string,
+  @QueryParams _queryParams: HttpBinRequest,
+): ApiResponse<HttpBinResponse> {}
 ```
 
 #### Simple POST Rest Calls with JSON Body
 ```
-@RestApi("/post", {
-  method: "POST",
+@RestApi('/post', {
+  method: 'POST',
 })
-doSimpleHttpBinPost(@RequestBody _body: any): ApiResponse<any> {}
+doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 ```
 
 
 #### Simple POST Rest Calls with FormData Body
-The following will make a POST to the API with the form data body:
-`unitPrice=val1&qty=val2`
-
 ```
 @RestApi('/anything', {
   method: 'POST',
 })
-doSimpleFormDataHttpBinPost(
-  @FormDataBody('unitPrice') unitPrice: number,
-  @FormDataBody('quantity') qty: number,
+doPostWithFormBodyData(
+  @FormDataBody('unitPrice') _unitPrice: number,
+  @FormDataBody('quantity') _qty: number,
 ): ApiResponse<HttpBinResponse> {}
 ```
 
@@ -446,6 +468,18 @@ const apiResponse = myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBi
 );
 ```
 
+#### URL Notes
+By default, the library will construct the url to use as:
+
+- When `@RestApi.url` is a relative url (for example "`/myAPI`"). The url by appended the `url` from `@RestApi` to `baseUrl` from `@RestClient` as:
+```
+urlToUse = @RestClient.baseUrl + @RestApi.url
+```
+
+- When `@RestApi.url` is an absolute url which starts with `http://` or `https://` (for example "`https://httpbin.org/get`" or "`http://httpbin.org/get`"). That absolute url will be used and won't be appended to the `baseUrl`
+```
+urlToUse = @RestApi.url
+```
 
 #### Type casting your response type
 Sometimes it might be useful to cast / parsing the json object in the response to match certain object type. We can do so with this library using this approach.
@@ -483,7 +517,7 @@ export class TypeCastApiDataStore {
   @RestApi('/calculateSum', {
     method: 'POST',
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<CollectionSum> {}
+  doPostWithTypeCasting(@RequestBody requestBody: NumberPair): ApiResponse<CollectionSum> {}
 }
 ```
 
@@ -656,11 +690,11 @@ export class TransformationApiDataStore {
       );
     },
   })
-  doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
+  doPostWithRequestTransformation(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doSimpleRequestTransformApi({ a: 1, b: 2 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithRequestTransformation({ a: 1, b: 2 })
 
 if(apiResponse){
   //... follow the above example to get the data from result promise
@@ -706,11 +740,11 @@ export class TransformationApiDataStore {
       });
     },
   })
-  doSimpleResponseTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
+  doPostWithResponseTransformation(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doSimpleResponseTransformApi({ a: 300, b: 700 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithResponseTransformation({ a: 300, b: 700 })
 
 if(apiResponse){
   //... follow the above example to get the data from result promise
@@ -769,7 +803,7 @@ export class OverrideConfigApiDataStore {
       '--Rest-Api-Custom-Header': '<some_value_@RestApi_222>',
     },
   })
-  doSimplePostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
+  doPostWithCustomRestApiConfig(): ApiResponse<HttpBinResponse> {}
 }
 ```
 

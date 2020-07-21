@@ -26,5 +26,5 @@ export class PrivateBearerAuthApiDataStore {
   @RestApi('/bearer', {
     method: 'GET',
   })
-  doApiCallWithBearerToken(): ApiResponse<HttpBinAuthResponse> {}
+  doAuthenticatedCall(): ApiResponse<HttpBinAuthResponse> {}
 }
