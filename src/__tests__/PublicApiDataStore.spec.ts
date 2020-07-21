@@ -236,4 +236,18 @@ describe('PublicApiDataStore', () => {
       });
     }
   });
+
+  it('Simple Plain Text Response should work', () => {
+    const apiResponse = myApiInstance.doGetWithPlainTextResponse();
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp).toMatchSnapshot();
+      });
+    }
+  });
 });

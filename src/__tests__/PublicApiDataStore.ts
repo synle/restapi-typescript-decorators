@@ -55,6 +55,13 @@ export class PublicApiDataStore {
   })
   doGetWithXmlResponse(): ApiResponse<HttpBinResponse> {}
 
+  @RestApi('/robots.txt', {
+    headers: {
+      Accept: 'text/plain',
+    },
+  })
+  doGetWithPlainTextResponse(): ApiResponse<string> {}
+
   // do simple post with JSON request body
   @RestApi('/post', {
     method: 'POST',
@@ -68,9 +75,7 @@ export class PublicApiDataStore {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
-  doPostWithEncodedFormData(
-    @RequestBody _body: HttpBinRequest,
-  ): ApiResponse<HttpBinResponse> {}
+  doPostWithEncodedFormData(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 
   // do simple post with formData
   @RestApi('/anything', {
@@ -93,7 +98,5 @@ export class PublicApiDataStore {
   @RestApi('/post', {
     method: 'POST',
   })
-  doUploadFileWithStreamRequest(
-    @FileUploadBody _fileToUpload: any,
-  ): ApiResponse<HttpBinResponse> {}
+  doUploadFileWithStreamRequest(@FileUploadBody _fileToUpload: any): ApiResponse<HttpBinResponse> {}
 }

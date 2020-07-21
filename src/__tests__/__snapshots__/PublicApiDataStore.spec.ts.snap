@@ -5,6 +5,12 @@ exports[`PublicApiDataStore POST to upload binary file using a single stream sho
 "
 `;
 
+exports[`PublicApiDataStore Simple Plain Text Response should work 1`] = `
+"User-agent: *
+Disallow: /deny
+"
+`;
+
 exports[`PublicApiDataStore Simple XML Response should work 1`] = `
 Object {
   "slideshow": Object {
