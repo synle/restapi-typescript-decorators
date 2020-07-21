@@ -8,4 +8,5 @@ module.exports = {
   moduleNameMapper: {
     "restapi-typescript-decorators": "<rootDir>/src/index",
   },
+  collectCoverage: true,
 };
