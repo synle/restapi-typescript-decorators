@@ -80,16 +80,12 @@ export class TransformationApiDataStore {
       fourNumbers: FourNumberCollection,
       instance: TransformationApiDataStore,
     ): Promise<Request> => {
-      if (instance) {
-        const { a, b, c, d } = fourNumbers;
+      const { a, b, c, d } = fourNumbers;
 
-        const apiResponseSum1 = instance.doResponseTransformApi({ a: a, b: b });
-        const apiResponseSum2 = instance.doResponseTransformApi({ a: c, b: d });
+      const apiResponseSum1 = instance.doResponseTransformApi({ a: a, b: b });
+      const apiResponseSum2 = instance.doResponseTransformApi({ a: c, b: d });
 
-        if (!apiResponseSum1 || !apiResponseSum2) {
-          throw 'One of the request for sum failed';
-        }
-
+      if (apiResponseSum1 && apiResponseSum2) {
         return Promise.all([apiResponseSum1.result, apiResponseSum2.result]).then(
           ([res1, res2]) => {
             const sum1 = res1.sum;
@@ -105,7 +101,8 @@ export class TransformationApiDataStore {
           },
         );
       }
-      return Promise.reject('Instance not available - cannot complete the calculation');
+
+      return Promise.reject('Transformation Error');
     },
   })
   doComplexRequestTransformation(

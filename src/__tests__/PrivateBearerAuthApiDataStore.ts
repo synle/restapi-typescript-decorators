@@ -19,7 +19,7 @@ export class PrivateBearerAuthApiDataStore {
   @CredentialProperty('AccessToken')
   accessToken: string;
 
-  constructor(newAccessToken: string = '') {
+  constructor(newAccessToken: string) {
     this.accessToken = newAccessToken;
   }
 

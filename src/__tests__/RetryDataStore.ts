@@ -17,7 +17,7 @@ export class RetryDataStore {
   @RestApi('/retry/no_extra_headers', {
     retryConfigs: {
       count: 10, // maximum retries
-      delay: 1000, // retry after 1 second
+      delay: 2000, // retry after this many second
     },
   })
   doApiWithFixedRetryAfter(): ApiResponse<HttpBinResponse> {}
@@ -25,7 +25,7 @@ export class RetryDataStore {
   @RestApi('/retry/retry_after_as_seconds', {
     retryConfigs: {
       count: 10, //  maximum retries
-      delay: 1000, // this is ignored, because the API will set the retry-after
+      delay: 1000, // retry after this many seconds, because the API will set the retry-after
     },
   })
   doApiWithRetryAfterAsSeconds(): ApiResponse<HttpBinResponse> {}

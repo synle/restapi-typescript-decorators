@@ -22,7 +22,7 @@ export class PrivateBasicAuthApiDataStore {
   @CredentialProperty('Password')
   password: string;
 
-  constructor(newUsername: string = '', newPassword: string = '') {
+  constructor(newUsername: string, newPassword: string) {
     this.username = newUsername;
     this.password = newPassword;
   }

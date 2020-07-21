@@ -17,7 +17,7 @@ export class PathParamApiDataStore {
   @PathParam('cookieName')
   cookieName: string;
 
-  constructor(newCookieName: string = '') {
+  constructor(newCookieName: string) {
     this.cookieName = newCookieName;
   }
 
