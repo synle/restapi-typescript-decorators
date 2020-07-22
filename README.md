@@ -2,7 +2,7 @@
 [![NPM Version](https://badge.fury.io/js/restapi-typescript-decorators.svg)](https://badge.fury.io/js/restapi-typescript-decorators)
 
 # restapi-typescript-decorators
-Inpsired by [retrofit](https://github.com/square/retrofit) (created by Square), my goal for this project is to create a similar rest client using just decorators (also known as annotations in the Java's world). These decorators are used to make REST API calls simpler.
+Inspired by [retrofit](https://github.com/square/retrofit) (created by Square), my goal for this project is to create a single rest client for both front end JS as well as back end node JS using just decorators (also known as annotations in the Java's world). These decorators are used to make REST API calls simpler and more declarative
 
 Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
