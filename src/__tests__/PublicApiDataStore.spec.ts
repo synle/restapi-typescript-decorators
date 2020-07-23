@@ -5,6 +5,118 @@ const myApiInstance = new PublicApiDataStore();
 const sampleTextFile = 'SampleSms.txt';
 
 describe('PublicApiDataStore', () => {
+  it('GET with absolute URL should work', () => {
+    const apiResponse = myApiInstance.doGetWithAbsoluteUrl();
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.url).toEqual('https://httpbin.org/get');
+      });
+    }
+  });
+
+  it('GET with query params should work', () => {
+    const apiResponse = myApiInstance.doGetWithQueryParams({ a: 1, b: 2, c: 3 });
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({ a: '1', b: '2', c: '3' });
+        expect(resp.url).toEqual('https://httpbin.org/get?a=1&b=2&c=3');
+      });
+    }
+  });
+
+  it('GET with path params and query params should work', () => {
+    const apiResponse = myApiInstance.doGetWithPathParamsAndQueryParams('secret_message_id_123', {
+      aa: 1,
+      bb: 2,
+      cc: 3,
+    });
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({ aa: '1', bb: '2', cc: '3' });
+        expect(resp.url).toEqual(
+          'https://httpbin.org/anything/secret_message_id_123?aa=1&bb=2&cc=3',
+        );
+      });
+    }
+  });
+
+  it('GET with single path params', () => {
+    const apiResponse = myApiInstance.doGetWithSingleQueryParam('javascript', 20);
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({ keyword: 'javascript', pageSize: '20' });
+        expect(resp.url).toContain('keyword=javascript');
+        expect(resp.url).toContain('pageSize=20');
+      });
+    }
+  });
+
+  it('GET with query params combo (hash and single value) should work', () => {
+    const apiResponse = myApiInstance.doGetWithQueryParamsCombo(
+      {
+        city: 'San Francisco',
+        radius: '< 2 miles',
+        price: '< 4000',
+      },
+      20, // page size
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({
+          city: 'San Francisco',
+          pageSize: '20',
+          price: '< 4000',
+          radius: '< 2 miles',
+        });
+        expect(resp.url).toContain('city=San Francisco');
+        expect(resp.url).toContain('radius=< 2 miles');
+        expect(resp.url).toContain('price=< 4000');
+        expect(resp.url).toContain('pageSize=20');
+      });
+    }
+  });
+
+  it('GET with path params should work', () => {
+    const apiResponse = myApiInstance.doGetWithPathParams('92a38a41-0a47-4651-8253-c329af28a723');
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.url).toEqual(
+          'https://httpbin.org/anything/92a38a41-0a47-4651-8253-c329af28a723',
+        );
+      });
+    }
+  });
+
   it('POST with JSON @RequestBody should work', () => {
     const apiResponse = myApiInstance.doPostWithJsonBody({ a: 1, b: 2, c: 3 });
 
@@ -35,56 +147,6 @@ describe('PublicApiDataStore', () => {
         expect(apiResponse.status).toBe(200);
         expect(resp.form).toEqual({ a: '1', b: '2', c: '3' });
         expect(resp.url).toEqual('https://httpbin.org/post');
-      });
-    }
-  });
-
-  it('GET with query params should work', () => {
-    const apiResponse = myApiInstance.doGetWithQueryParams({ a: 1, b: 2, c: 3 });
-
-    expect(apiResponse).toBeDefined();
-
-    if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
-        expect(resp.args).toEqual({ a: '1', b: '2', c: '3' });
-        expect(resp.url).toEqual('https://httpbin.org/get?a=1&b=2&c=3');
-      });
-    }
-  });
-
-  it('GET with absolute URL should work', () => {
-    const apiResponse = myApiInstance.doGetWithAbsoluteUrl();
-
-    expect(apiResponse).toBeDefined();
-
-    if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
-        expect(resp.url).toEqual('https://httpbin.org/get');
-      });
-    }
-  });
-
-  it('GET with path params and query params should work', () => {
-    const apiResponse = myApiInstance.doGetWithPathParamsAndQueryParams('secret_message_id_123', {
-      aa: 1,
-      bb: 2,
-      cc: 3,
-    });
-
-    expect(apiResponse).toBeDefined();
-
-    if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
-        expect(resp.args).toEqual({ aa: '1', bb: '2', cc: '3' });
-        expect(resp.url).toEqual(
-          'https://httpbin.org/anything/secret_message_id_123?aa=1&bb=2&cc=3',
-        );
       });
     }
   });
