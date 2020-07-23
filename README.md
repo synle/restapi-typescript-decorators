@@ -11,19 +11,19 @@ Another inspiration is to create a unified Rest Client library that works across
 
 - [x] Supports for path params. `@PathParam` can be used in a class member or a method parameter. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
 - [x] Supports for query string. See usages for `@QueryParams` (as a hash) or `@QueryParam` (as a single query param). Refer to [Using @QueryParams and @QueryParam Section](#simple-get-rest-calls-with-query-string) for more details.
-- [x] Supports for POSTING JSON requests. See usages for `@RequestBody`. Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
+- [x] Supports for POSTING JSON requests. See usages for `@RequestBody` (as a hash). Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
 - [x] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [x] Supports File Upload. See usages for `@FileUploadBody`. Refer to [Using @FileUploadBody Section](#simple-post-rest-calls-with-file-upload-as-stream) for more details.
 - [x] Supports JSON Parser for Request with `Content-Type=application/json`. Refer to [Parse JSON Request](#parse-json-request) for more details.
 - [x] Supports URL Encoded Form Parser for POST Request with `Content-Type=application/x-www-form-urlencoded`. Refer to [Parse URL Encoded Form Request](#parse-url-encoded-form-request) for more details.
-- [x] Supports XML Parser for Response with `Accept=application/xml`. refer to [parse XML response section](#parse-response-as-xml) for more information.
-- [x] Supports JSON Parser for Response with `Accept=application/json`. refer to [parse JSON response section](#parse-response-as-json) for more information.
+- [x] Supports XML Parser for Response with `Accept=application/xml`. refer to [Parse XML response section](#parse-response-as-xml) for more information.
+- [x] Supports JSON Parser for Response with `Accept=application/json`. refer to [Parse JSON response section](#parse-response-as-json) for more information.
 - [x] Supports for basic authorization with username and passwords. Refer to [Private Basic Auth API Section](#private-authenticated-with-username-and-password-basic-auth-api-store).
 - [x] Supports for authorization (Bearer token at the monent). Refer to [Private Bearer API Section](#private-authenticated-with-bearer-token-api-store).
 - [x] Supports custom serialization (`requestTransform`) and deserialization(`responseTransform`). Refer to [Transformation Section](#transformations) for more details
 - [x] Supports Serialization of Response Object into custom type. Refer to [Type Casting Section](#type-casting-your-response-type) for more details
 - [x] Supports for API retry config. Currently only support a fixed delay after before retry. [Max timeout for request section](#api-retries)
-- [x] Supports for API timeout config, refer to [setting max timeout for request section](#max-timeout-for-api) for more information
+- [x] Supports for API timeout config, refer to [Setting max timeout for request section](#max-timeout-for-api) for more information
 - [x] Supports abort pending API requests. Refer to [Aborting Pending Requests](#to-abort-pending-rest-calls) for more details
 - [x] Supports overrides for headers, and rest config from the `@RestClient` and `@RestApi`. Refer to [Config Overrides](#config-overrides) for more details
 
@@ -82,6 +82,7 @@ import {
   FileUploadBody,
   FormDataBody,
   PathParam,
+  QueryParam,
   QueryParams,
   RequestBody,
   RestApi,
@@ -99,6 +100,7 @@ import {
   RestApi,
   RequestBody,
   PathParam,
+  QueryParam,
   QueryParams,
   FormDataBody,
   FileUploadBody,
