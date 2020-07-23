@@ -9,9 +9,9 @@ Another inspiration is to create a unified Rest Client library that works across
 
 ### Features
 
-- [x] Supports for path params. `@PathParam` can be used in a class member or a method parameter. See usages for `@PathParam`. Refer to [Using @PathParams Section](#simple-get-rest-calls-with-path-param) for more details.
-- [x] Supports for query string. See usages for `@QueryParams` (as a hash) or `@QueryParam` (as a single query param). Refer to [Using @QueryParams and @QueryParam Section](#simple-get-rest-calls-with-query-string) for more details.
-- [x] Supports for POSTING JSON requests. See usages for `@RequestBody` (as a hash). Refer to [Using @RequestBody Section](#simple-post-rest-calls-with-json-body) for more details.
+- [x] Supports for path params. `@PathParam` can be used in a class member or a method parameter. See usages for `@PathParam`. Refer to [Using `@PathParams` Section](#simple-get-rest-calls-with-path-param) for more details.
+- [x] Supports for query string. See usages for `@QueryParams` (as a hash) or `@QueryParamProperty` (as a single query param). Refer to [Using `@QueryParams` and `@QueryParamProperty` Section](#simple-get-rest-calls-with-query-string) for more details.
+- [x] Supports for POSTING JSON requests. See usages for `@RequestBody` (as a hash) or `@RequestProperty` (as a single request property). Refer to [Using `@RequestBody` and `@RequestProperty` Section](#simple-post-rest-calls-with-json-body) for more details.
 - [x] Supports POST raw data to API with `@FormDataBody`. Refer to [Using @FormData Section](#simple-post-rest-calls-with-formdata-body) for more details.
 - [x] Supports File Upload. See usages for `@FileUploadBody`. Refer to [Using @FileUploadBody Section](#simple-post-rest-calls-with-file-upload-as-stream) for more details.
 - [x] Supports JSON Parser for Request with `Content-Type=application/json`. Refer to [Parse JSON Request](#parse-json-request) for more details.
@@ -56,8 +56,8 @@ Another inspiration is to create a unified Rest Client library that works across
 
 You can also checkout the sample repos that has typescript and other things setup:
 
-- [frontend with React sample code repo](https://github.com/synle/restapi-typescript-decorators-front-end-example)
-- [backend NodeJs sample code repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
+- [Frontend with React sample code repo](https://github.com/synle/restapi-typescript-decorators-front-end-example)
+- [Backend NodeJs sample code repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 
 #### Install it
 
@@ -82,8 +82,9 @@ import {
   FileUploadBody,
   FormDataBody,
   PathParam,
-  QueryParam,
+  QueryParamProperty,
   QueryParams,
+  RequestProperty,
   RequestBody,
   RestApi,
   RestClient,
@@ -98,9 +99,10 @@ Below is an example on the definition for public API data store.
 import {
   RestClient,
   RestApi,
+  RequestProperty,
   RequestBody,
   PathParam,
-  QueryParam,
+  QueryParamProperty,
   QueryParams,
   FormDataBody,
   FileUploadBody,
@@ -161,8 +163,8 @@ export class PublicApiDataStore {
    */
   @RestApi('/get')
   doGetWithSingleQueryParam(
-    @QueryParam('keyword') _keyword: string = '',
-    @QueryParam('pageSize') _pageSize: number = 100,
+    @QueryParamProperty('keyword') _keyword: string = '',
+    @QueryParamProperty('pageSize') _pageSize: number = 100,
   ): ApiResponse<HttpBinResponse> {}
 
   /**
@@ -175,7 +177,7 @@ export class PublicApiDataStore {
   @RestApi('/get')
   doGetWithQueryParamsCombo(
     @QueryParams _query: HttpBinRequest,
-    @QueryParam('pageSize') _pageSize: number = 100,
+    @QueryParamProperty('pageSize') _pageSize: number = 100,
   ): ApiResponse<HttpBinResponse> {}
 
   /**
@@ -245,13 +247,41 @@ export class PublicApiDataStore {
   doGetWithPlainTextResponse(): ApiResponse<string> {}
 
   /**
-   * do post with JSON request body
+   * do post JSON request body with  @RequestBody (as a hash)
    * @param _body
    */
   @RestApi('/post', {
     method: 'POST',
   })
-  doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doPostWithJsonBodyHash(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  /**
+   * do post JSON request body with  @RequestBody (as a hash)
+   * @param _body
+   */
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doPostWithSingleValuesJsonBody(
+    @RequestProperty('firstName') _firstName: string,
+    @RequestProperty('lastName') _lastName: string,
+  ): ApiResponse<HttpBinResponse> {}
+
+  /**
+   * do post with a combination of both single request property, and request body hash. In this
+   * example, we will combine the two together with single request property has higher
+   * precedence than query params hash
+   *
+   * @param _body
+   * @param _userId
+   */
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doPostWithJsonBodyMixture(
+    @RequestBody _body: HttpBinRequest,
+    @RequestProperty('userId') _userId: string,
+  ): ApiResponse<HttpBinResponse> {}
 
   /**
    * do post with URL encoded form request body
@@ -329,13 +359,8 @@ import {
   RestClient,
   RestApi,
   CredentialProperty,
-  RequestBody,
-  PathParam,
-  QueryParams,
-  FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
-
 
 // first define your request and response body
 export interface HttpBinAuthResponse {
@@ -384,10 +409,6 @@ import {
   RestClient,
   RestApi,
   CredentialProperty,
-  RequestBody,
-  PathParam,
-  QueryParams,
-  FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
@@ -476,15 +497,13 @@ if(apiResponse){
 
 You can use either `@QueryParams` (as a hash) or `QueryParam` (as a single value for query string). This will send a GET request to the backend with query string attached. The library will handle url encoding for your data. So no need to encode it when using this API.
 
-If you do have a mixture of `@QueryParams` and `@QueryParam` in your method decorators. The final query string will be merged with single value `@QueryParam` having higher precedence than `@QueryParams` hash
-
 This example will pass a hash (queryStringKey => queryStringValue) into the query string
 
 ```
 /**
-  * do get with query params (as a hash of queryParamKey => queryParamValue)
-  * @param _queryParams
-  */
+* do get with query params (as a hash of queryParamKey => queryParamValue)
+* @param _queryParams
+*/
 @RestApi('/get')
 doGetWithQueryParams(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}
 ```
@@ -493,15 +512,36 @@ This example will pass a single value into the query string
 
 ```
 /**
-  * do get with query params (as a single parameter). This example will construct url as
-  * /get?keyword=<_keyword>&_pageSize=<number>
-  * @param _keyword
-  * @param _pageSize
-  */
+* do get with query params (as a single parameter). This example will construct url as
+* /get?keyword=<_keyword>&_pageSize=<number>
+* @param _keyword
+* @param _pageSize
+*/
 @RestApi('/get')
 doGetWithSingleQueryParam(
   @QueryParam('keyword') _keyword: string = '',
   @QueryParam('pageSize') _pageSize: number = 100,
+): ApiResponse<HttpBinResponse> {}
+```
+
+##### Notes on mixture of `@QueryParams` and `@QueryParamProperty`
+
+When both `@QueryParamProperty` and `@QueryParams` are present in a single method, final result for query string will be merged with single value `@QueryParamProperty` has higher precedence than `@QueryParams` hash.
+
+Below is an example of this:
+
+```
+/**
+* do get with a combination of both single query param, and query params hash. In this
+* example, we will combine the two query params with single query param has higher
+* precedence than query params hash
+* @param _query
+* @param _pageSize
+*/
+@RestApi('/get')
+doGetWithQueryParamsCombo(
+  @QueryParams _query: HttpBinRequest,
+  @QueryParamProperty('pageSize') _pageSize: number = 100,
 ): ApiResponse<HttpBinResponse> {}
 ```
 
@@ -549,11 +589,55 @@ doGetWithPathParamsAndQueryParams(
 
 #### Simple POST Rest Calls with JSON Body
 
+You can post JSON body with `@RequestBody` (as a hash) or `@RequestProperty` (as a single value).
+
+Below is an example of how to POST JSON with `@RequestBody` (as a hash)
+
 ```
 @RestApi('/post', {
   method: 'POST',
 })
 doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+```
+
+Below is an example of how to POST JSON with `@RequestProperty` (as a single value).
+
+```
+/**
+* do post JSON request body with  @RequestBody (as a hash)
+* @param _body
+*/
+@RestApi('/user_profile', {
+  method: 'POST',
+})
+updateUserProfile(
+  @RequestProperty('firstName') _firstName: string,
+  @RequestProperty('lastName') _lastName: string,
+): ApiResponse<HttpBinResponse> {}
+```
+
+##### Notes on mixture of `@RequestBody` and `@RequestProperty`
+
+When both `@RequestProperty` and `@RequestBody` are present in a single method, final result for query string will be merged with single value `@RequestProperty` has higher precedence than `@RequestBody` hash.
+
+Below is an example of this:
+
+```
+/**
+* do post with a combination of both single request property, and request body hash. In this
+* example, we will combine the two together with single request property has higher
+* precedence than query params hash
+*
+* @param _body
+* @param _userId
+*/
+@RestApi('/post', {
+  method: 'POST',
+})
+doPostWithJsonBodyMixture(
+  @RequestBody _body: HttpBinRequest,
+  @RequestProperty('userId') _userId: string,
+): ApiResponse<HttpBinResponse> {}
 ```
 
 #### Simple POST Rest Calls with FormData Body

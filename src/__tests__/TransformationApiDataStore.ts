@@ -1,12 +1,4 @@
-import {
-  RestClient,
-  RestApi,
-  RequestBody,
-  PathParam,
-  QueryParams,
-  FormDataBody,
-  ApiResponse,
-} from 'restapi-typescript-decorators';
+import { RestClient, RestApi, RequestBody, ApiResponse } from 'restapi-typescript-decorators';
 
 import { HttpBinResponse } from './types';
 

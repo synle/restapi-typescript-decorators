@@ -2,9 +2,7 @@ import {
   RestClient,
   RestApi,
   RequestBody,
-  PathParam,
   QueryParams,
-  FormDataBody,
   ApiResponse,
 } from 'restapi-typescript-decorators';
 

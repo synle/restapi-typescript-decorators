@@ -107,8 +107,20 @@ const _fetchData = (fetchOptions: Request): Promise<Response> => {
   return fetch(url, restFetchOptions);
 };
 
-const _getRequestBody = (instance: any, methodName: string, inputs: any[]) =>
-  inputs[get(instance, ['__decorators', methodName, '@RequestBody'])];
+const _getRequestBody = (instance: any, methodName: string, inputs: any[]) => {
+  const requestBody =
+    inputs[get(instance, ['__decorators', methodName, '@RequestBody-Hash'])] || {};
+
+  const singleQueryParamKeys =
+    get(instance, ['__decorators', methodName, '@RequestBody-SingleValue']) || {};
+  Object.keys(singleQueryParamKeys)
+    .sort()
+    .forEach((queryParamKey) => {
+      requestBody[queryParamKey] = inputs[singleQueryParamKeys[queryParamKey]];
+    });
+
+  return requestBody;
+};
 
 const _getPathParams = (instance: any, methodName: string, inputs: any[]) => {
   const pathParamValues: Record<string, any> = {};
@@ -221,6 +233,10 @@ export const PathParam = (pathParamKey: string) => {
 /**
  * Method Parameter Decorator used to construct query string. The value of this method parameters needs to
  * be a hash (queryStringKey => queryStringValue). Note that this define an entire object for query string.
+ *
+ * When both `@QueryParamProperty` and `@QueryParams` are present in a single method, final
+ * result for query string will be merged with single value `@QueryParamProperty` has
+ * higher precedence than `@QueryParams` hash
  * @param target
  * @param methodName
  * @param paramIdx
@@ -229,11 +245,17 @@ export const QueryParams = (target: any, methodName: string | symbol, paramIdx: 
   set(target, ['__decorators', methodName, '@QueryParams-Hash'], paramIdx);
 };
 
-/* Method Parameter Decorator used to construct query string. This is intended only for a single query param.
+/**
+ * Method Parameter Decorator used to construct query string. This is intended only for a single query param.
+ *
  * If you need to use a hash, please use QueryParams instead.
+ *
+ * When both `@QueryParamProperty` and `@QueryParams` are present in a single method, final
+ * result for query string will be merged with single value `@QueryParamProperty` has
+ * higher precedence than `@QueryParams` hash
  * @param {string} queryParamKey the key for
  */
-export const QueryParam = (queryParamKey: string) => (
+export const QueryParamProperty = (queryParamKey: string) => (
   target: any,
   methodName: string | symbol,
   paramIdx: number,
@@ -241,17 +263,38 @@ export const QueryParam = (queryParamKey: string) => (
   set(target, ['__decorators', methodName, '@QueryParam-SingleValue', queryParamKey], paramIdx);
 };
 
-/** Method Parameter Decorator used to construct the request body. The value of this method
+/**
+ * Method Parameter Decorator used to construct the request body. The value of this method
  * parameters needs to be a hash (requestBodyKey => requestBodyValue). Note that based on the `Content-Type`
  * header, the serialization of the requestBody will change. For example we have built-in
  * body transformation for `application/json`, and `application/x-www-form-urlencoded`, etc...
  *
+ * When both `@RequestProperty` and `@RequestBody` are present in a single method, final
+ * result for requestBody will be merged with single value `@RequestProperty` has
+ * higher precedence than `@RequestBody` hash
  * @param target
  * @param methodName
  * @param paramIdx
  */
 export const RequestBody = (target: any, methodName: string | symbol, paramIdx: number) => {
-  set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
+  set(target, ['__decorators', methodName, '@RequestBody-Hash'], paramIdx);
+};
+
+/**
+ * Method Parameter Decorator, and it is similar to the @RequestBody, but this
+ * is used to pass a single property into request body.
+ *
+ * When both `@RequestProperty` and `@RequestBody` are present in a single method, final
+ * result for requestBody will be merged with single value `@RequestProperty` has
+ * higher precedence than `@RequestBody` hash
+ * @param requestParamKey
+ */
+export const RequestProperty = (requestParamKey: string) => (
+  target: any,
+  methodName: string | symbol,
+  paramIdx: number,
+) => {
+  set(target, ['__decorators', methodName, '@RequestBody-SingleValue', requestParamKey], paramIdx);
 };
 
 export const FormDataBody = (paramKey: string) => (

@@ -117,8 +117,8 @@ describe('PublicApiDataStore', () => {
     }
   });
 
-  it('POST with JSON @RequestBody should work', () => {
-    const apiResponse = myApiInstance.doPostWithJsonBody({ a: 1, b: 2, c: 3 });
+  it('POST with JSON @RequestBody (as a hash) should work', () => {
+    const apiResponse = myApiInstance.doPostWithJsonBodyHash({ a: 1, b: 2, c: 3 });
 
     expect(apiResponse).toBeDefined();
 
@@ -127,6 +127,49 @@ describe('PublicApiDataStore', () => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
         expect(resp.json).toEqual({ a: 1, b: 2, c: 3 });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('POST with JSON @RequestProperty (as a single value) should work', () => {
+    const apiResponse = myApiInstance.doPostWithSingleValuesJsonBody(
+      'Sy', // first name
+      'Le', // last name
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.json).toEqual({ firstName: 'Sy', lastName: 'Le' });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('POST with JSON body combo of @RequestProperty (as a single value) and @RequestProperty (as a single value) should work', () => {
+    const apiResponse = myApiInstance.doPostWithJsonBodyMixture(
+      {
+        oldPassword: '123',
+        newPassword: '456',
+      },
+      '5d3fd566-a3d7-4d44-994c-a4cee8d53f63', // userId
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.json).toEqual({
+          newPassword: '456',
+          oldPassword: '123',
+          userId: '5d3fd566-a3d7-4d44-994c-a4cee8d53f63',
+        });
         expect(resp.url).toEqual('https://httpbin.org/post');
       });
     }

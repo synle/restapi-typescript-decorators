@@ -1,9 +1,10 @@
 import {
   RestClient,
   RestApi,
+  RequestProperty,
   RequestBody,
   PathParam,
-  QueryParam,
+  QueryParamProperty,
   QueryParams,
   FormDataBody,
   FileUploadBody,
@@ -38,8 +39,8 @@ export class PublicApiDataStore {
    */
   @RestApi('/get')
   doGetWithSingleQueryParam(
-    @QueryParam('keyword') _keyword: string = '',
-    @QueryParam('pageSize') _pageSize: number = 100,
+    @QueryParamProperty('keyword') _keyword: string,
+    @QueryParamProperty('pageSize') _pageSize: number,
   ): ApiResponse<HttpBinResponse> {}
 
   /**
@@ -52,7 +53,7 @@ export class PublicApiDataStore {
   @RestApi('/get')
   doGetWithQueryParamsCombo(
     @QueryParams _query: HttpBinRequest,
-    @QueryParam('pageSize') _pageSize: number = 100,
+    @QueryParamProperty('pageSize') _pageSize: number,
   ): ApiResponse<HttpBinResponse> {}
 
   /**
@@ -122,13 +123,41 @@ export class PublicApiDataStore {
   doGetWithPlainTextResponse(): ApiResponse<string> {}
 
   /**
-   * do post with JSON request body
+   * do post JSON request body with  @RequestBody (as a hash)
    * @param _body
    */
   @RestApi('/post', {
     method: 'POST',
   })
-  doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+  doPostWithJsonBodyHash(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinResponse> {}
+
+  /**
+   * do post JSON request body with  @RequestBody (as a hash)
+   * @param _body
+   */
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doPostWithSingleValuesJsonBody(
+    @RequestProperty('firstName') _firstName: string,
+    @RequestProperty('lastName') _lastName: string,
+  ): ApiResponse<HttpBinResponse> {}
+
+  /**
+   * do post with a combination of both single request property, and request body hash. In this
+   * example, we will combine the two together with single request property has higher
+   * precedence than query params hash
+   *
+   * @param _body
+   * @param _userId
+   */
+  @RestApi('/post', {
+    method: 'POST',
+  })
+  doPostWithJsonBodyMixture(
+    @RequestBody _body: HttpBinRequest,
+    @RequestProperty('userId') _userId: string,
+  ): ApiResponse<HttpBinResponse> {}
 
   /**
    * do post with URL encoded form request body
