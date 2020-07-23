@@ -185,6 +185,12 @@ const _getBase64FromString = (strVal: string) => {
 };
 
 // decorators
+/**
+ * Class Member Decorator or Method Parameter Decorator used to define the path param which used to replace
+ * the url fragment `{paramKey}`. This will replace the URL Fragment `{paramKey}` defined in the Class Member
+ * or Method Parameter values.
+ * @param {string} paramKey
+ */
 export const PathParam = (paramKey: string) => {
   return function(...inputs: any[]) {
     const [target, methodName, paramIdx] = inputs;
@@ -198,8 +204,28 @@ export const PathParam = (paramKey: string) => {
   };
 };
 
+/**
+ * Method Parameter Decorator used to construct query string. The value of this method parameters needs to
+ * be a hash (queryStringKey => queryStringValue)
+ * @param target
+ * @param methodName
+ * @param paramIdx
+ */
 export const QueryParams = (target: any, methodName: string | symbol, paramIdx: number) => {
   set(target, ['__decorators', methodName, '@QueryParams'], paramIdx);
+};
+
+/** Method Parameter Decorator used to construct the request body. The value of this method
+ * parameters needs to be a hash (requestBodyKey => requestBodyValue). Note that based on the `Content-Type`
+ * header, the serialization of the requestBody will change. For example we have built-in
+ * body transformation for `application/json`, and `application/x-www-form-urlencoded`, etc...
+ *
+ * @param target
+ * @param methodName
+ * @param paramIdx
+ */
+export const RequestBody = (target: any, methodName: string | symbol, paramIdx: number) => {
+  set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
 };
 
 export const FormDataBody = (paramKey: string) => (
@@ -210,14 +236,14 @@ export const FormDataBody = (paramKey: string) => (
   set(target, ['__decorators', methodName, '@FormDataBody', paramKey], paramIdx);
 };
 
-export const RequestBody = (target: any, methodName: string | symbol, paramIdx: number) => {
-  set(target, ['__decorators', methodName, '@RequestBody'], paramIdx);
-};
-
 export const FileUploadBody = (target: any, methodName: string | symbol, paramIdx: number) => {
   set(target, ['__decorators', methodName, '@FileUploadBody'], paramIdx);
 };
 
+/**
+ * Class Member Decorator to specify the credentials for `@RestApi AuthType`
+ * @param {string} credentialType : type of credentials ('AccessToken' | 'Username' | 'Password')
+ */
 export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 'Password') => (
   target: any,
   propertyName: string | symbol,
@@ -225,6 +251,10 @@ export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 
   set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
 };
 
+/**
+ * Class Decorator used to indicate a class as a Rest Client
+ * @param {RestClientOptions} restOptions options for the rest client
+ */
 export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   const {
     baseUrl,
@@ -274,6 +304,11 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
   return f;
 };
 
+/**
+ * Method Decorator used to define the REST call
+ * @param {string} url URL for the REST Resource
+ * @param {RestApiOptions} restApiOptions options for the REST calls
+ */
 export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string, descriptor: any) => {
     const {
