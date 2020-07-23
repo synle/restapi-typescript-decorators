@@ -6,7 +6,7 @@ module.exports = {
   },
   setupFilesAfterEnv: ['./jest.setup.js'],
   moduleNameMapper: {
-    "restapi-typescript-decorators": "<rootDir>/src/index",
+    'restapi-typescript-decorators': '<rootDir>/src/index',
   },
   collectCoverage: true,
 };

@@ -5,8 +5,8 @@ const myApiInstance = new PublicApiDataStore();
 const sampleTextFile = 'SampleSms.txt';
 
 describe('PublicApiDataStore', () => {
-  it('POST with JSON @RequestBody should work', () => {
-    const apiResponse = myApiInstance.doPostWithJsonBody({ a: 1, b: 2, c: 3 });
+  it('GET with absolute URL should work', () => {
+    const apiResponse = myApiInstance.doGetWithAbsoluteUrl();
 
     expect(apiResponse).toBeDefined();
 
@@ -14,27 +14,7 @@ describe('PublicApiDataStore', () => {
       return apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toBe(200);
-        expect(resp.json).toEqual({ a: 1, b: 2, c: 3 });
-        expect(resp.url).toEqual('https://httpbin.org/post');
-      });
-    }
-  });
-
-  it('POST with encoded form @RequestBody should work', () => {
-    const apiResponse = myApiInstance.doPostWithEncodedFormData({
-      a: 1,
-      b: 2,
-      c: 3,
-    });
-
-    expect(apiResponse).toBeDefined();
-
-    if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
-        expect(resp.form).toEqual({ a: '1', b: '2', c: '3' });
-        expect(resp.url).toEqual('https://httpbin.org/post');
+        expect(resp.url).toEqual('https://httpbin.org/get');
       });
     }
   });
@@ -50,20 +30,6 @@ describe('PublicApiDataStore', () => {
         expect(apiResponse.status).toBe(200);
         expect(resp.args).toEqual({ a: '1', b: '2', c: '3' });
         expect(resp.url).toEqual('https://httpbin.org/get?a=1&b=2&c=3');
-      });
-    }
-  });
-
-  it('GET with absolute URL should work', () => {
-    const apiResponse = myApiInstance.doGetWithAbsoluteUrl();
-
-    expect(apiResponse).toBeDefined();
-
-    if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
-        expect(resp.url).toEqual('https://httpbin.org/get');
       });
     }
   });
@@ -85,6 +51,145 @@ describe('PublicApiDataStore', () => {
         expect(resp.url).toEqual(
           'https://httpbin.org/anything/secret_message_id_123?aa=1&bb=2&cc=3',
         );
+      });
+    }
+  });
+
+  it('GET with single path params', () => {
+    const apiResponse = myApiInstance.doGetWithSingleQueryParam('javascript', 20);
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({ keyword: 'javascript', pageSize: '20' });
+        expect(resp.url).toContain('keyword=javascript');
+        expect(resp.url).toContain('pageSize=20');
+      });
+    }
+  });
+
+  it('GET with query params combo (hash and single value) should work', () => {
+    const apiResponse = myApiInstance.doGetWithQueryParamsCombo(
+      {
+        city: 'San Francisco',
+        radius: '< 2 miles',
+        price: '< 4000',
+      },
+      20, // page size
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.args).toEqual({
+          city: 'San Francisco',
+          pageSize: '20',
+          price: '< 4000',
+          radius: '< 2 miles',
+        });
+        expect(resp.url).toContain('city=San Francisco');
+        expect(resp.url).toContain('radius=< 2 miles');
+        expect(resp.url).toContain('price=< 4000');
+        expect(resp.url).toContain('pageSize=20');
+      });
+    }
+  });
+
+  it('GET with path params should work', () => {
+    const apiResponse = myApiInstance.doGetWithPathParams('92a38a41-0a47-4651-8253-c329af28a723');
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.url).toEqual(
+          'https://httpbin.org/anything/92a38a41-0a47-4651-8253-c329af28a723',
+        );
+      });
+    }
+  });
+
+  it('POST with JSON @RequestBody (as a hash) should work', () => {
+    const apiResponse = myApiInstance.doPostWithJsonBodyHash({ a: 1, b: 2, c: 3 });
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.json).toEqual({ a: 1, b: 2, c: 3 });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('POST with JSON @RequestProperty (as a single value) should work', () => {
+    const apiResponse = myApiInstance.doPostWithSingleValuesJsonBody(
+      'Sy', // first name
+      'Le', // last name
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.json).toEqual({ firstName: 'Sy', lastName: 'Le' });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('POST with JSON body combo of @RequestProperty (as a single value) and @RequestProperty (as a single value) should work', () => {
+    const apiResponse = myApiInstance.doPostWithJsonBodyMixture(
+      {
+        oldPassword: '123',
+        newPassword: '456',
+      },
+      '5d3fd566-a3d7-4d44-994c-a4cee8d53f63', // userId
+    );
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.json).toEqual({
+          newPassword: '456',
+          oldPassword: '123',
+          userId: '5d3fd566-a3d7-4d44-994c-a4cee8d53f63',
+        });
+        expect(resp.url).toEqual('https://httpbin.org/post');
+      });
+    }
+  });
+
+  it('POST with encoded form @RequestBody should work', () => {
+    const apiResponse = myApiInstance.doPostWithEncodedFormData({
+      a: 1,
+      b: 2,
+      c: 3,
+    });
+
+    expect(apiResponse).toBeDefined();
+
+    if (apiResponse) {
+      return apiResponse.result.then((resp) => {
+        expect(apiResponse.ok).toBe(true);
+        expect(apiResponse.status).toBe(200);
+        expect(resp.form).toEqual({ a: '1', b: '2', c: '3' });
+        expect(resp.url).toEqual('https://httpbin.org/post');
       });
     }
   });
