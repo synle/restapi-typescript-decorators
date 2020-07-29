@@ -10,3 +10,4 @@ mock-server
 SampleSms.txt
 src
 tsconfig.json
+publishBetaTags.js

@@ -21,6 +21,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+        registry-url: https://registry.npmjs.org/
     - run: npm ci
-    - run: npm run build
     - run: npm test
+    - run: npm run build
+    - run: node publishBetaTags.js
+    - run: cat package.json
+    - run: npm publish --tag beta
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
