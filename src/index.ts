@@ -381,189 +381,194 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
  */
 export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) => {
   return (target: any, methodName: string, descriptor: any) => {
-    const {
-      headers = {},
-      method = HttpVerbEnum.GET,
-      timeout,
-      retryConfigs,
-      requestTransform,
-      responseTransform,
-      ...otherFetchOptions
-    } = restApiOptions;
-
-    const _doApiCall = (instance: any, ...inputs: any[]): IApiResponse<any> => {
-      // these are 3 types of body to be sent to the backend
-      // we will choose them in this order
-      // 1. requestBody
-      // 2. formDataBody
-      // 3. fileUploadBody
-      const requestBody = _getRequestBody(instance, methodName, inputs);
-      const formDataBody = _getFormDataBody(instance, methodName, inputs);
-      const fileUploadBody = _getFileUploadBody(instance, methodName, inputs);
-
-      // construct the url wild cards {param1} {param2} etc...
-      let urlToUse = '';
-
-      if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
-        // if the current url is absolute, then use it
-        urlToUse = url;
-      } else {
-        // if not then appended current url to baseUrl
-        const baseUrl = instance.baseUrl;
-        urlToUse = `${baseUrl}${url}`;
-      }
-
-      // replace the url fragments from @PathParams
-      const pathParams = _getPathParams(instance, methodName, inputs);
-      Object.keys(pathParams).forEach((paramKey) => {
-        const paramValue = pathParams[paramKey];
-        urlToUse = urlToUse.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
-      });
-
-      // construct the query string if needed
-      const queryParams = _getQueryParams(instance, methodName, inputs);
-      if (Object.keys(queryParams).length > 0) {
-        urlToUse += `?${qs.stringify(queryParams)}`;
-      }
-
-      // set up the headers
-      const defaultConfigs = instance.defaultConfigs;
-      const headersToUse = Object.assign({}, defaultConfigs.headers, headers);
-
-      // add auth header if needed
-      const authType = instance.authType;
-      const credential = _getCredential(instance);
-      if (authType && credential) {
-        headersToUse['Authorization'] = `${authType} ${credential}`;
-      }
-
-      const controller = new AbortController();
-      const baseOptions = Object.assign(
-        {
-          url: urlToUse,
-          method: method.toUpperCase(),
-          signal: controller.signal,
-          headers: headersToUse,
-        },
-        otherFetchOptions,
-      );
-
-      // figure out the request transformation to use
-      let promisePreProcessRequest: any;
-      if (fileUploadBody) {
-        promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
-      } else if (formDataBody) {
-        promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
-          baseOptions,
-          formDataBody,
-          instance,
-        );
-      } else {
-        promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
-          baseOptions,
-          requestBody,
-          instance,
-        );
-      }
-
-      let retryTotal = 1,
-        retryDelay = 3000;
-      let hasRetriedCount = 0; // how many time has we done retries so far
-      if (retryConfigs) {
-        retryTotal = retryConfigs.count; // how many time to retry
-        retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
-      }
-
-      const finalResp = <IApiResponse<any>>{
-        url: baseOptions.url,
-        responseHeaders: {},
-        abort: () => {
-          // when the API is aborted manually by the user
-          controller.abort();
-          hasRetriedCount = retryTotal; // do this to stop further API retries attempt
-        }, // used to abort the api
-      };
-      const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
-
-      finalResp.result = new Promise((resolve, reject) => {
-        const _doFetchApi = () =>
-          Promise.all([Promise.resolve(<Promise<any>>promisePreProcessRequest)]).then(
-            ([fetchOptionToUse]) => {
-              finalResp.requestBody = fetchOptionToUse.body;
-              finalResp.requestHeaders = fetchOptionToUse.headers;
-              finalResp.url = fetchOptionToUse.url;
-
-              return _fetchData(fetchOptionToUse)
-                .then(
-                  (resp: Response) => {
-                    // if fetch succeeds
-                    finalResp.ok = resp.ok;
-                    finalResp.status = resp.status;
-                    finalResp.statusText = resp.statusText;
-
-                    // transform the response header
-                    finalResp.responseHeaders = _getHeadersAsJson(resp.headers);
-
-                    // if API succeeds, then cancel the timer
-                    clearTimeout(timeoutAbortApi);
-
-                    // doing the response transform
-                    return (responseTransform || instance.defaultResponseTransform)(
-                      fetchOptionToUse,
-                      resp,
-                      instance,
-                    );
-                  },
-                  function(error) {
-                    // if fetch fails...
-                    finalResp.ok = false;
-                    // finalResp.status = resp.status;
-                    // finalResp.statusText = resp.statusText;
-
-                    // if API fails, then cancel the timer
-                    clearTimeout(timeoutAbortApi);
-
-                    return { error };
-                  },
-                )
-                .then((resp) => {
-                  hasRetriedCount++;
-
-                  finalResp.retryCount = hasRetriedCount;
-
-                  if (finalResp.ok) {
-                    resolve(resp);
-                  } else {
-                    if (hasRetriedCount < retryTotal) {
-                      // by default check if we have a valid `retry-after` response header, if yes, then use it
-                      // if not then fall back to provided retryDelay in the config
-                      let retryDelayToUse = retryDelay;
-                      if (finalResp.responseHeaders) {
-                        retryDelayToUse =
-                          parseInt(finalResp.responseHeaders['retry-after']) * 1000 ||
-                          retryDelayToUse;
-                      }
-                      setTimeout(_doFetchApi, retryDelayToUse);
-                    } else {
-                      // no more retry, reject the promise
-                      reject(resp);
-                    }
-                  }
-                });
-            },
-          );
-
-        _doFetchApi(); // invoke the first call
-      });
-
-      return finalResp;
-    };
-
     descriptor.value = function(...inputs: any[]) {
       const instance = this;
-      return _doApiCall(instance, ...inputs);
+      return _doApiCall(instance, methodName, url, restApiOptions, ...inputs);
     };
 
     return descriptor;
   };
+};
+
+const _doApiCall = (
+  instance: any,
+  methodName: string,
+  url: string,
+  restApiOptions: RestApiOptions,
+  ...inputs: any[]
+): IApiResponse<any> => {
+  const {
+    headers = {},
+    method = HttpVerbEnum.GET,
+    timeout,
+    retryConfigs,
+    requestTransform,
+    responseTransform,
+    ...otherFetchOptions
+  } = restApiOptions;
+
+  // these are 3 types of body to be sent to the backend
+  // we will choose them in this order
+  // 1. requestBody
+  // 2. formDataBody
+  // 3. fileUploadBody
+  const requestBody = _getRequestBody(instance, methodName, inputs);
+  const formDataBody = _getFormDataBody(instance, methodName, inputs);
+  const fileUploadBody = _getFileUploadBody(instance, methodName, inputs);
+
+  // construct the url wild cards {param1} {param2} etc...
+  let urlToUse = '';
+
+  if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+    // if the current url is absolute, then use it
+    urlToUse = url;
+  } else {
+    // if not then appended current url to baseUrl
+    const baseUrl = instance.baseUrl;
+    urlToUse = `${baseUrl}${url}`;
+  }
+
+  // replace the url fragments from @PathParams
+  const pathParams = _getPathParams(instance, methodName, inputs);
+  Object.keys(pathParams).forEach((paramKey) => {
+    const paramValue = pathParams[paramKey];
+    urlToUse = urlToUse.replace(new RegExp(`{${paramKey}}`, 'g'), paramValue);
+  });
+
+  // construct the query string if needed
+  const queryParams = _getQueryParams(instance, methodName, inputs);
+  if (Object.keys(queryParams).length > 0) {
+    urlToUse += `?${qs.stringify(queryParams)}`;
+  }
+
+  // set up the headers
+  const defaultConfigs = instance.defaultConfigs;
+  const headersToUse = Object.assign({}, defaultConfigs.headers, headers);
+
+  // add auth header if needed
+  const authType = instance.authType;
+  const credential = _getCredential(instance);
+  if (authType && credential) {
+    headersToUse['Authorization'] = `${authType} ${credential}`;
+  }
+
+  const controller = new AbortController();
+  const baseOptions = Object.assign(
+    {
+      url: urlToUse,
+      method: method.toUpperCase(),
+      signal: controller.signal,
+      headers: headersToUse,
+    },
+    otherFetchOptions,
+  );
+
+  // figure out the request transformation to use
+  let promisePreProcessRequest: any;
+  if (fileUploadBody) {
+    promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
+  } else if (formDataBody) {
+    promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
+      baseOptions,
+      formDataBody,
+      instance,
+    );
+  } else {
+    promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
+      baseOptions,
+      requestBody,
+      instance,
+    );
+  }
+
+  let retryTotal = 1,
+    retryDelay = 3000;
+  let hasRetriedCount = 0; // how many time has we done retries so far
+  if (retryConfigs) {
+    retryTotal = retryConfigs.count; // how many time to retry
+    retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
+  }
+
+  const finalResp = <IApiResponse<any>>{
+    url: baseOptions.url,
+    responseHeaders: {},
+    abort: () => {
+      // when the API is aborted manually by the user
+      controller.abort();
+      hasRetriedCount = retryTotal; // do this to stop further API retries attempt
+    }, // used to abort the api
+  };
+  const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
+
+  finalResp.result = new Promise((resolve, reject) => {
+    const _doFetchApi = () =>
+      Promise.all([Promise.resolve(<Promise<any>>promisePreProcessRequest)]).then(
+        ([fetchOptionToUse]) => {
+          finalResp.requestBody = fetchOptionToUse.body;
+          finalResp.requestHeaders = fetchOptionToUse.headers;
+          finalResp.url = fetchOptionToUse.url;
+
+          return _fetchData(fetchOptionToUse)
+            .then(
+              (resp: Response) => {
+                // if fetch succeeds
+                finalResp.ok = resp.ok;
+                finalResp.status = resp.status;
+                finalResp.statusText = resp.statusText;
+
+                // transform the response header
+                finalResp.responseHeaders = _getHeadersAsJson(resp.headers);
+
+                // if API succeeds, then cancel the timer
+                clearTimeout(timeoutAbortApi);
+
+                // doing the response transform
+                return (responseTransform || instance.defaultResponseTransform)(
+                  fetchOptionToUse,
+                  resp,
+                  instance,
+                );
+              },
+              function(error) {
+                // if fetch fails...
+                finalResp.ok = false;
+                // finalResp.status = resp.status;
+                // finalResp.statusText = resp.statusText;
+
+                // if API fails, then cancel the timer
+                clearTimeout(timeoutAbortApi);
+
+                return { error };
+              },
+            )
+            .then((resp) => {
+              hasRetriedCount++;
+
+              finalResp.retryCount = hasRetriedCount;
+
+              if (finalResp.ok) {
+                resolve(resp);
+              } else {
+                if (hasRetriedCount < retryTotal) {
+                  // by default check if we have a valid `retry-after` response header, if yes, then use it
+                  // if not then fall back to provided retryDelay in the config
+                  let retryDelayToUse = retryDelay;
+                  if (finalResp.responseHeaders) {
+                    retryDelayToUse =
+                      parseInt(finalResp.responseHeaders['retry-after']) * 1000 || retryDelayToUse;
+                  }
+                  setTimeout(_doFetchApi, retryDelayToUse);
+                } else {
+                  // no more retry, reject the promise
+                  reject(resp);
+                }
+              }
+            });
+        },
+      );
+
+    _doFetchApi(); // invoke the first call
+  });
+
+  return finalResp;
 };
