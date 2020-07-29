@@ -36,7 +36,7 @@ type X2jOptions = {
 };
 
 // types
-export interface IApiResponse<T> {
+export interface ApiResponse<T> {
   /**
    * full url for the API
    */

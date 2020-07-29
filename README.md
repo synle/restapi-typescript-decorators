@@ -73,9 +73,18 @@ Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
 Most of these examples return `ApiResponse<any>` for simplicity. You can use the library to cast the response object in a custom format. Refer to the bottom section of this guide for how to do type cast your requests and responses.
 
+#### Adding the ts-ignore
+
+Please add ts-ignore on top of your rest client classes. Because we didn't define the fetch API directly in the class definition, and rely on the decorator to fill in the definition. Typescript does complain about method not returning any data for non-nullable type.
+
+```
+// @ts-ignore
+```
+
 #### import the classes
 
 ```
+// @ts-ignore
 import {
   ApiResponse,
   CredentialProperty,
@@ -96,6 +105,7 @@ import {
 Below is an example on the definition for public API data store.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -333,6 +343,7 @@ export class PublicApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PublicApiDataStore } from './PublicApiDataStore';
 const myApiInstance = new PublicApiDataStore();
 ```
@@ -344,13 +355,11 @@ You can use the response in a few ways.
 
 ```
 const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
-if(apiResponse){
-  apiResponse.result.then(
-    resp => {
-      // do something with your response
-    }
-  );
-}
+apiResponse.result.then(
+  resp => {
+    // do something with your response
+  }
+);
 ```
 
 **Option 2: no if check with await and async**
@@ -358,13 +367,24 @@ if(apiResponse){
 ```
 async function doWorkFunc(){
   const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
-  if(apiResponse){
-    try{
-      const resp = await apiResponse.result;
-      // do something with your response
-    } catch(e){
-      // api error, do some handler
-    }
+  try{
+    const resp = await apiResponse.result;
+    // do something with your response
+  } catch(e){
+    // api error, do some handler
+  }
+}
+```
+
+**Option 3: consumes the response directly**
+
+```
+async function doWorkFunc(){
+  try{
+    const resp = await myApiInstance.doGetWithQueryParams({a: 1, b: 2}).result;
+    // do something with your response
+  } catch(e){
+    // api error, do some handler
   }
 }
 ```
@@ -374,6 +394,7 @@ async function doWorkFunc(){
 Below is an example on the definition for private API data store.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -412,6 +433,7 @@ export class PrivateBearerAuthApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 const myApiInstance = new PrivateBearerAuthApiDataStore(
   'good_username',
@@ -424,6 +446,7 @@ const myApiInstance = new PrivateBearerAuthApiDataStore(
 #### Private (authenticated with username and password basic auth) API Store
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -467,6 +490,7 @@ export class PrivateBasicAuthApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
 const myApiInstance = new PrivateBasicAuthApiDataStore(
   'good_username',
@@ -478,11 +502,13 @@ const myApiInstance = new PrivateBasicAuthApiDataStore(
 
 #### To execute the RestClient
 
+**Simple example on how to run the client**
+First initiate the @RestClient class, then call the RestApi and use it
+
 ```
 const myApiInstance = new PrivateApiDataStore('<<some_strong_and_random_access_token>>');
 
-const apiResponse = myApiInstance.doApiCallWithBearerToken();
-
+const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
 if(apiResponse){
   apiResponse.result.then((resp) => {
     // ... do something with your response and status code ...
@@ -491,6 +517,44 @@ if(apiResponse){
     console.log('status', apiResponse.status);
     console.log('resp', resp);
   });
+}
+```
+
+**Option 1 (preferred): with `if` check**
+
+```
+const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
+apiResponse.result.then(
+  resp => {
+    // do something with your response
+  }
+);
+```
+
+**Option 2: no if check with await and async**
+
+```
+async function doWorkFunc(){
+  const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
+  try{
+    const resp = await apiResponse.result;
+    // do something with your response
+  } catch(e){
+    // api error, do some handler
+  }
+}
+```
+
+**Option 3: consumes the response directly**
+
+```
+async function doWorkFunc(){
+  try{
+    const resp = await myApiInstance.doGetWithQueryParams({a: 1, b: 2}).result;
+    // do something with your response
+  } catch(e){
+    // api error, do some handler
+  }
 }
 ```
 
@@ -503,13 +567,11 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
-if(apiResponse){
-  apiResponse.result.then((resp) => {
-    // ... api will be aborted, and this section will not be executed ...
-  });
+apiResponse.result.then((resp) => {
+  // ... api will be aborted, and this section will not be executed ...
+});
 
-  apiResponse.abort()
-}
+apiResponse.abort(); // this is the call that abort the pending API
 ```
 
 #### Simple GET REST Calls with Query String
@@ -695,6 +757,7 @@ const sampleSmsFileStream = fs.createReadStream('SampleSms.txt');
 const apiResponse = myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBinPost(
   sampleSmsFileStream,
 );
+//... follow the above example to get the data from result promise
 ```
 
 #### URL Notes
@@ -720,6 +783,7 @@ Sometimes it might be useful to cast / parsing the json object in the response t
 **Then RestClient class will look something like this**
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -898,6 +962,7 @@ You can use `requestTransform` and `responseTransform` to do transformation on t
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -940,9 +1005,7 @@ export class TransformationApiDataStore {
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
 const apiResponse = myTransformationApiDataStoreInstance.doPostWithRequestTransformation({ a: 1, b: 2 })
 
-if(apiResponse){
-  //... follow the above example to get the data from result promise
-}
+//... follow the above example to get the data from result promise
 ```
 
 #### Simple response transform
@@ -950,6 +1013,7 @@ if(apiResponse){
 This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -988,9 +1052,7 @@ export class TransformationApiDataStore {
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
 const apiResponse = myTransformationApiDataStoreInstance.doPostWithResponseTransformation({ a: 300, b: 700 })
 
-if(apiResponse){
-  //... follow the above example to get the data from result promise
-}
+//... follow the above example to get the data from result promise
 ```
 
 #### Config Overrides
@@ -1014,6 +1076,7 @@ We have 3 layers of configs: `DefaultConfig` (default configs from this library)
 Below is an example on how to set Custom Config
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,

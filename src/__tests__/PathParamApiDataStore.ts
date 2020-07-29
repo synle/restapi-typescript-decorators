@@ -1,3 +1,4 @@
+// @ts-ignore
 import { RestClient, RestApi, PathParam, ApiResponse } from 'restapi-typescript-decorators';
 
 import { HttpBinResponse, HttpBinRequest } from './types';
