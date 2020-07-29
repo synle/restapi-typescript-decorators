@@ -16,6 +16,7 @@ import {
 
 const DEFAULT_TIMEOUT = 60000;
 
+export { IApiResponse } from './types';
 export type ApiResponse<T> = IApiResponse<T> | void;
 
 // figure out which api to use

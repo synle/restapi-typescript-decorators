@@ -52,7 +52,7 @@ Another inspiration is to create a unified Rest Client library that works across
 - [ ] Add API debounce actions
 - [x] Add support for custom `fast-xml-parser` options
 
-### How to use
+### How to use?
 
 You can also checkout the sample repos that has typescript and other things setup:
 
@@ -338,15 +338,34 @@ const myApiInstance = new PublicApiDataStore();
 ```
 
 **Use it**
+You can use the response in a few ways.
+
+**Option 1 (preferred): with `if` check**
 
 ```
-apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
+const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
 if(apiResponse){
   apiResponse.result.then(
     resp => {
       // do something with your response
     }
   );
+}
+```
+
+**Option 2: no if check with await and async**
+
+```
+async function doWorkFunc(){
+  const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
+  if(apiResponse){
+    try{
+      const resp = await apiResponse.result;
+      // do something with your response
+    } catch(e){
+      // api error, do some handler
+    }
+  }
 }
 ```
 
