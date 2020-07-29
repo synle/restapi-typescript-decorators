@@ -1,4 +1,4 @@
-![CI Job status](https://github.com/synle/restapi-typescript-decorators/workflows/Package%20and%20Publish%20to%20NPM/badge.svg)
+![Master Build and Package](https://github.com/synle/restapi-typescript-decorators/workflows/Master%20Build%20and%20Package/badge.svg)
 [![NPM Version](https://badge.fury.io/js/restapi-typescript-decorators.svg)](https://badge.fury.io/js/restapi-typescript-decorators)
 
 # restapi-typescript-decorators
