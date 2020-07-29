@@ -11,13 +11,12 @@ import {
   HttpVerbEnum,
   RestClientOptions,
   RestApiOptions,
-  IApiResponse,
+  ApiResponse,
 } from './types';
 
-const DEFAULT_TIMEOUT = 60000;
+export { ApiResponse } from './types';
 
-export { IApiResponse } from './types';
-export type ApiResponse<T> = IApiResponse<T> | void;
+const DEFAULT_TIMEOUT = 60000;
 
 // figure out which api to use
 const fetch = globalThis['fetch'] || FetchForNode;
@@ -396,7 +395,7 @@ const _doApiCall = (
   url: string,
   restApiOptions: RestApiOptions,
   ...inputs: any[]
-): IApiResponse<any> => {
+): ApiResponse<any> => {
   const {
     headers = {},
     method = HttpVerbEnum.GET,
@@ -489,7 +488,7 @@ const _doApiCall = (
     retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
   }
 
-  const finalResp = <IApiResponse<any>>{
+  const finalResp = <ApiResponse<any>>{
     url: baseOptions.url,
     responseHeaders: {},
     abort: () => {

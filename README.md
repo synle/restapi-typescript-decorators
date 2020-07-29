@@ -73,9 +73,15 @@ Make sure you have the typescript and decorator enabled in your `tsconfig.json`
 
 Most of these examples return `ApiResponse<any>` for simplicity. You can use the library to cast the response object in a custom format. Refer to the bottom section of this guide for how to do type cast your requests and responses.
 
-#### import the classes
-
+#### Adding the ts-ignore
+Please add ts-ignore on top of your rest client classes. Because we didn't define the fetch API directly in the class definition, and rely on the decorator to fill in the definition. Typescript does complain about method not returning any data for non-nullable type.
 ```
+// @ts-ignore
+```
+
+#### import the classes
+```
+// @ts-ignore
 import {
   ApiResponse,
   CredentialProperty,
@@ -96,6 +102,7 @@ import {
 Below is an example on the definition for public API data store.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -333,6 +340,7 @@ export class PublicApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PublicApiDataStore } from './PublicApiDataStore';
 const myApiInstance = new PublicApiDataStore();
 ```
@@ -374,6 +382,7 @@ async function doWorkFunc(){
 Below is an example on the definition for private API data store.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -412,6 +421,7 @@ export class PrivateBearerAuthApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 const myApiInstance = new PrivateBearerAuthApiDataStore(
   'good_username',
@@ -424,6 +434,7 @@ const myApiInstance = new PrivateBearerAuthApiDataStore(
 #### Private (authenticated with username and password basic auth) API Store
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -467,6 +478,7 @@ export class PrivateBasicAuthApiDataStore {
 **Then instantiate it as**
 
 ```
+// @ts-ignore
 import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
 const myApiInstance = new PrivateBasicAuthApiDataStore(
   'good_username',
@@ -720,6 +732,7 @@ Sometimes it might be useful to cast / parsing the json object in the response t
 **Then RestClient class will look something like this**
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -898,6 +911,7 @@ You can use `requestTransform` and `responseTransform` to do transformation on t
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -950,6 +964,7 @@ if(apiResponse){
 This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
@@ -1014,6 +1029,7 @@ We have 3 layers of configs: `DefaultConfig` (default configs from this library)
 Below is an example on how to set Custom Config
 
 ```
+// @ts-ignore
 import {
   RestClient,
   RestApi,
