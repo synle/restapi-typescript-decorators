@@ -61,3 +61,4 @@ typings/
 # src/**/*.js
 build
 .env
+./publishBetaTags.js
