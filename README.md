@@ -514,7 +514,7 @@ if(apiResponse){
 
 #### Simple GET REST Calls with Query String
 
-You can use either `@QueryParams` (as a hash) or `QueryParam` (as a single value for query string). This will send a GET request to the backend with query string attached. The library will handle url encoding for your data. So no need to encode it when using this API.
+You can use either `@QueryParams` (as a hash) or `@QueryParamProperty` (as a single value for query string). This will send a GET request to the backend with query string attached. The library will handle url encoding for your data. So no need to encode it when using this API.
 
 This example will pass a hash (queryStringKey => queryStringValue) into the query string
 
