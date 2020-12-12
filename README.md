@@ -75,7 +75,7 @@ Most of these examples return `ApiResponse<any>` for simplicity. You can use the
 
 #### import the classes
 
-```
+```typescript
 import {
   ApiResponse,
   CredentialProperty,
@@ -95,7 +95,7 @@ import {
 
 Below is an example on the definition for public API data store.
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -332,7 +332,7 @@ export class PublicApiDataStore {
 
 **Then instantiate it as**
 
-```
+```typescript
 import { PublicApiDataStore } from './PublicApiDataStore';
 const myApiInstance = new PublicApiDataStore();
 ```
@@ -342,7 +342,7 @@ You can use the response in a few ways.
 
 **Option 1 (preferred): with `if` check**
 
-```
+```typescript
 const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
 if(apiResponse){
   apiResponse.result.then(
@@ -355,7 +355,7 @@ if(apiResponse){
 
 **Option 2: no if check with await and async**
 
-```
+```typescript
 async function doWorkFunc(){
   const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
   if(apiResponse){
@@ -373,7 +373,7 @@ async function doWorkFunc(){
 
 Below is an example on the definition for private API data store.
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -411,7 +411,7 @@ export class PrivateBearerAuthApiDataStore {
 
 **Then instantiate it as**
 
-```
+```typescript
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
 const myApiInstance = new PrivateBearerAuthApiDataStore(
   'good_username',
@@ -423,7 +423,7 @@ const myApiInstance = new PrivateBearerAuthApiDataStore(
 
 #### Private (authenticated with username and password basic auth) API Store
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -466,7 +466,7 @@ export class PrivateBasicAuthApiDataStore {
 
 **Then instantiate it as**
 
-```
+```typescript
 import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
 const myApiInstance = new PrivateBasicAuthApiDataStore(
   'good_username',
@@ -478,7 +478,7 @@ const myApiInstance = new PrivateBasicAuthApiDataStore(
 
 #### To execute the RestClient
 
-```
+```typescript
 const myApiInstance = new PrivateApiDataStore('<<some_strong_and_random_access_token>>');
 
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
@@ -498,7 +498,7 @@ if(apiResponse){
 
 Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort()`. Note that this action will also disable any attempt to retry the API for any pending instance method invokation. Say you are calling a fetch user with 5 retries, if you do `abort`. At that moment in time, the API will stop the pending API call and any retry.
 
-```
+```typescript
 // ... your construction code here ...
 
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
@@ -518,7 +518,7 @@ You can use either `@QueryParams` (as a hash) or `@QueryParamProperty` (as a sin
 
 This example will pass a hash (queryStringKey => queryStringValue) into the query string
 
-```
+```typescript
 /**
 * do get with query params (as a hash of queryParamKey => queryParamValue)
 * @param _queryParams
@@ -529,7 +529,7 @@ doGetWithQueryParams(@QueryParams _queryParams: HttpBinRequest): ApiResponse<Htt
 
 This example will pass a single value into the query string
 
-```
+```typescript
 /**
 * do get with query params (as a single parameter). This example will construct url as
 * /get?keyword=<_keyword>&_pageSize=<number>
@@ -549,7 +549,7 @@ When both `@QueryParamProperty` and `@QueryParams` are present in a single metho
 
 Below is an example of this:
 
-```
+```typescript
 /**
 * do get with a combination of both single query param, and query params hash. In this
 * example, we will combine the two query params with single query param has higher
@@ -570,7 +570,7 @@ doGetWithQueryParamsCombo(
 
 Below is an example of how path params can be used in a class member
 
-```
+```typescript
 @RestApi("/anything/{messageId}")
 doGetWithPathParams(
   @PathParam("messageId") _targetMessageId: string
@@ -579,7 +579,7 @@ doGetWithPathParams(
 
 The following code shows how path params can be used in class members and method parameters
 
-```
+```typescript
 @RestClient({
   baseUrl: 'https://httpbin.org/cookies/set/{cookieName}/{cookieValue}',
 })
@@ -598,7 +598,7 @@ export class PathParamApiDataStore {
 
 #### Simple GET REST Calls with Path Param and Query String
 
-```
+```typescript
 @RestApi('/anything/{messageId}')
 doGetWithPathParamsAndQueryParams(
   @PathParam('messageId') _targetMessageId: string,
@@ -612,7 +612,7 @@ You can post JSON body with `@RequestBody` (as a hash) or `@RequestProperty` (as
 
 Below is an example of how to POST JSON with `@RequestBody` (as a hash)
 
-```
+```typescript
 @RestApi('/post', {
   method: 'POST',
 })
@@ -621,7 +621,7 @@ doPostWithJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<HttpBinRespo
 
 Below is an example of how to POST JSON with `@RequestProperty` (as a single value).
 
-```
+```typescript
 /**
 * do post JSON request body with  @RequestBody (as a hash)
 * @param _body
@@ -641,7 +641,7 @@ When both `@RequestProperty` and `@RequestBody` are present in a single method, 
 
 Below is an example of this:
 
-```
+```typescript
 /**
 * do post with a combination of both single request property, and request body hash. In this
 * example, we will combine the two together with single request property has higher
@@ -661,7 +661,7 @@ doPostWithJsonBodyMixture(
 
 #### Simple POST Rest Calls with FormData Body
 
-```
+```typescript
 @RestApi('/anything', {
   method: 'POST',
 })
@@ -675,7 +675,7 @@ doPostWithFormBodyData(
 
 This example uploads the file as a single stream
 
-```
+```typescript
 @RestApi('/post', {
   method: 'POST',
   headers: {
@@ -689,7 +689,7 @@ doSimpleUploadFileWithStreamHttpBinPost(
 
 This expects your response to be a buffer. Below is how you can craft the buffer for Node Js
 
-```
+```typescript
 import fs from 'fs';
 const sampleSmsFileStream = fs.createReadStream('SampleSms.txt');
 const apiResponse = myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBinPost(
@@ -719,7 +719,7 @@ Sometimes it might be useful to cast / parsing the json object in the response t
 
 **Then RestClient class will look something like this**
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -761,7 +761,7 @@ You can set a max timeout using the `timeout` attribute. In which the API will b
 
 In this example, the actual API will return in 10 seconds, but the client will timeout and abort the request in 3 seconds
 
-```
+```typescript
 @RestApi('/delay/10', {
   timeout: 3000,
 })
@@ -781,7 +781,7 @@ Note:
 - That when the user attempted to abort the API calls manually using the `abort()` method from `ApiResponse`, this action will stop the API from further retries.
 - Another note is that the client will respect server `Retry-After` response header. And will attempt to retry after that delay. At the moment we only support `Retry-After` that is of number of seconds to invoke an API retry
 
-```
+```typescript
 @RestClient({
   baseUrl: 'http://localhost:8080',
 })
@@ -810,7 +810,7 @@ To use the default parser, you can set the Accept Header. This example below wil
 
 The default header value for `Content-Type` is `application/json`. You can also be explicit about it. But basically it will transform your JSON request object into JSON string understood by the backend that consumes JSON.
 
-```
+```typescript
 @RestApi('/post', {
   method: 'POST',
   // the following header value is implied
@@ -825,7 +825,7 @@ doSimpleHttpBinPostJsonBody(@RequestBody _body: HttpBinRequest): ApiResponse<Htt
 
 The default header value for `Content-Type` is `application/x-www-form-urlencoded`. When this is provided, the library will send your request in url encoded form format.
 
-```
+```typescript
 @RestApi('/post', {
   method: 'POST',
   headers: {
@@ -841,7 +841,7 @@ doSimpleHttpBinPostEncodedForm(
 
 This will parse the XML response and return them as JSON object
 
-```
+```typescript
 @RestApi('/xml', {
 // the following header value is implied
 //  headers: {
@@ -855,7 +855,7 @@ doSimpleHttpGetWithXmlData(): ApiResponse<HttpBinResponse> {}
 
 The default header value for `Accept` is `application/json`. You can also be explicit about it. But basically it will transform your response into JSON objects.
 
-```
+```typescript
 @RestApi('/json', {
   headers: {
     'Accept': 'application/json',
@@ -866,7 +866,7 @@ doSimpleJSONGet(): ApiResponse<HttpBinResponse> {}
 
 You can also provide `fast-xml-parser` custom configurations for the client using `@RestClient` property `xmlParseOptions` at the class level.
 
-```
+```typescript
 
 @RestClient({
   baseUrl: 'https://httpbin.org',
@@ -897,7 +897,7 @@ You can use `requestTransform` and `responseTransform` to do transformation on t
 
 This example will transform the request before sending the request to the backend. The example will do some translation to the input data before sending the data to the backend.
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -949,7 +949,7 @@ if(apiResponse){
 
 This example will transform the response before returning the final result to the front end. The example code will add the response values and return the sum as the response
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
@@ -1013,7 +1013,7 @@ We have 3 layers of configs: `DefaultConfig` (default configs from this library)
 
 Below is an example on how to set Custom Config
 
-```
+```typescript
 import {
   RestClient,
   RestApi,
