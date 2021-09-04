@@ -1,6 +1,6 @@
 {
   "name": "restapi-typescript-decorators",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "Decorators that helps reduce the boilderplate code for rest api calls on the frontend and node js",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -32,14 +32,12 @@
     "abort-controller": "^3.0.0",
     "fast-xml-parser": "^3.17.4",
     "form-data": "^4.0.0",
-    "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
     "node-fetch": "^2.6.1",
     "qs": "^6.9.4"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
-    "@types/lodash.get": "^4.4.6",
     "@types/lodash.set": "^4.3.6",
     "@types/node": "^16.7.10",
     "@types/qs": "^6.9.3",

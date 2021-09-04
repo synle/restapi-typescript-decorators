@@ -1,4 +1,3 @@
-import get from 'lodash.get';
 import set from 'lodash.set';
 import qs from 'qs';
 import FetchForNode from 'node-fetch';
@@ -18,6 +17,19 @@ const DEFAULT_TIMEOUT = 60000;
 
 export { IApiResponse } from './types';
 export type ApiResponse<T> = IApiResponse<T> | void;
+
+function get(obj: any, paths: string[]){
+  let value = obj;
+  for(const path of paths){
+    try{
+      value = value[path];
+    } catch(err){
+      // if it can't be resolved, then return undefined
+      return undefined;
+    }
+  }
+  return value;
+}
 
 // figure out which api to use
 const fetch = globalThis['fetch'] || FetchForNode;
@@ -130,8 +142,7 @@ const _getPathParams = (instance: any, methodName: string, inputs: any[]) => {
   const paramKeysFromMethod = get(
     instance,
     ['__decorators', methodName, '@PathParam-ParamIdx'],
-    {},
-  );
+  ) || {};
   Object.keys(paramKeysFromMethod).forEach((paramKey) => {
     const paramValue = inputs[paramKeysFromMethod[paramKey]];
     pathParamValues[paramKey] = paramValue;
