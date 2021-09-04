@@ -109,7 +109,6 @@ import {
   ApiResponse,
 } from 'restapi-typescript-decorators';
 
-
 // first define your request and response body
 export interface HttpBinRequest {
   [propName: string]: any;
@@ -413,10 +412,7 @@ export class PrivateBearerAuthApiDataStore {
 
 ```typescript
 import { PrivateBearerAuthApiDataStore } from './PrivateBearerAuthApiDataStore';
-const myApiInstance = new PrivateBearerAuthApiDataStore(
-  'good_username',
-  'good_password'
-);
+const myApiInstance = new PrivateBearerAuthApiDataStore('good_username', 'good_password');
 
 // ... refer to other section for how to execute the calls
 ```
@@ -430,7 +426,6 @@ import {
   CredentialProperty,
   ApiResponse,
 } from 'restapi-typescript-decorators';
-
 
 // first define your request and response body
 export interface HttpBinAuthResponse {
@@ -468,10 +463,7 @@ export class PrivateBasicAuthApiDataStore {
 
 ```typescript
 import { PrivateBasicAuthApiDataStore } from './PrivateBasicAuthApiDataStore';
-const myApiInstance = new PrivateBasicAuthApiDataStore(
-  'good_username',
-  'good_password'
-);
+const myApiInstance = new PrivateBasicAuthApiDataStore('good_username', 'good_password');
 
 // ... refer to other section for how to execute the calls
 ```
@@ -503,12 +495,12 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
-if(apiResponse){
+if (apiResponse) {
   apiResponse.result.then((resp) => {
     // ... api will be aborted, and this section will not be executed ...
   });
 
-  apiResponse.abort()
+  apiResponse.abort();
 }
 ```
 
@@ -692,9 +684,8 @@ This expects your response to be a buffer. Below is how you can craft the buffer
 ```typescript
 import fs from 'fs';
 const sampleSmsFileStream = fs.createReadStream('SampleSms.txt');
-const apiResponse = myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBinPost(
-  sampleSmsFileStream,
-);
+const apiResponse =
+  myPublicDataStoreInstance.doSimpleUploadFileWithStreamHttpBinPost(sampleSmsFileStream);
 ```
 
 #### URL Notes
@@ -870,18 +861,18 @@ You can also provide `fast-xml-parser` custom configurations for the client usin
 @RestClient({
   baseUrl: 'https://httpbin.org',
   xmlParseOptions: {
-    attrPrefix : "@_",
-    textNodeName : "#text",
-    ignoreNonTextNodeAttr : true,
-    ignoreTextNodeAttr : true,
-    ignoreNameSpace : true
-  }
+    attrPrefix: '@_',
+    textNodeName: '#text',
+    ignoreNonTextNodeAttr: true,
+    ignoreTextNodeAttr: true,
+    ignoreNameSpace: true,
+  },
 })
 export class TransformationApiDataStore {
   @RestApi('/xml', {
     method: 'POST',
     headers: {
-      'Accept': 'application/xml',
+      Accept: 'application/xml',
     },
   })
   doSimpleRequestTransformApi(@RequestBody requestBody: NumberPair): ApiResponse<any> {}
@@ -920,7 +911,11 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    requestTransform: (fetchOptions: Request, pair: NumberPair, instance: TransformationApiDataStore): Promise<Request> => {
+    requestTransform: (
+      fetchOptions: Request,
+      pair: NumberPair,
+      instance: TransformationApiDataStore,
+    ): Promise<Request> => {
       const newBody = {
         a: pair.a * 100,
         b: pair.b * 200,
@@ -937,9 +932,12 @@ export class TransformationApiDataStore {
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doPostWithRequestTransformation({ a: 1, b: 2 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithRequestTransformation({
+  a: 1,
+  b: 2,
+});
 
-if(apiResponse){
+if (apiResponse) {
   //... follow the above example to get the data from result promise
 }
 ```
@@ -972,7 +970,11 @@ interface NumberPair {
 export class TransformationApiDataStore {
   @RestApi('/anything', {
     method: 'POST',
-    responseTransform: (fetchOptions: Request, resp: Response, instance: TransformationApiDataStore): Promise<any> => {
+    responseTransform: (
+      fetchOptions: Request,
+      resp: Response,
+      instance: TransformationApiDataStore,
+    ): Promise<any> => {
       return resp.json().then((respJson) => {
         const pair = <NumberPair>JSON.parse(respJson.data);
         const sum = pair.a + pair.b;
@@ -985,9 +987,12 @@ export class TransformationApiDataStore {
 }
 
 const myTransformationApiDataStoreInstance = new TransformationApiDataStore();
-const apiResponse = myTransformationApiDataStoreInstance.doPostWithResponseTransformation({ a: 300, b: 700 })
+const apiResponse = myTransformationApiDataStoreInstance.doPostWithResponseTransformation({
+  a: 300,
+  b: 700,
+});
 
-if(apiResponse){
+if (apiResponse) {
   //... follow the above example to get the data from result promise
 }
 ```

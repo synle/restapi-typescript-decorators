@@ -1,10 +1,9 @@
-const fs = require('fs')
+const fs = require('fs');
 const oldPackageJson = JSON.parse(fs.readFileSync('./package.json'));
 const oldVersion = oldPackageJson.version;
 
-
 // construct the new temp build
-const versionSplits = oldPackageJson.version.split(/[\.-]/)
+const versionSplits = oldPackageJson.version.split(/[\.-]/);
 const [major, minor, patch, postfix] = versionSplits;
 const newTempVersion = `${major}.${minor}.${patch}-${Date.now()}`;
 

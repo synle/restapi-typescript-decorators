@@ -219,7 +219,7 @@ const _getBase64FromString = (strVal: string) => {
  * @param {string} pathParamKey
  */
 export const PathParam = (pathParamKey: string) => {
-  return function(...inputs: any[]) {
+  return function (...inputs: any[]) {
     const [target, methodName, paramIdx] = inputs;
     if (paramIdx >= 0) {
       // this decorator is used in a context of a method parameter
@@ -256,13 +256,10 @@ export const QueryParams = (target: any, methodName: string | symbol, paramIdx: 
  * higher precedence than `@QueryParams` hash
  * @param {string} queryParamKey the key for
  */
-export const QueryParamProperty = (queryParamKey: string) => (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number,
-) => {
-  set(target, ['__decorators', methodName, '@QueryParam-SingleValue', queryParamKey], paramIdx);
-};
+export const QueryParamProperty =
+  (queryParamKey: string) => (target: any, methodName: string | symbol, paramIdx: number) => {
+    set(target, ['__decorators', methodName, '@QueryParam-SingleValue', queryParamKey], paramIdx);
+  };
 
 /**
  * Method Parameter Decorator used to construct the request body. The value of this method
@@ -290,21 +287,19 @@ export const RequestBody = (target: any, methodName: string | symbol, paramIdx: 
  * higher precedence than `@RequestBody` hash
  * @param requestParamKey
  */
-export const RequestProperty = (requestParamKey: string) => (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number,
-) => {
-  set(target, ['__decorators', methodName, '@RequestBody-SingleValue', requestParamKey], paramIdx);
-};
+export const RequestProperty =
+  (requestParamKey: string) => (target: any, methodName: string | symbol, paramIdx: number) => {
+    set(
+      target,
+      ['__decorators', methodName, '@RequestBody-SingleValue', requestParamKey],
+      paramIdx,
+    );
+  };
 
-export const FormDataBody = (paramKey: string) => (
-  target: any,
-  methodName: string | symbol,
-  paramIdx: number,
-) => {
-  set(target, ['__decorators', methodName, '@FormDataBody', paramKey], paramIdx);
-};
+export const FormDataBody =
+  (paramKey: string) => (target: any, methodName: string | symbol, paramIdx: number) => {
+    set(target, ['__decorators', methodName, '@FormDataBody', paramKey], paramIdx);
+  };
 
 export const FileUploadBody = (target: any, methodName: string | symbol, paramIdx: number) => {
   set(target, ['__decorators', methodName, '@FileUploadBody'], paramIdx);
@@ -314,12 +309,11 @@ export const FileUploadBody = (target: any, methodName: string | symbol, paramId
  * Class Member Decorator to specify the credentials for `@RestApi AuthType`
  * @param {string} credentialType : type of credentials ('AccessToken' | 'Username' | 'Password')
  */
-export const CredentialProperty = (credentialType: 'AccessToken' | 'Username' | 'Password') => (
-  target: any,
-  propertyName: string | symbol,
-) => {
-  set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
-};
+export const CredentialProperty =
+  (credentialType: 'AccessToken' | 'Username' | 'Password') =>
+  (target: any, propertyName: string | symbol) => {
+    set(target, ['__decorators', '@CredentialProperty', credentialType], propertyName);
+  };
 
 /**
  * Class Decorator used to indicate a class as a Rest Client
@@ -338,7 +332,7 @@ export const RestClient = (restOptions: RestClientOptions) => (target: any) => {
 
   const original = target;
 
-  const f: any = function(...inputs: any[]) {
+  const f: any = function (...inputs: any[]) {
     return new original(...inputs);
   };
   f.prototype = original.prototype;
@@ -514,7 +508,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
                       instance,
                     );
                   },
-                  function(error) {
+                  function (error) {
                     // if fetch fails...
                     finalResp.ok = false;
                     // finalResp.status = resp.status;
@@ -559,7 +553,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
       return finalResp;
     };
 
-    descriptor.value = function(...inputs: any[]) {
+    descriptor.value = function (...inputs: any[]) {
       const instance = this;
       return _doApiCall(instance, ...inputs);
     };
