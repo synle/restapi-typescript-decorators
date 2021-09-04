@@ -1,4 +1,3 @@
-import set from 'lodash.set';
 import qs from 'qs';
 import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
@@ -18,17 +17,32 @@ const DEFAULT_TIMEOUT = 60000;
 export { IApiResponse } from './types';
 export type ApiResponse<T> = IApiResponse<T> | void;
 
-function get(obj: any, paths: string[]){
+function get(obj: any, paths: Array<string | symbol>) {
   let value = obj;
-  for(const path of paths){
-    try{
+  for (const path of paths) {
+    try {
       value = value[path];
-    } catch(err){
+    } catch (err) {
       // if it can't be resolved, then return undefined
       return undefined;
     }
   }
   return value;
+}
+
+function set(obj: any, paths: Array<string | symbol>, newValue: unknown) {
+  let value = obj;
+
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+
+    if (i === paths.length - 1) {
+      value[path] = newValue;
+    } else {
+      value[path] = value[path] || {};
+      value = value[path];
+    }
+  }
 }
 
 // figure out which api to use
@@ -55,7 +69,7 @@ const _isOfTypeUrlEncodedForm = (typeAsString: string | null) =>
 const _getHeadersAsJson = (headers: Headers) => {
   const responseHeaders = {};
   [...headers.keys()].forEach((headerKey) => {
-    set(responseHeaders, headerKey, headers.get(headerKey));
+    set(responseHeaders, [headerKey], headers.get(headerKey));
   });
 
   return responseHeaders;
@@ -139,10 +153,8 @@ const _getPathParams = (instance: any, methodName: string, inputs: any[]) => {
   const pathParamValues: Record<string, any> = {};
 
   // get the path params from the method inputs
-  const paramKeysFromMethod = get(
-    instance,
-    ['__decorators', methodName, '@PathParam-ParamIdx'],
-  ) || {};
+  const paramKeysFromMethod =
+    get(instance, ['__decorators', methodName, '@PathParam-ParamIdx']) || {};
   Object.keys(paramKeysFromMethod).forEach((paramKey) => {
     const paramValue = inputs[paramKeysFromMethod[paramKey]];
     pathParamValues[paramKey] = paramValue;
