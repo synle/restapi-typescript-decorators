@@ -17,7 +17,7 @@ const DEFAULT_TIMEOUT = 60000;
 export { IApiResponse } from './types';
 export type ApiResponse<T> = IApiResponse<T> | void;
 
-function get(obj: any, paths: string[]) {
+function get(obj: any, paths: Array<string | symbol>) {
   let value = obj;
   for (const path of paths) {
     try {
@@ -30,7 +30,7 @@ function get(obj: any, paths: string[]) {
   return value;
 }
 
-function set(obj: any, paths: Array<string | symbol>, newValue: any) {
+function set(obj: any, paths: Array<string | symbol>, newValue: unknown) {
   let value = obj;
 
   for (let i = 0; i < paths.length; i++) {
