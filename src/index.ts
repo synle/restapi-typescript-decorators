@@ -1,8 +1,10 @@
 import qs from 'qs';
-import FetchForNode from 'node-fetch';
 import FormDataForNode from 'form-data';
 import AbortControllerForNode from 'abort-controller';
 import parser from 'fast-xml-parser';
+
+import { makeRestApi, RestApiResponse } from 'rest-utils';
+
 
 import {
   AuthTypeEnum,
@@ -46,7 +48,6 @@ function set(obj: any, paths: Array<string | symbol>, newValue: unknown) {
 }
 
 // figure out which api to use
-const fetch = globalThis['fetch'] || FetchForNode;
 const FormData = globalThis['FormData'] || FormDataForNode;
 const AbortController = globalThis['AbortController'] || AbortControllerForNode;
 
@@ -127,11 +128,6 @@ const _defaultResponseTransform = (
     }
     return respText;
   });
-};
-
-const _fetchData = (fetchOptions: Request): Promise<Response> => {
-  const { url, ...restFetchOptions } = fetchOptions;
-  return fetch(url, restFetchOptions);
 };
 
 const _getRequestBody = (instance: any, methodName: string, inputs: any[]) => {
@@ -510,11 +506,19 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
               finalResp.requestHeaders = fetchOptionToUse.headers;
               finalResp.url = fetchOptionToUse.url;
 
-              return _fetchData(fetchOptionToUse)
+
+              const promiseFetchData = makeRestApi(fetchOptionToUse.url, {
+                headers: fetchOptionToUse.headers,
+                data: fetchOptionToUse.body,
+              });
+
+              finalResp.abort = () => promiseFetchData.abort('Abort');
+
+              return promiseFetchData.promise
                 .then(
-                  (resp: Response) => {
+                  (resp) => {
                     // if fetch succeeds
-                    finalResp.ok = resp.ok;
+                    finalResp.ok = true;
                     finalResp.status = resp.status;
                     finalResp.statusText = resp.statusText;
 
