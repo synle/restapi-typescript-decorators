@@ -10,7 +10,10 @@ import {
   RestClientOptions,
   RestApiOptions,
   IApiResponse,
+  ApiResponseResult,
 } from './types';
+
+import { AxiosError   } from 'axios';
 
 const DEFAULT_TIMEOUT = 60000;
 
@@ -489,12 +492,33 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
         retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
       }
 
-      const finalResp: IApiResponse<unknown> = _fetchData(
+      const restApiResponse: RestApiResponse<unknown> = _fetchData(
         url,
         {
           headers: restApiOptions.headers
         }
       );
+
+      const finalResp: IApiResponse<unknown> = {
+        ...restApiResponse,
+        result: new Promise<ApiResponseResult>(async (resolve, reject) => {
+          try{
+            const resp = await restApiResponse.promise;
+
+            return {
+              ok: true,
+              status: resp.status,
+              statusText: '',
+            }
+          } catch (err){
+            return {
+              ok: false,
+              status: 400,
+              statusText: err,
+            }
+          }
+        })
+      }
 
       const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
 

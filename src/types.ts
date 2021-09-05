@@ -39,7 +39,13 @@ type X2jOptions = {
 };
 
 // types
+export interface ApiResponseResult {
+  ok: boolean;
+  status: number;
+  statusText: string;
+}
 export interface IApiResponse<T> extends RestApiResponse<T> {
+  result: Promise<ApiResponseResult>;
 }
 
 export interface RetryConfigs {
