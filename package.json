@@ -28,16 +28,16 @@
   },
   "homepage": "https://github.com/synle/restapi-typescript-decorators#readme",
   "dependencies": {
-    "@types/node-fetch": "^2.5.12",
     "abort-controller": "^3.0.0",
     "fast-xml-parser": "^3.17.4",
-    "form-data": "^4.0.0",
-    "node-fetch": "^2.6.1",
+    "form-data": "^4",
+    "node-fetch": "^3",
     "qs": "^6.9.4"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/node": "^16.7.10",
+    "@types/node-fetch": "^3",
     "@types/qs": "^6.9.3",
     "jest": "^26.6.3",
     "ts-jest": "^26.5.0",
