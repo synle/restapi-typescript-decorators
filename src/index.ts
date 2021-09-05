@@ -12,8 +12,6 @@ import {
   IApiResponse,
 } from './types';
 
-import { AxiosError   } from 'axios';
-
 const DEFAULT_TIMEOUT = 60000;
 
 export { IApiResponse } from './types';

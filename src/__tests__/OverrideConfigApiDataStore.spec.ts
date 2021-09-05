@@ -9,9 +9,9 @@ describe('OverrideConfigApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+      return apiResponse.promise.then((resp) => {
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(true);
+        expect(resp.status).toEqual(200);
         expect(resp).toBeDefined();
 
         if (resp) {
@@ -35,9 +35,9 @@ describe('OverrideConfigApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toEqual(200);
+      return apiResponse.promise.then((resp) => {
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(true);
+        expect(resp.status).toEqual(200);
         expect(resp).toBeDefined();
 
         if (resp) {

@@ -344,7 +344,7 @@ You can use the response in a few ways.
 ```
 const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
 if(apiResponse){
-  apiResponse.result.then(
+  apiResponse.promise.then(
     resp => {
       // do something with your response
     }
@@ -359,7 +359,7 @@ async function doWorkFunc(){
   const apiResponse = myApiInstance.doGetWithQueryParams({a: 1, b: 2});
   if(apiResponse){
     try{
-      const resp = await apiResponse.result;
+      const resp = await apiResponse.promise;
       // do something with your response
     } catch(e){
       // api error, do some handler
@@ -476,11 +476,11 @@ const myApiInstance = new PrivateApiDataStore('<<some_strong_and_random_access_t
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
 if(apiResponse){
-  apiResponse.result.then((resp) => {
+  apiResponse.promise.then((resp) => {
     // ... do something with your response and status code ...
-    console.log('ok', apiResponse.ok);
-    console.log("url", apiResponse.url);
-    console.log('status', apiResponse.status);
+    console.log('ok', resp && resp.status === 200 && resp.statusText === 'OK');
+    console.log("url", resp.config.url);
+    console.log('status', resp.status);
     console.log('resp', resp);
   });
 }
@@ -496,7 +496,7 @@ Sometimes you want to abort a pending Rest call. You can use `apiResponse.abort(
 const apiResponse = myApiInstance.doApiCallWithBearerToken();
 
 if (apiResponse) {
-  apiResponse.result.then((resp) => {
+  apiResponse.promise.then((resp) => {
     // ... api will be aborted, and this section will not be executed ...
   });
 

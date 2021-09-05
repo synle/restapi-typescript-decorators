@@ -11,10 +11,10 @@ describe('PrivateBasicAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
+      return apiResponse.promise.then((resp) => {
+        expect(resp.config.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(true);
+        expect(resp.status).toBe(200);
         expect(resp.authenticated).toBe(true);
         expect(resp.user).toEqual('good_username');
       });
@@ -27,11 +27,11 @@ describe('PrivateBasicAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.catch((resp) => {
-        expect(apiResponse.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
-        expect(apiResponse.ok).toBe(false);
-        expect(apiResponse.status).toBe(401);
-        expect(apiResponse.statusText).toBe('UNAUTHORIZED');
+      return apiResponse.promise.catch((resp) => {
+        expect(resp.config.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(false);
+        expect(resp.status).toBe(401);
+        expect(resp.statusText).toBe('UNAUTHORIZED');
         expect(resp).toBe('');
       });
     }
@@ -43,11 +43,11 @@ describe('PrivateBasicAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.catch((resp) => {
-        expect(apiResponse.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
-        expect(apiResponse.ok).toBe(false);
-        expect(apiResponse.status).toBe(401);
-        expect(apiResponse.statusText).toBe('UNAUTHORIZED');
+      return apiResponse.promise.catch((resp) => {
+        expect(resp.config.url).toBe('https://httpbin.org/basic-auth/good_username/good_password');
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(false);
+        expect(resp.status).toBe(401);
+        expect(resp.statusText).toBe('UNAUTHORIZED');
         expect(resp).toBe('');
       });
     }

@@ -12,10 +12,10 @@ describe('PrivateBearerAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
-        expect(apiResponse.url).toBe('https://httpbin.org/bearer');
-        expect(apiResponse.ok).toBe(true);
-        expect(apiResponse.status).toBe(200);
+      return apiResponse.promise.then((resp) => {
+        expect(resp.config.url).toBe('https://httpbin.org/bearer');
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(true);
+        expect(resp.status).toBe(200);
         expect(resp.authenticated).toBe(true);
         expect(resp.token).toEqual(testAccessToken);
       });
@@ -28,11 +28,11 @@ describe('PrivateBearerAuthApiDataStore', () => {
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.catch((resp) => {
-        expect(apiResponse.url).toBe('https://httpbin.org/bearer');
-        expect(apiResponse.ok).toBe(false);
-        expect(apiResponse.status).toBe(401);
-        expect(apiResponse.statusText).toBe('UNAUTHORIZED');
+      return apiResponse.promise.catch((resp) => {
+        expect(resp.config.url).toBe('https://httpbin.org/bearer');
+        expect(resp && resp.status === 200 && resp.statusText === 'OK').toBe(false);
+        expect(resp.status).toBe(401);
+        expect(resp.statusText).toBe('UNAUTHORIZED');
         expect(resp).toBe('');
       });
     }
