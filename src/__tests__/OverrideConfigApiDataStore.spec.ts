@@ -3,13 +3,13 @@ import { OverrideConfigApiDataStore } from './OverrideConfigApiDataStore';
 const myApiInstance = new OverrideConfigApiDataStore();
 
 describe('OverrideConfigApiDataStore', () => {
-  it('Override Config from @RestApi API should work', () => {
+  it('Override Config from @RestApi API should work', (done) => {
     const apiResponse = myApiInstance.doPostWithCustomRestApiConfig();
 
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
+      apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toEqual(200);
         expect(resp).toBeDefined();
@@ -25,17 +25,18 @@ describe('OverrideConfigApiDataStore', () => {
             expect(headers['Accept-Encoding']).toEqual('UTF8');
           }
         }
+        done();
       });
     }
   });
 
-  it('Override Config from @RestClient API should work', () => {
+  it('Override Config from @RestClient API should work', (done) => {
     const apiResponse = myApiInstance.doPostWithCustomRestClientConfig();
 
     expect(apiResponse).toBeDefined();
 
     if (apiResponse) {
-      return apiResponse.result.then((resp) => {
+      apiResponse.result.then((resp) => {
         expect(apiResponse.ok).toBe(true);
         expect(apiResponse.status).toEqual(200);
         expect(resp).toBeDefined();
@@ -50,6 +51,7 @@ describe('OverrideConfigApiDataStore', () => {
             expect(headers['Accept-Encoding']).toEqual('ASCII');
           }
         }
+        done();
       });
     }
   });
