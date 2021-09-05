@@ -3,8 +3,14 @@ import FormDataForNode from 'form-data';
 import AbortControllerForNode from 'abort-controller';
 import parser from 'fast-xml-parser';
 
-import { makeRestApi, RestApiResponse } from 'rest-utils';
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosInstance,
+  AxiosError,
+} from "axios";
 
+import { makeRestApi, RestApiResponse } from 'rest-utils';
 
 import {
   AuthTypeEnum,
@@ -67,14 +73,6 @@ const _isOfTypeXml = (typeAsString: string | null) =>
 const _isOfTypeUrlEncodedForm = (typeAsString: string | null) =>
   (typeAsString || '').toLowerCase().includes('application/x-www-form-urlencoded');
 
-const _getHeadersAsJson = (headers: Headers) => {
-  const responseHeaders = {};
-  [...headers.keys()].forEach((headerKey) => {
-    set(responseHeaders, [headerKey], headers.get(headerKey));
-  });
-
-  return responseHeaders;
-};
 
 const _defaultRequestTransform = (
   fetchOptionToUse: any,
@@ -110,24 +108,23 @@ const _defaultRequestTransform = (
 
 const _defaultResponseTransform = (
   fetchOptionToUse: any,
-  resp: Response,
+  resp: AxiosResponse<any>,
   instance: any,
 ): Promise<any> => {
-  return resp.text().then((respText) => {
-    const responseFormat = fetchOptionToUse.headers['Accept'];
-    if (_isOfTypeJson(responseFormat)) {
-      // client wants json response
-      try {
-        return JSON.parse(respText);
-      } catch (e) {
-        return respText;
-      }
-    } else if (_isOfTypeXml(responseFormat)) {
-      // client wants xml response
-      return parser.parse(respText, instance.xmlParseOptions);
+  const respText = resp.data;
+  const responseFormat = fetchOptionToUse.headers['Accept'];
+  if (_isOfTypeJson(responseFormat)) {
+    // client wants json response
+    try {
+      return JSON.parse(respText as string);
+    } catch (e) {
+      return respText;
     }
-    return respText;
-  });
+  } else if (_isOfTypeXml(responseFormat)) {
+    // client wants xml response
+    return parser.parse(respText as string, instance.xmlParseOptions);
+  }
+  return respText;
 };
 
 const _getRequestBody = (instance: any, methodName: string, inputs: any[]) => {
@@ -523,7 +520,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
                     finalResp.statusText = resp.statusText;
 
                     // transform the response header
-                    finalResp.responseHeaders = _getHeadersAsJson(resp.headers);
+                    finalResp.responseHeaders = resp.headers;
 
                     // if API succeeds, then cancel the timer
                     clearTimeout(timeoutAbortApi);
