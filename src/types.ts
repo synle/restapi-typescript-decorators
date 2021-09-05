@@ -1,3 +1,6 @@
+import { RestApiResponse } from 'rest-utils';
+
+
 // enums
 export enum AuthTypeEnum {
   Basic = 'Basic',
