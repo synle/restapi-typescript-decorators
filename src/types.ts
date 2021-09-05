@@ -39,47 +39,7 @@ type X2jOptions = {
 };
 
 // types
-export interface IApiResponse<T> {
-  /**
-   * full url for the API
-   */
-  url: string;
-  /**
-   * request headers
-   */
-  requestHeaders: object | null;
-  /**
-   * request body
-   */
-  requestBody: any;
-  /**
-   * response status headers
-   */
-  responseHeaders: Record<string, any>;
-  /**
-   * response status code
-   */
-  status: number;
-  /**
-   * response status text
-   */
-  statusText: string;
-  /**
-   * whether or not the API succeeds
-   */
-  ok: boolean;
-  /**
-   * this is a promise for response data
-   */
-  result: Promise<T>;
-  /**
-   * total number of retry has done to fulfill this request
-   */
-  retryCount: number;
-  /**
-   * method which you can use to abort the API...
-   */
-  abort(): void;
+export interface IApiResponse<T> extends RestApiResponse<T> {
 }
 
 export interface RetryConfigs {
