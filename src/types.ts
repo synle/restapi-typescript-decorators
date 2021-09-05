@@ -1,3 +1,10 @@
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosInstance,
+  AxiosError,
+} from "axios";
+
 // enums
 export enum AuthTypeEnum {
   Basic = 'Basic',
@@ -109,7 +116,7 @@ interface BaseRestOptions extends RequestInit {
    * @param resp
    * @param instance
    */
-  responseTransform?(fetchOptions: Request, resp: Response, instance: any): Promise<any>;
+  responseTransform?(fetchOptions: Request, resp: AxiosResponse<any>, instance: any): Promise<any>;
 }
 
 export interface RestClientOptions extends BaseRestOptions {

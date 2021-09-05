@@ -447,16 +447,14 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
         headersToUse['Authorization'] = `${authType} ${credential}`;
       }
 
-      const controller = new AbortController();
-      const baseOptions = Object.assign(
-        {
+      const baseOptions = {
+        ...{
           url: urlToUse,
           method: method.toUpperCase(),
-          signal: controller.signal,
           headers: headersToUse,
         },
-        otherFetchOptions,
-      );
+        ...otherFetchOptions,
+      }
 
       // figure out the request transformation to use
       let promisePreProcessRequest: any;
@@ -484,13 +482,17 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
         retryDelay = retryConfigs.delay || 3000; // retry after 3 seconds
       }
 
+      let abortRequest = () => {};
+      let aborted = false;
+
       const finalResp = <IApiResponse<any>>{
         url: baseOptions.url,
         responseHeaders: {},
         abort: () => {
           // when the API is aborted manually by the user
-          controller.abort();
+          abortRequest();
           hasRetriedCount = retryTotal; // do this to stop further API retries attempt
+          aborted = true;
         }, // used to abort the api
       };
       const timeoutAbortApi = setTimeout(finalResp.abort, timeout || instance.timeout);
@@ -499,17 +501,21 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
         const _doFetchApi = () =>
           Promise.all([Promise.resolve(<Promise<any>>promisePreProcessRequest)]).then(
             ([fetchOptionToUse]) => {
+              if(aborted){
+                return;
+              }
+
               finalResp.requestBody = fetchOptionToUse.body;
               finalResp.requestHeaders = fetchOptionToUse.headers;
               finalResp.url = fetchOptionToUse.url;
 
-
               const promiseFetchData = makeRestApi(fetchOptionToUse.url, {
                 headers: fetchOptionToUse.headers,
                 data: fetchOptionToUse.body,
+                method: fetchOptionToUse.method || 'get',
               });
 
-              finalResp.abort = () => promiseFetchData.abort('Abort');
+              abortRequest = () => promiseFetchData.abort('Abort');
 
               return promiseFetchData.promise
                 .then(
@@ -534,14 +540,15 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
                   },
                   function (error) {
                     // if fetch fails...
+                    const resp = error.response;
                     finalResp.ok = false;
-                    // finalResp.status = resp.status;
-                    // finalResp.statusText = resp.statusText;
+                    finalResp.status = resp.status;
+                    finalResp.statusText = resp.statusText;
 
                     // if API fails, then cancel the timer
                     clearTimeout(timeoutAbortApi);
 
-                    return { error };
+                    return { error: resp };
                   },
                 )
                 .then((resp) => {

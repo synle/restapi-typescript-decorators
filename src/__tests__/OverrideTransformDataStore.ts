@@ -1,3 +1,10 @@
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosInstance,
+  AxiosError,
+} from "axios";
+
 import {
   RestClient,
   RestApi,
@@ -14,14 +21,12 @@ import { HttpBinResponse, HttpBinRequest } from './types';
   baseUrl: 'https://httpbin.org',
   responseTransform: (
     fetchOptions: Request,
-    resp: Response,
+    resp: AxiosResponse<any>,
     instance: OverrideTransformDataStore,
   ): Promise<any> => {
     // note this transformation works for the post, but not on the get
     // which is why we added the bottom transformation specific to the get
-    return resp.json().then((respJson) => {
-      return Object.keys(respJson.json);
-    });
+      return Promise.resolve(Object.keys(JSON.parse(resp.data.json)));
   },
 })
 export class OverrideTransformDataStore {
@@ -33,15 +38,13 @@ export class OverrideTransformDataStore {
   @RestApi('/get', {
     responseTransform: (
       fetchOptions: Request,
-      resp: Response,
+      resp: AxiosResponse<any>,
       instance: OverrideTransformDataStore,
     ): Promise<any> => {
       // the global transformation is not specific to the get method
       // this is here to demonstrate that we can override the transform at
-      // the invidiual level.
-      return resp.json().then((respJson) => {
-        return Object.keys(respJson.args);
-      });
+      // the individual level.
+      return Promise.resolve(Object.keys(resp.data.args));
     },
   })
   doGet(@QueryParams _queryParams: HttpBinRequest): ApiResponse<HttpBinResponse> {}

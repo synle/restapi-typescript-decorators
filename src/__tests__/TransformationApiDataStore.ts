@@ -1,5 +1,12 @@
 import { RestClient, RestApi, RequestBody, ApiResponse } from 'restapi-typescript-decorators';
 
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosInstance,
+  AxiosError,
+} from "axios";
+
 import { HttpBinResponse } from './types';
 
 interface NumberPair {
@@ -50,15 +57,13 @@ export class TransformationApiDataStore {
     method: 'POST',
     responseTransform: (
       fetchOptions: Request,
-      resp: Response,
+      resp: AxiosResponse<NumberPair>,
       instance: TransformationApiDataStore,
     ): Promise<any> => {
-      return resp.json().then((respJson) => {
-        const pair = <NumberPair>JSON.parse(respJson.data);
-        const sum = pair.a + pair.b;
+      const pair = resp.data;
+      const sum = pair.a + pair.b;
 
-        return { sum };
-      });
+      return Promise.resolve({ sum });
     },
   })
   doResponseTransformApi(@RequestBody _requestBody: NumberPair): ApiResponse<CollectionSum> {}
