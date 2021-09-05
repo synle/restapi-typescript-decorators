@@ -32,7 +32,8 @@
     "fast-xml-parser": "^3.17.4",
     "form-data": "^4",
     "node-fetch": "^3",
-    "qs": "^6.9.4"
+    "qs": "^6.9.4",
+    "rest-utils": "github:synle/rest-utils"
   },
   "devDependencies": {
     "@types/jest": "^27",
