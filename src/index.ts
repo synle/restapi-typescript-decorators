@@ -87,9 +87,7 @@ const _defaultRequestTransform = (
     default:
       // POST, PUT, DELETE, etc...
       const requestFormat = fetchOptionToUse.headers['Content-Type'];
-      if (body instanceof FormData) {
-        bodyToUse = body;
-      } else if (_isOfTypeUrlEncodedForm(requestFormat)) {
+      if (_isOfTypeUrlEncodedForm(requestFormat)) {
         bodyToUse = qs.stringify(body);
       } else if (_isOfTypeJson(requestFormat)) {
         bodyToUse = JSON.stringify(body);
@@ -411,6 +409,11 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
       const formDataBody = _getFormDataBody(instance, methodName, inputs);
       const fileUploadBody = _getFileUploadBody(instance, methodName, inputs);
 
+      console.log(requestBody);
+      console.log(formDataBody);
+      console.log(fileUploadBody);
+
+
       // construct the url wild cards {param1} {param2} etc...
       let urlToUse = '';
 
@@ -440,9 +443,13 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
       const defaultConfigs = instance.defaultConfigs;
       const headersToUse = Object.assign({}, defaultConfigs.headers, headers);
 
+      console.log(headersToUse)
+
       // add auth header if needed
       const authType = instance.authType;
       const credential = _getCredential(instance);
+
+      console.log(credential)
       if (authType && credential) {
         headersToUse['Authorization'] = `${authType} ${credential}`;
       }
@@ -459,7 +466,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
       // figure out the request transformation to use
       let promisePreProcessRequest: any;
       if (fileUploadBody) {
-        promisePreProcessRequest = Object.assign(baseOptions, { body: fileUploadBody });
+        promisePreProcessRequest = Object.assign(baseOptions, { data: fileUploadBody });
       } else if (formDataBody) {
         promisePreProcessRequest = (requestTransform || instance.defaultRequestTransform)(
           baseOptions,
@@ -473,6 +480,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
           instance,
         );
       }
+      console.log(baseOptions);
 
       let retryTotal = 1,
         retryDelay = 3000;
@@ -514,6 +522,8 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
                 data: fetchOptionToUse.body,
                 method: fetchOptionToUse.method || 'get',
               });
+
+              console.log(fetchOptionToUse)
 
               abortRequest = () => promiseFetchData.abort('Abort');
 
@@ -586,6 +596,7 @@ export const RestApi = (url: string = '', restApiOptions: RestApiOptions = {}) =
 
     descriptor.value = function (...inputs: any[]) {
       const instance = this;
+      console.log(inputs);
       return _doApiCall(instance, ...inputs);
     };
 

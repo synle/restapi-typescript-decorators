@@ -8,7 +8,7 @@
     "build": "rm -rf build/* && tsc",
     "format": "npx prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scss} mock-server/**/**/*.js *.json *.js .prettierrc *.md",
     "clean": "jest --clearCache && rm -rf build/*",
-    "test": "jest --ci",
+    "test": "jest --ci --watch --verbose -t PrivateBearerAuthApiDataStore",
     "test:resetSnapshot": "jest --ci --updateSnapshot"
   },
   "repository": {

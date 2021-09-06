@@ -35,7 +35,6 @@ describe('PrivateBearerAuthApiDataStore', () => {
         expect(apiResponse.ok).toBe(false);
         expect(apiResponse.status).toBe(401);
         expect(apiResponse.statusText).toBe('UNAUTHORIZED');
-        expect(resp).toBe('');
 
         done();
       });
