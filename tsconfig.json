@@ -3,8 +3,8 @@
     "target": "es6",
     "module": "commonjs",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "moduleResolution": "node",
     "strict": true,
-    "outDir": "./build",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -13,11 +13,10 @@
     "noImplicitAny": true,
     "declaration": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "isolatedModules": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "baseUrl": ".",
+    "outDir": "./build",
     "paths": {
       "restapi-typescript-decorators": ["src/index"]
     }
