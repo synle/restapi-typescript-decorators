@@ -8,12 +8,49 @@ on:
     branches: [ master, main ]
 
 jobs:
-  build:
+  test1:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [12.x, 13.x, 14.x, 15.x, 16.x]
+        node-version: [12.x, 13.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: https://registry.npmjs.org/
+    - run: npm ci
+    - run: npm test
+
+  test2:
+    needs: [test1]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x, 16.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: https://registry.npmjs.org/
+    - run: npm ci
+    - run: npm test
+
+  build_publish:
+    needs: [test1, test2]
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x] # 14 is LTS
 
     steps:
     - uses: actions/checkout@v2
@@ -28,7 +65,6 @@ jobs:
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      with:
-        node-version: '14'
-      continue-on-error: true
+      # continue-on-error: true
+
 
