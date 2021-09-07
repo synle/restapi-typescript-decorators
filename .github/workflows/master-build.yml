@@ -5,46 +5,46 @@ name: Master Build and Package
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
 
 jobs:
-  test1:
-    runs-on: ubuntu-latest
+  # test1:
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.x, 13.x]
+  #   strategy:
+  #     matrix:
+  #       node-version: [12.x, 13.x]
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: https://registry.npmjs.org/
-    - run: npm ci
-    - run: npm test
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Use Node.js ${{ matrix.node-version }}
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: ${{ matrix.node-version }}
+  #       registry-url: https://registry.npmjs.org/
+  #   - run: npm ci
+  #   - run: npm test
 
-  test2:
-    needs: [test1]
-    runs-on: ubuntu-latest
+  # test2:
+  #   needs: [test1]
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [15.x, 16.x]
+  #   strategy:
+  #     matrix:
+  #       node-version: [15.x, 16.x]
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: https://registry.npmjs.org/
-    - run: npm ci
-    - run: npm test
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Use Node.js ${{ matrix.node-version }}
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: ${{ matrix.node-version }}
+  #       registry-url: https://registry.npmjs.org/
+  #   - run: npm ci
+  #   - run: npm test
 
-  build_publish:
-    needs: [test1, test2]
+  build_test_publish:
+    # needs: [test2]
 
     runs-on: ubuntu-latest
 
@@ -53,18 +53,38 @@ jobs:
         node-version: [14.x] # 14 is LTS
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-        registry-url: https://registry.npmjs.org/
-    - run: npm ci
-    - run: npm test
-    - run: npm run build
-    - run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      # continue-on-error: true
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        # continue-on-error: true
 
+  verify_new_package:
+    needs: [build_test_publish]
 
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x] # 14 is LTS
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: synle/restapi-typescript-decorators-back-end-example
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+      - run: rm package-lock.json
+      - run: npm install
+      - run: npm test
