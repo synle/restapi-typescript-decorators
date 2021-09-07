@@ -85,6 +85,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
-      - run: rm package-lock.json
-      - run: npm install
+      - run: npm ci
+      - run: npm install synle-rest-utils@latest
       - run: npm test
