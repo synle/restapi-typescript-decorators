@@ -59,6 +59,10 @@ You can also checkout the sample repos that has typescript and other things setu
 - [Frontend with React sample code repo](https://github.com/synle/restapi-typescript-decorators-front-end-example)
 - [Backend NodeJs sample code repo](https://github.com/synle/restapi-typescript-decorators-back-end-example)
 
+### Live Demo
+
+You can test a live demo of the frontend code at https://synle.github.io/restapi-typescript-decorators-front-end-example/dist/
+
 #### Install it
 
 install from npm
