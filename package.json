@@ -6,7 +6,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "rm -rf build/* && tsc",
-    "format": "npx prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scs,yml} mock-server/**/**/*.js **/**/**/*.yml *.json *.js .prettierrc *.md",
+    "format": "npx prettier --config ./.prettierrc --write **/*.{ts,tsx,js,jsx,scss,yml,html,json,md} .prettierrc",
     "clean": "jest --clearCache && rm -rf build/*",
     "test": "jest --ci",
     "test:resetSnapshot": "jest --ci --updateSnapshot"
@@ -31,7 +31,7 @@
     "abort-controller": "^3.0.0",
     "fast-xml-parser": "^3.17.4",
     "form-data": "^4.0.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.2.0",
     "qs": "^6.9.4"
   },
   "devDependencies": {
@@ -41,7 +41,7 @@
     "@types/qs": "^6.9.3",
     "jest": "^27",
     "ts-jest": "^27",
-    "typescript": "^4.4.2"
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {}
 }
