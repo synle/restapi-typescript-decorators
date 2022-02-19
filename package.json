@@ -6,7 +6,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "rm -rf build/* && tsc",
-    "format": "npx prettier --config ./.prettierrc --write src/**/**/**/**/*.{ts,tsx,js,jsx,scs,yml} mock-server/**/**/*.js **/**/**/*.yml *.json *.js .prettierrc *.md",
+    "format": "npx prettier --config ./.prettierrc --write **/*.{ts,tsx,js,jsx,scss,yml,html,json,md} .prettierrc",
     "clean": "jest --clearCache && rm -rf build/*",
     "test": "jest --ci",
     "test:resetSnapshot": "jest --ci --updateSnapshot"
