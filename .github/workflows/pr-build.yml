@@ -17,14 +17,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm run format
+      - run: npm install
       - run: npm test
       - run: npm run build
+      - uses: EndBug/add-and-commit@v8
+        with:
+          message: 'CI / CD - Prettier Automatic Commit'
+        continue-on-error: true
       - run: node publishBetaTags.js
       - run: cat package.json
       - run: npm publish --tag beta
@@ -49,6 +56,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm install
       - run: npm install synle-rest-utils@beta
       - run: npm test

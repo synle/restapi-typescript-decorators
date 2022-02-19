@@ -62,3 +62,4 @@ typings/
 build
 .env
 ./publishBetaTags.js
+package-lock.json

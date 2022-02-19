@@ -8,41 +8,6 @@ on:
     branches: [master, main]
 
 jobs:
-  # test1:
-  #   runs-on: ubuntu-latest
-
-  #   strategy:
-  #     matrix:
-  #       node-version: [12.x, 13.x]
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Use Node.js ${{ matrix.node-version }}
-  #     uses: actions/setup-node@v1
-  #     with:
-  #       node-version: ${{ matrix.node-version }}
-  #       registry-url: https://registry.npmjs.org/
-  #   - run: npm ci
-  #   - run: npm test
-
-  # test2:
-  #   needs: [test1]
-  #   runs-on: ubuntu-latest
-
-  #   strategy:
-  #     matrix:
-  #       node-version: [15.x, 16.x]
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Use Node.js ${{ matrix.node-version }}
-  #     uses: actions/setup-node@v1
-  #     with:
-  #       node-version: ${{ matrix.node-version }}
-  #       registry-url: https://registry.npmjs.org/
-  #   - run: npm ci
-  #   - run: npm test
-
   build_test_publish:
     # needs: [test2]
 
@@ -59,7 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm install
       - run: npm test
       - run: npm run build
       - run: npm publish
@@ -85,6 +50,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm install
       - run: npm install synle-rest-utils@latest
       - run: npm test
