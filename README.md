@@ -7,6 +7,10 @@ Inspired by [retrofit](https://github.com/square/retrofit) (created by Square), 
 
 Another inspiration is to create a unified Rest Client library that works across the stack. In this case, to support node js and frontend code in a single code base. The goal is to create a single decorator for both node js and frontend.
 
+## Links
+- [Home page](https://synle.github.io/restapi-typescript-decorators/)
+- [npm registry](https://www.npmjs.com/package/restapi-typescript-decorators)
+
 ### Features
 
 - [x] Supports for path params. `@PathParam` can be used in a class member or a method parameter. See usages for `@PathParam`. Refer to [Using `@PathParams` Section](#simple-get-rest-calls-with-path-param) for more details.
